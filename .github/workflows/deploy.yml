@@ -11,12 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: corepack enable
+        working-directory: ./tf2-text-colouriser
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
       # Pick your own package manager and build script
       - run: npm install
+        working-directory: ./tf2-text-colouriser
       - run: npx nuxt build --preset github_pages
+        working-directory: ./tf2-text-colouriser
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

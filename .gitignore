@@ -1,5 +1,5 @@
 # Nuxt dev/build outputs
-#tf2-text-colouriser/.output    # want this pushed to github pages
+tf2-text-colouriser/.output
 tf2-text-colouriser/.data
 tf2-text-colouriser/.nuxt
 tf2-text-colouriser/.nitro
