@@ -1,0 +1,27 @@
+# Nuxt dev/build outputs
+#tf2-text-colouriser/.output    # want this pushed to github pages
+tf2-text-colouriser/.data
+tf2-text-colouriser/.nuxt
+tf2-text-colouriser/.nitro
+tf2-text-colouriser/.cache
+tf2-text-colouriser/dist
+
+# Node dependencies
+tf2-text-colouriser/node_modules
+
+# Logs
+tf2-text-colouriser/logs
+*.log
+
+# Misc
+*.DS_Store
+*.fleet
+.idea
+
+# Local env files
+tf2-text-colouriser/.env
+tf2-text-colouriser/.env.*
+tf2-text-colouriser/!.env.example
+
+# Jetbrains config files
+/.idea/
