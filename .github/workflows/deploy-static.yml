@@ -11,19 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: corepack enable
-        working-directory: ./tf2-text-colouriser
+        working-directory: ./tf2-chat-colouriser
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
       # Pick your own package manager and build script
       - run: npm install
-        working-directory: ./tf2-text-colouriser
+        working-directory: ./tf2-chat-colouriser
       - run: npx nuxt build --preset github_pages
-        working-directory: ./tf2-text-colouriser
+        working-directory: ./tf2-chat-colouriser
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./tf2-text-colouriser/.output/public
+          path: ./tf2-chat-colouriser/.output/public
   # Deployment job
   deploy:
     # Add a dependency to the build job

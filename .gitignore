@@ -1,16 +1,16 @@
 # Nuxt dev/build outputs
-tf2-text-colouriser/.output
-tf2-text-colouriser/.data
-tf2-text-colouriser/.nuxt
-tf2-text-colouriser/.nitro
-tf2-text-colouriser/.cache
-tf2-text-colouriser/dist
+tf2-chat-colouriser/.output
+tf2-chat-colouriser/.data
+tf2-chat-colouriser/.nuxt
+tf2-chat-colouriser/.nitro
+tf2-chat-colouriser/.cache
+tf2-chat-colouriser/dist
 
 # Node dependencies
-tf2-text-colouriser/node_modules
+tf2-chat-colouriser/node_modules
 
 # Logs
-tf2-text-colouriser/logs
+tf2-chat-colouriser/logs
 *.log
 
 # Misc
@@ -19,9 +19,9 @@ tf2-text-colouriser/logs
 .idea
 
 # Local env files
-tf2-text-colouriser/.env
-tf2-text-colouriser/.env.*
-tf2-text-colouriser/!.env.example
+tf2-chat-colouriser/.env
+tf2-chat-colouriser/.env.*
+tf2-chat-colouriser/!.env.example
 
 # Jetbrains config files
 /.idea/
