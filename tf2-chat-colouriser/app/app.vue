@@ -78,6 +78,18 @@
 			text-decoration: double var(--link-selection-colour);;
 		}
 	}
+
+	@media only screen and (max-width: 320px) {
+		:root {
+			--verdana-font-size: 8pt;
+			--main-font-size: 14pt;
+		}
+	}
+
+	@media only screen and (min-device-width: 321px) and (max-device-width: 768px) {
+		:root {
+			--verdana-font-size: 10pt;
+			--main-font-size: 18pt;
 		}
 	}
 </style>

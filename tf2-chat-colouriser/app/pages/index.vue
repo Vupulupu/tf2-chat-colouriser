@@ -11,10 +11,10 @@
 	                                            "min-width .75s ease," +
 	                                            "outline .75s ease";
 
-	let messageInput: ShallowRef<HTMLInputElement | null> = useTemplateRef("message-input");
-	let messageWidthSpan: ShallowRef<HTMLElement | null> = useTemplateRef("message-width");
 	let messageLabel: ShallowRef<HTMLLabelElement | null> = useTemplateRef("message-label");
 	let sayText: ShallowRef<HTMLElement | null> = useTemplateRef("say-text");
+	let messageInput: ShallowRef<HTMLInputElement | null> = useTemplateRef("message-input");
+	let messageWidthSpan: ShallowRef<HTMLElement | null> = useTemplateRef("message-width");
 	let minInputWidth: Ref<String, String> = useState("min-input-width", () => "0");
 	let sayTextWidth: Ref<String, String> = useState("say-text-width", () => "0");
 	let inputWidthTransitionStyle: Ref<string, string> = useState("input-width-transition", () => INIT_WIDTH_TRANSITION_STYLE);
@@ -26,6 +26,8 @@
 			sayTextWidth.value = sayText.value.offsetWidth + "px";
 			setTimeout(() => { inputWidthTransitionStyle.value = "" }, 750);
 		}
+
+		window.matchMedia("").addEventListener("change", resizeInput);
 	});
 
 	function resizeInput() {
@@ -190,5 +192,11 @@
 		position: fixed;
 		color: transparent;
 		user-select: none;
+	}
+
+	@media only screen and (max-width: 320px) {
+		#message-input {
+			min-width: 0;
+		}
 	}
 </style>
