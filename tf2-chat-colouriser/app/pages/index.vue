@@ -47,14 +47,15 @@
 			</p>
 		</hgroup>
 		<div id="editor">
-			<label for="message-input" ref="message-label" class="message-label">
-				Chat Message
-				<br />
-				<input id="message-input" ref="message-input" class="message-input" type="text" @input="resizeInput()" />
-			</label>
-			<p ref="message-width" class="message-width">-</p>
+			<label for="message-input" ref="message-label" class="message-label">Chat Message</label>
+				<div class="chat-container">
+					<span ref="say-text" class="say-text">Say :</span>
+					<input id="message-input" ref="message-input" class="message-input" type="text" value="" @input="resizeInput()" autofocus />
+				</div>
+			<p style="font-size:calc(var(--main-font-size) * .75);color:var(--tf2-shadow-colour);text-align:end;">0/127 bytes used</p>
 		</div>
 	</section>
+	<p ref="message-width" class="message-width">-</p>
 </template>
 
 <style scoped>
@@ -74,15 +75,16 @@
 			font-family: "tf2 build", "sans-serif";
 			font-size: var(--h1-font-size);
 			line-height: var(--h1-line-height);
+			/* gradient parts: gradient top -> gradient bottom, then extra padding to align with the next line (===line-height */
 			background: repeating-linear-gradient(to bottom,
-			var(--tf2-health-gradient-top),
-			var(--tf2-health-gradient-bottom) var(--h1-font-size),
-			var(--tf2-health-gradient-bottom) var(--h1-line-height));
+			                                      var(--tf2-health-gradient-top),
+			                                      var(--tf2-health-gradient-bottom) var(--h1-font-size),
+			                                      var(--tf2-health-gradient-bottom) var(--h1-line-height));
 			background-clip: text;
 			color: transparent;
-			filter: drop-shadow(2px 2px 5px hsl(var(--hsl-sepia-shadow) / .75))
-			drop-shadow(4px 4px 10px hsl(0 0 0 / .3))
-			drop-shadow(6px 6px 15px hsl(0 0 0 / .1));
+			filter: drop-shadow(2px 2px 5px hsl(var(--hsl-sepia-shadow) / 75%))
+			        drop-shadow(4px 4px 10px hsl(0 0 0 / 30%))
+			        drop-shadow(6px 6px 15px hsl(0 0 0 / 10%));
 		}
 
 		&>p {
@@ -91,7 +93,7 @@
 			padding: 3px 6px;
 			font-family: 'verdana', 'sans-serif';
 			font-size: calc(var(--verdana-font-size) * .75);
-			background: linear-gradient(-2deg, hsl(0 0 0 / .3), hsl(0 0 0 / .5));
+			background: linear-gradient(-2deg, hsl(0 0 0 / 30%), hsl(var(--hsl-sepia-shadow) / 50%));
 			border: 1px solid black;
 			border-radius: 10px;
 		}
@@ -107,6 +109,8 @@
 	.message-label {
 		display: inline-grid;
 		text-align: left;
+		font-family: "tf2 secondary", "serif";
+		color: hsl(0 0 15%);
 	}
 
 	.chat-container, .message-input, .message-width {
