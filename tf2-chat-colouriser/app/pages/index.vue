@@ -19,11 +19,15 @@
 </script>
 
 <template>
-		<h1>TF2 Chat Colouriser</h1>
-		<div>
-			<input ref="test-input" class="input" type="text" @input="resizeInput()" />
-			<p ref="test-span" class="input-width-ref">-</p>
 	<section class="container" @resize="resizeInput">
+		<hgroup class="h1group">
+			<h1>TF2 Chat Colouriser</h1>
+			<p>
+				Chat colouring tool inspired by
+				<a href="https://sourcecolors.neocities.org/" target="_blank">Source&nbsp;Text&nbsp;Chat&nbsp;Colorizer</a> and
+				<a href="https://skywur.github.io/tf2-gradient-generator/" target="_blank">Gradient&nbsp;Chat&nbsp;Generator</a>
+			</p>
+		</hgroup>
 		<div id="editor">
 			<label for="message-input" ref="message-label" class="message-label">
 				Chat Message
@@ -38,6 +42,37 @@
 <style scoped>
 	.container {
 		text-align: center;
+	}
+
+	.h1group {
+		&>h1 {
+			--h1-font-size: 2rem;
+			--h1-line-height: 1.25em;
+			position: relative;
+			font-family: "tf2 build", "sans-serif";
+			font-size: var(--h1-font-size);
+			line-height: var(--h1-line-height);
+			background: repeating-linear-gradient(to bottom,
+			var(--tf2-health-gradient-top),
+			var(--tf2-health-gradient-bottom) var(--h1-font-size),
+			var(--tf2-health-gradient-bottom) var(--h1-line-height));
+			background-clip: text;
+			color: transparent;
+			filter: drop-shadow(2px 2px 5px hsl(var(--hsl-sepia-shadow) / .75))
+			drop-shadow(4px 4px 10px hsl(0 0 0 / .3))
+			drop-shadow(6px 6px 15px hsl(0 0 0 / .1));
+		}
+
+		&>p {
+			width: fit-content;
+			margin: 0 auto;
+			padding: 3px 6px;
+			font-family: 'verdana', 'sans-serif';
+			font-size: calc(var(--verdana-font-size) * .75);
+			background: linear-gradient(-2deg, hsl(0 0 0 / .3), hsl(0 0 0 / .5));
+			border: 1px solid black;
+			border-radius: 10px;
+		}
 	}
 
 	.message-label {
