@@ -50,9 +50,9 @@
 			<label for="message-input" ref="message-label" class="message-label">Chat Message</label>
 				<div class="chat-container">
 					<span ref="say-text" class="say-text">Say :</span>
-					<input id="message-input" ref="message-input" class="message-input" type="text" value="" @input="resizeInput()" autofocus />
+					<input id="message-input" ref="message-input" type="text" value="" @input="resizeInput()" autofocus />
 				</div>
-			<p style="font-size:calc(var(--main-font-size) * .75);color:var(--tf2-shadow-colour);text-align:end;">0/127 bytes used</p>
+			<p id="message-byte-length" ref="message-byte-length">0/127 bytes used</p>
 		</div>
 	</section>
 	<p ref="message-width" class="message-width">-</p>
@@ -82,9 +82,9 @@
 			                                      var(--tf2-health-gradient-bottom) var(--h1-line-height));
 			background-clip: text;
 			color: transparent;
-			filter: drop-shadow(2px 2px 5px hsl(var(--hsl-sepia-shadow) / 75%))
-			        drop-shadow(4px 4px 10px hsl(0 0 0 / 30%))
-			        drop-shadow(6px 6px 15px hsl(0 0 0 / 10%));
+			filter: drop-shadow(2px 2px 5px hsla(var(--hsl-sepia-shadow) / 75%))
+			        drop-shadow(4px 4px 10px hsla(var(--hsl-black) / 30%))
+			        drop-shadow(6px 6px 15px hsla(var(--hsl-black) / 10%));
 		}
 
 		&>p {
@@ -92,8 +92,8 @@
 			margin: 0 auto;
 			padding: 3px 6px;
 			font-family: 'verdana', 'sans-serif';
-			font-size: calc(var(--verdana-font-size) * .75);
-			background: linear-gradient(-2deg, hsl(0 0 0 / 30%), hsl(var(--hsl-sepia-shadow) / 50%));
+			font-size: calc(var(--main-font-size) / 2);
+			background: linear-gradient(-2deg, hsla(var(--hsl-black) / 40%), hsla(var(--hsl-sepia-shadow) / 50%));
 			border: 1px solid black;
 			border-radius: 10px;
 		}
@@ -101,19 +101,27 @@
 
 	#editor {
 		width: fit-content;
-		display: grid;
+		display: inline-grid;
 		align-self: center;
-		text-shadow: hsl(var(--tf2-hsl-chat-colour) / 50%) 1px 1px 4px;
+		text-shadow: hsla(var(--tf2-hsl-chat-colour) / 50%) 1px 1px 4px;
 	}
 
-	.message-label {
-		display: inline-grid;
-		text-align: left;
+	#message-byte-length, .message-label {
 		font-family: "tf2 secondary", "serif";
 		color: hsl(0 0 15%);
 	}
 
-	.chat-container, .message-input, .message-width {
+	.message-label {
+		//display: inline-grid;
+		text-align: left;
+	}
+
+	#message-byte-length {
+		font-size: calc(var(--main-font-size) * .75);
+		text-align: right;
+	}
+
+	#message-input, .chat-container,  .message-width {
 		box-sizing: border-box;
 		display: inline-block;
 		font-family: "verdana", "sans-serif";
@@ -121,43 +129,17 @@
 		font-size: var(--verdana-font-size);
 	}
 
-	.chat-container, .message-width {
-		--input-width: v-bind(minInputWidth);
-
-		box-sizing: border-box;
-		justify-self: center;
-	}
-
-	.say-text, .message-input {
+	#message-input, .say-text {
 		padding: 5px 10px calc(5px + .1em) 10px;
 		color: var(--tf2-chat-colour);
-		text-shadow: hsl(0 0 0 / 50%) 1px 1px 1px,
-		             hsl(0 0 0 / 30%) 2px 2px 3px,
-		             hsl(0 0 0 / 30%) 3px 3px 5px;
+		text-shadow: hsla(var(--hsl-black) / 50%) 2px 2px 1px;
 	}
 
-	.chat-container {
-		margin: 5px 0;
-		background: hsl(0 0 0 / 40%);
-		border: 2px solid hsl(100 100% 100% / 50%);
-		border-radius: 10px;
-		box-shadow: hsl(0 0 0 / 50%) 1px 1px 4px,
-		            hsl(0 0 0 / 30%) 3px 3px 7px,
-		            hsl(0 0 0 / 10%) 5px 5px 10px;
-	}
-
-	.say-text {
-		padding-right: 5px;
-		border-right: 2px solid hsl(100 100% 100% / 50%);
-		user-select: none;
-		z-index: -1;
-	}
-
-	.message-input, .message-width {
+	#message-input, .message-width {
 		max-width: calc(95dvw - v-bind(sayTextWidth));
 	}
 
-	.message-input {
+	#message-input {
 		min-width: var(--input-width);
 		width: var(--input-width);
 		margin: 0 auto;
@@ -170,9 +152,36 @@
 		transition: v-bind(inputWidthTransitionStyle);
 
 		&:focus-visible, &:focus-within {
-			background: hsl(0 0 0 / 10%);
+			background: hsla(var(--hsl-black) / 10%);
 			outline: 3px solid var(--tf2-chat-selection-colour);
 		}
+	}
+
+	.chat-container, .message-width {
+		--input-width: v-bind(minInputWidth);
+
+		box-sizing: border-box;
+		justify-self: center;
+	}
+
+	.chat-container, .say-text {
+		--container-border-style: 2px solid hsla(var(--hsl-white) / 50%);
+	}
+
+	.chat-container {
+		margin: 5px 0;
+		background: hsla(var(--hsl-black) / 40%);
+		border: var(--container-border-style);
+		border-radius: 10px;
+		box-shadow: hsla(var(--hsl-black) / 50%) 1px 1px 4px,
+		            hsla(var(--hsl-black) / 30%) 3px 3px 7px,
+		            hsla(var(--hsl-black) / 10%) 5px 5px 10px;
+	}
+
+	.say-text {
+		padding-right: 5px;
+		border-right: var(--container-border-style);
+		user-select: none;
 	}
 
 	.message-width {

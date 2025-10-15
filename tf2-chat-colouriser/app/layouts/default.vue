@@ -14,7 +14,7 @@
 
 <style>
 	main {
-		margin-top: 100px;
+		margin-top: 50px;
 	}
 
 	footer {
@@ -26,6 +26,6 @@
 		position: fixed;
 		bottom: 0;
 		font-family: "jetbrains mono", "sans-serif";
-		font-size: calc(var(--main-font-size) * .5);
+		font-size: calc(var(--main-font-size) / 2);
 	}
 </style>
