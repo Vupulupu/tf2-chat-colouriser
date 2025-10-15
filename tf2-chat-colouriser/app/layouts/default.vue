@@ -26,6 +26,6 @@
 		position: fixed;
 		bottom: 0;
 		font-family: "jetbrains mono", "sans-serif";
-		font-size: 12pt;
+		font-size: calc(var(--main-font-size) * .5);
 	}
 </style>
