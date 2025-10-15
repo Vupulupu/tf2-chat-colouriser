@@ -1,20 +1,38 @@
 <script setup lang="ts">
-	let messageInput: any = useTemplateRef("message-input");
-	let messageWidthSpan: any = useTemplateRef("message-width");
-	let messageLabel: any = useTemplateRef("message-label");
-	let minInputWidth: any = useState("min-input-width", () => "0");
-	let inputWidthTransition: any = useState("input-width-transition", () => "width .5s ease, min-width .75s ease");
+	import type { ShallowRef } from "vue";
+
+	const RESET_COLOUR_CTRL: string = ""; // 0x01 - reset to default colour
+	const SET_COLOUR_CTRL: string = "";   // 0x07 - initiates and marks start of opaque hex code
+	const SET_ALPHA_CTRL: string = "\b";   // 0x08 - marks start of alpha hex code
+	const OPAQUE_STARTING_BUFFER: string = SET_COLOUR_CTRL + "hihi<3" + SET_COLOUR_CTRL;
+	const ALPHA_STARTING_BUFFER: string = SET_COLOUR_CTRL + "hihi<3" + SET_ALPHA_CTRL;
+
+	const INIT_WIDTH_TRANSITION_STYLE: string = "width .75s ease," +
+	                                            "min-width .75s ease," +
+	                                            "outline .75s ease";
+
+	let messageInput: ShallowRef<HTMLInputElement | null> = useTemplateRef("message-input");
+	let messageWidthSpan: ShallowRef<HTMLElement | null> = useTemplateRef("message-width");
+	let messageLabel: ShallowRef<HTMLLabelElement | null> = useTemplateRef("message-label");
+	let sayText: ShallowRef<HTMLElement | null> = useTemplateRef("say-text");
+	let minInputWidth: Ref<String, String> = useState("min-input-width", () => "0");
+	let sayTextWidth: Ref<String, String> = useState("say-text-width", () => "0");
+	let inputWidthTransitionStyle: Ref<string, string> = useState("input-width-transition", () => INIT_WIDTH_TRANSITION_STYLE);
 	const inputWidthPadding: number = 50;
 
-
 	onMounted(() => {
-		minInputWidth.value = messageLabel.value.offsetWidth + "px";
-		setTimeout(() => { inputWidthTransition.value = "" }, 750);
+		if (messageLabel?.value && sayText?.value) {
+			minInputWidth.value = (messageLabel.value.offsetWidth -sayText.value.offsetWidth) + "px";
+			sayTextWidth.value = sayText.value.offsetWidth + "px";
+			setTimeout(() => { inputWidthTransitionStyle.value = "" }, 750);
+		}
 	});
 
 	function resizeInput() {
-		messageWidthSpan.value.innerHTML = messageInput.value.value;
-		messageInput.value.style.width = (messageWidthSpan.value.offsetWidth + inputWidthPadding) + "px";
+		if (messageWidthSpan?.value && messageInput?.value && messageInput?.value && messageWidthSpan?.value) {
+			messageWidthSpan.value.innerHTML = messageInput.value.value.replace(/\s/g, "&nbsp;");
+			messageInput.value.style.width = (messageWidthSpan.value.offsetWidth + inputWidthPadding) + "px";
+		}
 	}
 </script>
 
@@ -41,6 +59,10 @@
 
 <style scoped>
 	.container {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+		justify-content: center;
 		text-align: center;
 	}
 
@@ -75,36 +97,77 @@
 		}
 	}
 
+	#editor {
+		width: fit-content;
+		display: grid;
+		align-self: center;
+		text-shadow: hsl(var(--tf2-hsl-chat-colour) / 50%) 1px 1px 4px;
+	}
+
 	.message-label {
 		display: inline-grid;
 		text-align: left;
 	}
 
-	.message-input, .message-width {
-		--input-width: v-bind(minInputWidth);
-
-		max-width: 95dvw;
+	.chat-container, .message-input, .message-width {
 		box-sizing: border-box;
-		justify-self: center;
+		display: inline-block;
 		font-family: "verdana", "sans-serif";
 		font-weight: bold;
 		font-size: var(--verdana-font-size);
+	}
+
+	.chat-container, .message-width {
+		--input-width: v-bind(minInputWidth);
+
+		box-sizing: border-box;
+		justify-self: center;
+	}
+
+	.say-text, .message-input {
+		padding: 5px 10px calc(5px + .1em) 10px;
+		color: var(--tf2-chat-colour);
+		text-shadow: hsl(0 0 0 / 50%) 1px 1px 1px,
+		             hsl(0 0 0 / 30%) 2px 2px 3px,
+		             hsl(0 0 0 / 30%) 3px 3px 5px;
+	}
+
+	.chat-container {
+		margin: 5px 0;
+		background: hsl(0 0 0 / 40%);
+		border: 2px solid hsl(100 100% 100% / 50%);
+		border-radius: 10px;
+		box-shadow: hsl(0 0 0 / 50%) 1px 1px 4px,
+		            hsl(0 0 0 / 30%) 3px 3px 7px,
+		            hsl(0 0 0 / 10%) 5px 5px 10px;
+	}
+
+	.say-text {
+		padding-right: 5px;
+		border-right: 2px solid hsl(100 100% 100% / 50%);
+		user-select: none;
+		z-index: -1;
+	}
+
+	.message-input, .message-width {
+		max-width: calc(95dvw - v-bind(sayTextWidth));
 	}
 
 	.message-input {
 		min-width: var(--input-width);
 		width: var(--input-width);
 		margin: 0 auto;
-		padding: 10px 20px;
+		padding: 5px 10px calc(5px + .1em) 10px;
 		text-align: center;
-		color: hsl(var(--tf2-hsl-chat-colour));
-		background: hsl(0 0 0 / .5);
-		border: 1px solid hsl(0 0 0 /.75);
-		border-radius: 10px;
-		transition: v-bind(inputWidthTransition);
+		background: none;
+		border: none;
+		border-top-right-radius: 10px;
+		border-bottom-right-radius: 10px;
+		transition: v-bind(inputWidthTransitionStyle);
 
 		&:focus-visible, &:focus-within {
-			outline: 2px solid hsl(var(--tf2-hsl-chat-selection-colour));
+			background: hsl(0 0 0 / 10%);
+			outline: 3px solid var(--tf2-chat-selection-colour);
 		}
 	}
 
@@ -113,5 +176,6 @@
 		width: fit-content;
 		position: fixed;
 		color: transparent;
+		user-select: none;
 	}
 </style>
