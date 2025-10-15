@@ -24,8 +24,10 @@
 	:root {
 		--verdana-font-size: 16pt;
 		--main-font-size: 24pt;
-		font-family: "verdana", "sans-serif";
+		font-family: "tf2 professor", "sans-serif";
 		font-size: var(--main-font-size);
+		--tf2-hsl-chat-colour: 41 88.7% 89.6%;
+		--tf2-hsl-chat-selection-colour: 38 100% 50%;
 	}
 
 	body {
