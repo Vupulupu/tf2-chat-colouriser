@@ -18,7 +18,7 @@ jobs:
       # Pick your own package manager and build script
       - run: npm install
         working-directory: ./tf2-chat-colouriser
-      - run: npx nuxt build --preset github_pages
+      - run: NUXT_APP_BASE_URL="https://vupulupu.github.io/tf2-chat-colouriser/" npx nuxt build --preset github_pages
         working-directory: ./tf2-chat-colouriser
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
