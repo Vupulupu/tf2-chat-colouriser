@@ -10,10 +10,9 @@
 	let sayTextWidth: Ref<string, string> = useState("say-text-width", () => "0");
 
 	onMounted(() => {
-		const FINAL_MIN_WIDTH = (editorComponents.messageLabel().offsetWidth - editorComponents.sayText().offsetWidth) + "px";
-		animateExpandStartingInput(editorComponents, FINAL_MIN_WIDTH);
+		minInputWidth.value = (editorComponents.messageLabel().offsetWidth - editorComponents.sayText().offsetWidth) + "px";
+		animateExpandStartingInput(editorComponents, minInputWidth);
 		sayTextWidth.value = editorComponents.sayText().offsetWidth + "px";
-		minInputWidth.value = FINAL_MIN_WIDTH;
 	});
 
 	function handleResize() {
