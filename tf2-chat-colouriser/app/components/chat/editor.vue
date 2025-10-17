@@ -50,7 +50,7 @@
 
 	#message-byte-length, .message-label {
 		font-family: "tf2 secondary", "serif";
-		color: hsl(0 0 15%);
+		color: hsl(0 0% 15%);
 	}
 
 	.message-label {
