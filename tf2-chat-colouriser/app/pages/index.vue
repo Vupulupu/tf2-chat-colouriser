@@ -4,12 +4,10 @@
 	const SET_ALPHA_CTRL: string = "\b";   // 0x08 - marks start of alpha hex code
 	const OPAQUE_STARTING_BUFFER: string = SET_COLOUR_CTRL + "hihi<3" + SET_COLOUR_CTRL;
 	const ALPHA_STARTING_BUFFER: string = SET_COLOUR_CTRL + "hihi<3" + SET_ALPHA_CTRL;
-
-	//window.matchMedia("").addEventListener("change", resizeInput);
 </script>
 
 <template>
-	<section class="container" @resize="resizeInput">
+	<section class="container">
 		<hgroup class="h1group">
 			<h1>TF2 Chat Colouriser</h1>
 			<p>

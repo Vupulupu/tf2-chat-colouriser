@@ -1,34 +1,29 @@
 <script setup lang="ts">
-	import type {ShallowRef} from "vue";
+	import { EditorComponents } from "~/utils/chat/editor-components";
 
-	const INIT_WIDTH_TRANSITION_STYLE: string = "width .75s ease," +
-	                                            "min-width .75s ease," +
-	                                            "outline .75s ease";
-
-	let messageLabel: ShallowRef<HTMLLabelElement | null> = useTemplateRef("message-label");
-	let sayText: ShallowRef<HTMLElement | null> = useTemplateRef("say-text");
-	let messageInput: ShallowRef<HTMLInputElement | null> = useTemplateRef("message-input");
-	let messageWidth: ShallowRef<HTMLElement | null> = useTemplateRef("message-width");
+	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
+	                                                                useTemplateRef("say-text"),
+	                                                                useTemplateRef("message-input"),
+	                                                                useTemplateRef("message-width"));
 	let minInputWidth: Ref<String, String> = useState("min-input-width", () => "0");
 	let sayTextWidth: Ref<String, String> = useState("say-text-width", () => "0");
-	let inputWidthTransitionStyle: Ref<string, string> = useState("input-width-transition", () => INIT_WIDTH_TRANSITION_STYLE);
+	const INITIAL_INPUT_ANIMATION_DURATION: number = 750;
+	const INPUT_WIDTH_PADDING: number = 25;
 
 	onMounted(() => {
-		if (messageLabel?.value && sayText?.value && messageInput?.value && messageWidth?.value) {
-			minInputWidth.value = (messageLabel?.value?.offsetWidth - sayText?.value?.offsetWidth) + "px";
-			sayTextWidth.value = sayText?.value?.offsetWidth + "px";
-			setTimeout(() => {
-				inputWidthTransitionStyle.value = ""
-			}, 750);
-		}
+		sayTextWidth.value = editorComponents.sayText().offsetWidth + "px";
+		editorComponents.messageInput().style.transition = `width ${INITIAL_INPUT_ANIMATION_DURATION}ms ease,` +
+		                                                   `min-width ${INITIAL_INPUT_ANIMATION_DURATION}ms ease,` +
+		                                                   `outline ${INITIAL_INPUT_ANIMATION_DURATION}ms ease`;
+		minInputWidth.value = (editorComponents.messageLabel().offsetWidth - editorComponents.sayText().offsetWidth) + "px";
+		setTimeout(() => {
+			editorComponents.messageInput().style.transition = "";
+		}, INITIAL_INPUT_ANIMATION_DURATION);
 	});
 
-	function resizeInput() {
-		const INPUT_WIDTH_PADDING: number = 50;
-		if (messageWidth?.value && messageInput?.value) {
-			messageWidth.value.innerHTML = messageInput.value.value.replace(/\s/g, "&nbsp;");
-			messageInput.value.style.width = (messageWidth.value.offsetWidth + INPUT_WIDTH_PADDING) + "px";
-		}
+	function autoResizeInput() {
+		editorComponents.messageWidthSpan().innerHTML = editorComponents.messageInput().value.replace(/\s/g, "&nbsp;");
+		editorComponents.messageInput().style.width = (editorComponents.messageWidthSpan().offsetWidth + INPUT_WIDTH_PADDING) + "px";
 	}
 </script>
 
@@ -37,7 +32,7 @@
 		<label for="message-input" ref="message-label" class="message-label">Chat Message</label>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
-			<input id="message-input" ref="message-input" type="text" value="" @input="resizeInput(editorComponents)" autofocus />
+			<input id="message-input" ref="message-input" type="text" value="" @input="autoResizeInput" @resize="autoResizeInput" autofocus />
 		</div>
 		<p id="message-byte-length" ref="message-byte-length">0/127 bytes used</p>
 		<p ref="message-width" class="message-width">-</p>
@@ -95,8 +90,8 @@
 	}
 
 	#message-input {
-		min-width: var(--input-width);
-		width: var(--input-width);
+		min-width: v-bind(minInputWidth);
+		width: v-bind(minInputWidth);
 		margin: 0 auto;
 		padding: 5px 10px calc(5px + .1em) 10px;
 		text-align: center;
@@ -104,7 +99,6 @@
 		border: none;
 		border-top-right-radius: 10px;
 		border-bottom-right-radius: 10px;
-		transition: v-bind(inputWidthTransitionStyle);
 
 		&:focus-visible, &:focus-within {
 			background: hsla(var(--hsl-black) / 10%);
@@ -113,8 +107,6 @@
 	}
 
 	.chat-container, .message-width {
-		--input-width: v-bind(minInputWidth);
-
 		box-sizing: border-box;
 		justify-self: center;
 	}
