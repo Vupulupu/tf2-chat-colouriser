@@ -1,5 +1,6 @@
 <script setup lang="ts">
 	import { EditorComponents } from "~/utils/chat/editor-components";
+	import { autoResizeInput } from "~/utils/chat/input-width";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
@@ -21,9 +22,8 @@
 		}, INITIAL_INPUT_ANIMATION_DURATION);
 	});
 
-	function autoResizeInput() {
-		editorComponents.messageWidthSpan().innerHTML = editorComponents.messageInput().value.replace(/\s/g, "&nbsp;");
-		editorComponents.messageInput().style.width = (editorComponents.messageWidthSpan().offsetWidth + INPUT_WIDTH_PADDING) + "px";
+	function handleResize() {
+		autoResizeInput(editorComponents);
 	}
 </script>
 
@@ -32,7 +32,7 @@
 		<label for="message-input" ref="message-label" class="message-label">Chat Message</label>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
-			<input id="message-input" ref="message-input" type="text" value="" @input="autoResizeInput" @resize="autoResizeInput" autofocus />
+			<input id="message-input" ref="message-input" type="text" value="" @input="handleResize" @resize="handleResize" autofocus/>
 		</div>
 		<p id="message-byte-length" ref="message-byte-length">0/127 bytes used</p>
 		<p ref="message-width" class="message-width">-</p>
