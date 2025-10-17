@@ -57,11 +57,13 @@
 		height: 100dvh;
 		display: flow-root;
 		margin: 0;
-		background-image: linear-gradient(to top, hsla(var(--hsl-black) / 75%), transparent 30%),
+		background-color: var(--tf2-shadow-colour);
+		background-image: linear-gradient(to top, var(--tf2-shadow-colour), transparent 30%),
 		                  radial-gradient(transparent, hsl(14 42% 13%) 200%),
 		                  url("/mannworks-bk.png");
 		background-position: top center;
 		background-size: cover;
+		background-repeat: no-repeat;
 	}
 
 	p, h1, h2, h3, h4, h5, h6 {
