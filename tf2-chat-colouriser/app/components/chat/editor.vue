@@ -1,29 +1,23 @@
 <script setup lang="ts">
 	import { EditorComponents } from "~/utils/chat/editor-components";
+	import { animateExpandStartingInput, autoResizeInput } from "~/utils/chat/input-width";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
 	                                                                useTemplateRef("message-input"),
 	                                                                useTemplateRef("message-width"));
-	let minInputWidth: Ref<String, String> = useState("min-input-width", () => "0");
-	let sayTextWidth: Ref<String, String> = useState("say-text-width", () => "0");
-	const INITIAL_INPUT_ANIMATION_DURATION: number = 750;
-	const INPUT_WIDTH_PADDING: number = 25;
+	let minInputWidth: Ref<string, string> = useState("min-input-width", () => "0");
+	let sayTextWidth: Ref<string, string> = useState("say-text-width", () => "0");
 
 	onMounted(() => {
+		const FINAL_MIN_WIDTH = (editorComponents.messageLabel().offsetWidth - editorComponents.sayText().offsetWidth) + "px";
+		animateExpandStartingInput(editorComponents, FINAL_MIN_WIDTH);
 		sayTextWidth.value = editorComponents.sayText().offsetWidth + "px";
-		editorComponents.messageInput().style.transition = `width ${INITIAL_INPUT_ANIMATION_DURATION}ms ease,` +
-		                                                   `min-width ${INITIAL_INPUT_ANIMATION_DURATION}ms ease,` +
-		                                                   `outline ${INITIAL_INPUT_ANIMATION_DURATION}ms ease`;
-		minInputWidth.value = (editorComponents.messageLabel().offsetWidth - editorComponents.sayText().offsetWidth) + "px";
-		setTimeout(() => {
-			editorComponents.messageInput().style.transition = "";
-		}, INITIAL_INPUT_ANIMATION_DURATION);
+		minInputWidth.value = FINAL_MIN_WIDTH;
 	});
 
-	function autoResizeInput() {
-		editorComponents.messageWidthSpan().innerHTML = editorComponents.messageInput().value.replace(/\s/g, "&nbsp;");
-		editorComponents.messageInput().style.width = (editorComponents.messageWidthSpan().offsetWidth + INPUT_WIDTH_PADDING) + "px";
+	function handleResize() {
+		autoResizeInput(editorComponents);
 	}
 </script>
 
@@ -32,7 +26,7 @@
 		<label for="message-input" ref="message-label" class="message-label">Chat Message</label>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
-			<input id="message-input" ref="message-input" type="text" value="" @input="autoResizeInput" @resize="autoResizeInput" autofocus />
+			<input id="message-input" ref="message-input" type="text" value="" @input="handleResize" @resize="handleResize" autofocus/>
 		</div>
 		<p id="message-byte-length" ref="message-byte-length">0/127 bytes used</p>
 		<p ref="message-width" class="message-width">-</p>
