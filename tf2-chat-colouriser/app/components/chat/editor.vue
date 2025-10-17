@@ -121,8 +121,8 @@
 		border: var(--container-border-style);
 		border-radius: 10px;
 		box-shadow: hsla(var(--hsl-black) / 50%) 1px 1px 4px,
-		hsla(var(--hsl-black) / 30%) 3px 3px 7px,
-		hsla(var(--hsl-black) / 10%) 5px 5px 10px;
+		            hsla(var(--hsl-black) / 30%) 3px 3px 7px,
+		            hsla(var(--hsl-black) / 10%) 5px 5px 10px;
 	}
 
 	.say-text {
