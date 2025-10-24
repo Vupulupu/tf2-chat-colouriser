@@ -35,25 +35,18 @@
 
 <style scoped>
 	#editor {
-		--text-shadow-colour: hsla(var(--tf2-hsl-chat-colour) / 75%);
-
-		width: fit-content;
 		display: inline-grid;
 		align-self: center;
-	}
-
-	#message-byte-length, .message-label {
 		font-family: "tf2 secondary", "serif";
-		color: hsl(0 0% 15%);
 	}
 
 	.message-label {
 		color: var(--tf2-shadow-colour);
 		text-align: left;
+		letter-spacing: 1px;
 	}
 
 	#message-byte-length {
-		color: var(--tf2-chat-colour);
 		font-size: calc(var(--main-font-size) * .75);
 		text-align: right;
 		font-weight: bold;
@@ -61,7 +54,6 @@
 
 	#message-input, .chat-container,  .message-width {
 		box-sizing: border-box;
-		display: inline-block;
 		font-family: "verdana", "sans-serif";
 		font-weight: bold;
 		font-size: var(--verdana-font-size);
@@ -69,7 +61,6 @@
 
 	#message-input, .say-text {
 		padding: 5px 10px calc(5px + .1em) 10px;
-		color: var(--tf2-chat-colour);
 		text-shadow: hsla(var(--hsl-black) / 50%) 2px 2px 1px;
 	}
 
@@ -80,8 +71,8 @@
 	#message-input {
 		min-width: v-bind(minInputWidth);
 		width: v-bind(minInputWidth);
-		margin: 0 auto;
 		padding: 5px 10px calc(5px + .1em) 10px;
+		color: var(--tf2-chat-colour);
 		text-align: center;
 		background: none;
 		border: none;
@@ -94,17 +85,15 @@
 		}
 	}
 
-	.chat-container, .message-width {
-		box-sizing: border-box;
-		justify-self: center;
-	}
-
 	.chat-container, .say-text {
 		--container-border-style: 2px solid hsla(var(--hsl-white) / 50%);
 	}
 
 	.chat-container {
 		margin: 5px 0;
+		justify-self: center;
+		box-sizing: border-box;
+		font-weight: bold;
 		background: hsla(var(--hsl-black) / 40%);
 		border: var(--container-border-style);
 		border-radius: 10px;
@@ -121,7 +110,6 @@
 
 	.message-width {
 		min-width: var(--input-width)px;
-		width: fit-content;
 		position: fixed;
 		color: transparent;
 		text-shadow: none;
