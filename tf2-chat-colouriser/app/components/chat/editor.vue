@@ -1,6 +1,7 @@
 <script setup lang="ts">
 	import { EditorComponents } from "~/utils/chat/editor-components";
 	import { animateExpandStartingInput, autoResizeInput } from "~/utils/chat/input-width";
+	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
@@ -22,12 +23,12 @@
 
 <template>
 	<div id="editor">
-		<label for="message-input" ref="message-label" class="message-label">Chat Message</label>
+		<label for="message-input" ref="message-label" class="message-label" :style="tfStyleTextShadow('var(--tf2-chat-colour)', -1, -1, 2)">Chat Message</label>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<input id="message-input" ref="message-input" type="text" value="" @input="handleResize" @resize="handleResize" autofocus/>
 		</div>
-		<p id="message-byte-length" ref="message-byte-length">0/127 bytes used</p>
+		<p id="message-byte-length" ref="message-byte-length" :style="tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0)">0/127 bytes used</p>
 		<p ref="message-width" class="message-width">-</p>
 	</div>
 </template>
@@ -49,7 +50,6 @@
 	.message-label {
 		color: var(--tf2-shadow-colour);
 		text-align: left;
-		text-shadow: var(--text-shadow-colour) 0 1px 1px, var(--text-shadow-colour) 1px 2px 1px, var(--text-shadow-colour) 2px 3px 1px;
 	}
 
 	#message-byte-length {
@@ -57,11 +57,6 @@
 		font-size: calc(var(--main-font-size) * .75);
 		text-align: right;
 		font-weight: bold;
-		text-shadow: var(--tf2-shadow-colour) -1px 0 1px,
-		             var(--tf2-shadow-colour) 0 1px 1px,
-		             var(--tf2-shadow-colour) 1px 2px 1px,
-		             var(--tf2-shadow-colour) 2px 3px 1px,
-		             var(--tf2-shadow-colour) 3px 4px 1px;
 	}
 
 	#message-input, .chat-container,  .message-width {
