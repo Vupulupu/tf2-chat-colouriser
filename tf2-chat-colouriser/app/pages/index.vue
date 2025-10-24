@@ -43,18 +43,18 @@
 		line-height: var(--h1-line-height);
 		/* gradient parts: gradient top -> gradient bottom, extra padding aligning to next line (line-height) */
 		background: repeating-linear-gradient(to bottom,
-											  var(--tf2-health-gradient-top),
-											  var(--tf2-health-gradient-bottom) var(--h1-font-size),
-											  var(--tf2-health-gradient-bottom) var(--h1-line-height));
+		                                      var(--tf2-health-gradient-top),
+		                                      var(--tf2-health-gradient-bottom) var(--h1-font-size),
+		                                      var(--tf2-health-gradient-bottom) var(--h1-line-height));
 		background-clip: text;
 		color: transparent;
 		filter: drop-shadow(2px 2px 5px hsla(var(--hsl-sepia-shadow) / 75%))
-				drop-shadow(4px 4px 10px hsla(var(--hsl-black) / 30%))
-				drop-shadow(6px 6px 15px hsla(var(--hsl-black) / 10%));
+		        drop-shadow(4px 4px 10px hsla(var(--hsl-black) / 30%))
+		        drop-shadow(6px 6px 15px hsla(var(--hsl-black) / 10%));
 
 		&::selection {
 			text-shadow: hsla(var(--tf2-hsl-shadow-colour) / 50%) 1px 1px 2px,
-						 hsla(var(--tf2-hsl-shadow-colour) / 25%) 2px 2px 3px;
+			             hsla(var(--tf2-hsl-shadow-colour) / 25%) 2px 2px 3px;
 		}
 	}
 
