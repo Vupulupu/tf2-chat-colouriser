@@ -1,6 +1,7 @@
 <script setup lang="ts">
 	import { EditorComponents } from "~/utils/chat/editor-components";
 	import { animateExpandStartingInput, autoResizeInput } from "~/utils/chat/input-width";
+	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
@@ -22,51 +23,37 @@
 
 <template>
 	<div id="editor">
-		<label for="message-input" ref="message-label" class="message-label">Chat Message</label>
+		<label for="message-input" ref="message-label" class="message-label" :style="tfStyleTextShadow('var(--tf2-chat-colour)', -1, -1, 2)">Chat Message</label>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<input id="message-input" ref="message-input" type="text" value="" @input="handleResize" @resize="handleResize" autofocus/>
 		</div>
-		<p id="message-byte-length" ref="message-byte-length">0/127 bytes used</p>
+		<p id="message-byte-length" ref="message-byte-length" :style="tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0)">0/127 bytes used</p>
 		<p ref="message-width" class="message-width">-</p>
 	</div>
 </template>
 
 <style scoped>
 	#editor {
-		--text-shadow-colour: hsla(var(--tf2-hsl-chat-colour) / 75%);
-
-		width: fit-content;
 		display: inline-grid;
 		align-self: center;
-	}
-
-	#message-byte-length, .message-label {
 		font-family: "tf2 secondary", "serif";
-		color: hsl(0 0% 15%);
 	}
 
 	.message-label {
 		color: var(--tf2-shadow-colour);
 		text-align: left;
-		text-shadow: var(--text-shadow-colour) 0 1px 1px, var(--text-shadow-colour) 1px 2px 1px, var(--text-shadow-colour) 2px 3px 1px;
+		letter-spacing: 1px;
 	}
 
 	#message-byte-length {
-		color: var(--tf2-chat-colour);
 		font-size: calc(var(--main-font-size) * .75);
 		text-align: right;
 		font-weight: bold;
-		text-shadow: var(--tf2-shadow-colour) -1px 0 1px,
-		             var(--tf2-shadow-colour) 0 1px 1px,
-		             var(--tf2-shadow-colour) 1px 2px 1px,
-		             var(--tf2-shadow-colour) 2px 3px 1px,
-		             var(--tf2-shadow-colour) 3px 4px 1px;
 	}
 
 	#message-input, .chat-container,  .message-width {
 		box-sizing: border-box;
-		display: inline-block;
 		font-family: "verdana", "sans-serif";
 		font-weight: bold;
 		font-size: var(--verdana-font-size);
@@ -74,7 +61,6 @@
 
 	#message-input, .say-text {
 		padding: 5px 10px calc(5px + .1em) 10px;
-		color: var(--tf2-chat-colour);
 		text-shadow: hsla(var(--hsl-black) / 50%) 2px 2px 1px;
 	}
 
@@ -85,8 +71,8 @@
 	#message-input {
 		min-width: v-bind(minInputWidth);
 		width: v-bind(minInputWidth);
-		margin: 0 auto;
 		padding: 5px 10px calc(5px + .1em) 10px;
+		color: var(--tf2-chat-colour);
 		text-align: center;
 		background: none;
 		border: none;
@@ -99,17 +85,15 @@
 		}
 	}
 
-	.chat-container, .message-width {
-		box-sizing: border-box;
-		justify-self: center;
-	}
-
 	.chat-container, .say-text {
 		--container-border-style: 2px solid hsla(var(--hsl-white) / 50%);
 	}
 
 	.chat-container {
 		margin: 5px 0;
+		justify-self: center;
+		box-sizing: border-box;
+		font-weight: bold;
 		background: hsla(var(--hsl-black) / 40%);
 		border: var(--container-border-style);
 		border-radius: 10px;
@@ -126,7 +110,6 @@
 
 	.message-width {
 		min-width: var(--input-width)px;
-		width: fit-content;
 		position: fixed;
 		color: transparent;
 		text-shadow: none;
