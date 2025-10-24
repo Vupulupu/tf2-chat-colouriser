@@ -1,0 +1,43 @@
+@import "./fonts.css";
+@import "./colour-scheme.css";
+
+:root {
+	color: var(--tf2-chat-colour);
+}
+
+*::selection {
+	color: var(--tf2-shadow-colour);
+	background: var(--tf2-chat-selection-colour);
+	text-shadow: none;
+}
+
+h1::selection {
+	text-shadow: hsla(var(--tf2-hsl-shadow-colour) / 50%) 1px 1px 2px,
+	hsla(var(--tf2-hsl-shadow-colour) / 25%) 2px 2px 3px;
+}
+
+body {
+	height: 100dvh;
+	display: flow-root;
+	margin: 0;
+	background-color: var(--tf2-shadow-colour);
+	background-image: linear-gradient(to top, var(--tf2-shadow-colour), transparent 30%),
+	radial-gradient(transparent, hsl(14 42% 13%) 200%),
+	url("/mannworks-bk.png");
+	background-position: top center;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+	margin: 0;
+}
+
+a {
+	color: hsl(var(--tf2-hsl-chat-selection-colour));
+	&::selection {
+		color: var(--link-selection-colour);
+		text-shadow: none;
+		text-decoration: double var(--link-selection-colour);;
+	}
+}
