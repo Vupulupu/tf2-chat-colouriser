@@ -11,11 +11,6 @@
 	text-shadow: none;
 }
 
-h1::selection {
-	text-shadow: hsla(var(--tf2-hsl-shadow-colour) / 50%) 1px 1px 2px,
-	hsla(var(--tf2-hsl-shadow-colour) / 25%) 2px 2px 3px;
-}
-
 body {
 	height: 100dvh;
 	display: flow-root;
