@@ -8,16 +8,36 @@
 			<button id="close-picker">X</button>
 		</div>
 		<div class="main-content">
-			<div class="interactive">
-				<div class="picker-area">
-					<div id="colour-selection"></div>
+			<div class="inputs">
+				<div class="interactive">
+					<div class="picker-area">
+						<div id="colour-selection"></div>
+					</div>
+					<div class="hue-slider">
+						<div id="hue-selection"></div>
+					</div>
+					<div class="colour-previews">
+						<div class="old col-preview">old</div>
+						<div class="new col-preview">new</div>
+					</div>
 				</div>
-				<div class="hue-slider">
-					<div id="hue-selection"></div>
-				</div>
-				<div class="colour-previews">
-					<div class="old col-preview">old</div>
-					<div class="new col-preview">new</div>
+				<div class="codes">
+					<label for="hsl-input-hue">Hue:</label>
+					<input id="hsl-input-hue" type="number" min="0" max="360" placeholder="currH" />
+					<label for="hsl-input-sat">Sat:</label>
+					<input id="hsl-input-sat" type="number" min="0" max="100" placeholder="currS" />
+					<label for="hsl-input-val" class="grid-separator">Val:</label>
+					<input id="hsl-input-val" class="grid-separator" type="number" min="0" max="100" placeholder="currV" />
+
+					<label for="rgb-input-red">Red:</label>
+					<input id="rgb-input-red" type="number" min="0" max="255" placeholder="currR" />
+					<label for="rgb-input-green">Green:</label>
+					<input id="rgb-input-green" type="number" min="0" max="255" placeholder="currG" />
+					<label for="rgb-input-blue" class="grid-separator">Blue:</label>
+					<input id="rgb-input-blue" class="grid-separator" type="number" min="0" max="255" placeholder="currB" />
+
+					<label for="hex-input">HEX:</label>
+					<input id="hex-input" type="text" placeholder="currHEX" />
 				</div>
 			</div>
 			<div class="finalise-buttons">
@@ -63,7 +83,7 @@
 		font-size: 1em;
 		line-height: 1.1em;
 		letter-spacing: -1px;
-		padding: 0 5px 0 5.5px;
+		padding: 0 5px;
 		&:hover {
 			background-color: var(--tf2-accent-color);
 		}
@@ -73,8 +93,13 @@
 		padding: var(--popup-padded-spacing);
 	}
 
-	.interactive {
+	.inputs {
+		display: flex;
+		gap: var(--popup-padded-spacing);
 		margin-bottom: var(--popup-padded-spacing);
+	}
+
+	.inputs>.interactive {
 		grid-area: interactive;
 		display: grid;
 		grid-template: "area preview"
@@ -125,6 +150,32 @@
 		background-color: var(--tf2-chat-selection-colour);
 	}
 
+	.inputs>.codes {
+		display: grid;
+		grid-template-columns: fit-content(3ch) auto;
+		grid-template-rows: repeat(7, auto);
+		align-items: center;
+		color: var(--tf2-shadow-colour);
+		font-size: .75em;
+		text-align: end;
+		&>* {
+			height: min-content;
+		}
+	}
+
+	.grid-separator {
+		margin-bottom: .75rem;
+	}
+
+	input {
+		width: 96px;
+		padding: .25em;
+		border: none;
+		border-radius: .25em;
+		font-family: "tf2 build", sans-serif;
+		font-size: 1em;
+	}
+
 	.finalise-buttons {
 		display: flex;
 		justify-content: end;
@@ -132,8 +183,8 @@
 	}
 
 	.finalise-buttons>button {
-		flex-grow: 1;
-		padding: .25em .5em;
+		width: 10em;
+		padding: .25em;
 		display: flex;
 		align-items: center;
 		border: none;
@@ -150,6 +201,7 @@
 	}
 
 	.text-icon {
+		padding: 0 .25em;
 		font-size: 1.25em;
 	}
 </style>
