@@ -154,6 +154,13 @@ export class Colour {
 		//TODO: convert rgb values to hsv values (https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB)
 		return {"hue": 0, "saturation": 0,"value": 0};
 	}
+
+	// I wanted to name this inValidRange, but I realised that, unless you verify with the camel case,
+	// it looks like it's called 'invalidRange' as in the opposite of what it's actually accomplishing 😭😭
+	private rangeIsValid(num: number, min: number, max: number) {
+		return (num<min || num>max);
+	}
+
 	private buildOutOfRangeErrorMessage(targetName: string, input: number, min: number, max: number): string {
 		return `Colour's ${targetName} value must be between` +
 		       `${min} and ${max},` +
