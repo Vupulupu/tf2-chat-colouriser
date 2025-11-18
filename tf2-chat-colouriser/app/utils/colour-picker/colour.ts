@@ -141,13 +141,18 @@ export class Colour {
 	}
 
 	private rgbToHex(): string {
-		//TODO: convert rgb values to hex code
-		return "";
+		let hex: string = "#";
+		hex.concat(this._rgb.red.toString(16), this._rgb.green.toString(16), this._rgb.blue.toString(16));
+		return hex;
 	}
 
 	private hexToRGB(): {"red": number, "green": number, "blue": number} {
-		//TODO: convert rgb values to hex code
-		return {"red": 0, "green": 0, "blue": 0}
+		let red: number, green: number, blue: number;
+		let rawHex: string = this._hex.slice(1);
+		red = parseInt(rawHex.slice(0, 2), 16);
+		green = parseInt(rawHex.slice(2, 4), 16);
+		blue = parseInt(rawHex.slice(4), 16);
+		return {"red": red, "green": green, "blue": blue}
 	}
 
 	private rgbToHSV(): {"hue": number, "saturation": number, "value": number} {
