@@ -24,10 +24,11 @@ export class Colour {
 	}
 
 	public static createFromHSV(hue: number, saturation: number, value: number): Colour {
-		//TODO: compute all member vars from given hsv values and construct a Colour obj
-		return new Colour({"hue": 0, "saturation": 0, "value": 0},
-		                  {"red": 0, "green": 0, "blue": 0},
-		                  "");
+		let hsv: {"hue": number, "saturation": number, "value": number} = {"hue": hue, "saturation": saturation, "value": value};
+		let rgb: {"red": number, "green": number, "blue": number} = Colour.hsvToRGB(hsv);
+		let hex: string = Colour.rgbToHex(rgb);
+
+		return new Colour(hsv, rgb, hex);
 	}
 
 	public static createFromHex(hex: string): Colour {
