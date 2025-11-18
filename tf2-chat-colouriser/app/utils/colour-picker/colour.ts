@@ -1,3 +1,5 @@
+import { ColourError } from "~/utils/colour-picker/colour-error";
+
 export class Colour {
 	private _hsv: {"hue": number, "saturation": number,"value": number};
 	private _rgb: {"red": number, "green": number, "blue": number};
