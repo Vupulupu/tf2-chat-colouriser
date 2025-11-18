@@ -140,53 +140,54 @@ export class Colour {
 		const hueNormalised: number = hsv.hue / 60;
 		const chromaNormalised: number = (hsv.saturation * hsv.value) / (100**2);
 		const hueAdjustment: number = (1 - Math.abs((hueNormalised % 2) - 1)) * chromaNormalised;
-		let red: number = 0, green: number = 0, blue: number = 0;
-
-		function setFullSaturationRGB(rgbVals: { "hi": number, "lo": number}): void {
-			rgbVals.hi = chromaNormalised*255;
-			rgbVals.lo = hueAdjustment*255;
-		}
+		let rgb: {"red": number, "green": number, "blue": number} = {"red": 0, "green": 0, "blue": 0};
 
 		if (0<=hueNormalised && hueNormalised<1) {          // #HiLo00
-			setFullSaturationRGB({"hi": red, "lo": green});
+			rgb.red = chromaNormalised;
+			rgb.green = hueAdjustment;
 		} else if (1<=hueNormalised && hueNormalised<2) {   // #LoHi00
-			setFullSaturationRGB({"hi": green, "lo": red});
+			rgb.green = chromaNormalised;
+			rgb.red = hueAdjustment;
 		} else if (2<=hueNormalised && hueNormalised<3) {   // #00HiLo
-			setFullSaturationRGB({"hi": green, "lo": blue});
+			rgb.green = chromaNormalised;
+			rgb.blue = hueAdjustment;
 		} else if (3<=hueNormalised && hueNormalised<4) {   // #00LoHi
-			setFullSaturationRGB({"hi": blue, "lo": green});
+			rgb.blue = chromaNormalised;
+			rgb.green = hueAdjustment;
 		} else if (4<=hueNormalised && hueNormalised<5) {   // #Lo00Hi
-			setFullSaturationRGB({"hi": blue, "lo": red});
+			rgb.blue = chromaNormalised;
+			rgb.red = hueAdjustment;
 		} else if (5<=hueNormalised && hueNormalised<6) {   // #Hi00Lo
-			setFullSaturationRGB({"hi": red, "lo": blue});
+			rgb.red = chromaNormalised;
+			rgb.blue = hueAdjustment;
 		} else {
 			throw new ColourError(`Attempted to normalise HSV 'hue' value when converting HSV model to RGB, but value is out of the range 0-6: ${hueNormalised}`);
 		}
 
-		const valueAdjustment: number = (this._hsv.value / 100) - chromaNormalised;
-		red+=valueAdjustment;
-		green+=valueAdjustment;
-		blue+=valueAdjustment;
+		const valueAdjustment: number = (hsv.value / 100) - chromaNormalised;
+		rgb.red = Math.round((rgb.red + valueAdjustment) * 255);
+		rgb.green = Math.round((rgb.green + valueAdjustment) * 255);
+		rgb.blue = Math.round((rgb.blue + valueAdjustment) * 255);
 
 		let outOfRangeVals: string[] = [];
-		if (this.rangeIsValid(red, 0, 255)) {
+		if (Colour.rangeIsValid(rgb.red, 0, 255)) {
 			outOfRangeVals.push("red");
 		}
-		if (this.rangeIsValid(green, 0, 255)) {
+		if (Colour.rangeIsValid(rgb.green, 0, 255)) {
 			outOfRangeVals.push("green");
 		}
-		if (this.rangeIsValid(blue, 0, 255)) {
+		if (Colour.rangeIsValid(rgb.blue, 0, 255)) {
 			outOfRangeVals.push("blue");
 		}
 
 		if (outOfRangeVals.length > 0) {
 			let errorMessage: string = `Attempted to convert HSV model to RGB, but ` +
 			                           `${outOfRangeVals.length} computed RGB value${outOfRangeVals.length>1?"s are":" is "}` +
-			                           `out of the range 0-255: {r: ${red}, g: ${green}, b: ${blue}}`;
+			                           `out of the range 0-255: {r: ${rgb.red}, g: ${rgb.green}, b: ${rgb.blue}}`;
 			throw new ColourError(errorMessage);
 		}
 
-		return {"red": red, "green": green, "blue": blue}
+		return rgb;
 	}
 
 	//https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB
@@ -196,8 +197,11 @@ export class Colour {
 	}
 
 	private static rgbToHex(rgb: {"red": number, "green": number, "blue": number}): string {
-		let hex: string = "#";
-		hex.concat(rgb.red.toString(16), rgb.green.toString(16), rgb.blue.toString(16));
+		let hex: string = "#", redHex: string, greenHex: string, blueHex: string;
+		redHex = rgb.red.toString(16).padStart(2, '0');
+		greenHex = rgb.green.toString(16).padStart(2, '0');
+		blueHex = rgb.blue.toString(16).padStart(2, '0');
+		hex += redHex + greenHex + blueHex;
 		return hex;
 	}
 
