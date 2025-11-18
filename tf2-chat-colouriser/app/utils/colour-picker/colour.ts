@@ -135,9 +135,60 @@ export class Colour {
 		}
 	}
 
+	//https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB
 	private hsvToRGB(): {"red": number, "green": number, "blue": number} {
-		//TODO: convert hsv values to rgb values (https://en.wikipedia.org/wiki/HSL_and_HSV#From_HSV)
-		return {"red": 0, "green": 0, "blue": 0}
+		const hueNormalised: number = this._hsv.hue / 60;
+		const chromaNormalised: number = (this._hsv.saturation * this._hsv.value) / (100**2);
+		const hueAdjustment: number = (1 - Math.abs((hueNormalised % 2) - 1)) * chromaNormalised;
+		let red: number = 0, green: number = 0, blue: number = 0;
+
+		function setFullSaturationRGB(rgbVals: { "hi": number, "lo": number}): void {
+			rgbVals.hi = chromaNormalised*255;
+			rgbVals.lo = hueAdjustment*255;
+		}
+
+		if (0<=hueNormalised && hueNormalised<1) {          // #HiLo00
+			setFullSaturationRGB({"hi": red, "lo": green});
+		} else if (1<=hueNormalised && hueNormalised<2) {   // #LoHi00
+			setFullSaturationRGB({"hi": green, "lo": red});
+		} else if (2<=hueNormalised && hueNormalised<3) {   // #00HiLo
+			setFullSaturationRGB({"hi": green, "lo": blue});
+		} else if (3<=hueNormalised && hueNormalised<4) {   // #00LoHi
+			setFullSaturationRGB({"hi": blue, "lo": green});
+		} else if (4<=hueNormalised && hueNormalised<5) {   // #Lo00Hi
+			setFullSaturationRGB({"hi": blue, "lo": red});
+		} else if (5<=hueNormalised && hueNormalised<6) {   // #Hi00Lo
+			setFullSaturationRGB({"hi": red, "lo": blue});
+		} else {
+			throw new ColourError(`Attempted to normalise HSV 'hue' value when converting HSV model to RGB, but value is out of the range 0-6: ${hueNormalised}`);
+		}
+
+		const valueAdjustment: number = (this._hsv.value / 100) - chromaNormalised;
+		red+=valueAdjustment;
+		green+=valueAdjustment;
+		blue+=valueAdjustment;
+
+		let outOfRangeVals: string[] = [];
+		if (this.rangeIsValid(red, 0, 255)) {
+			outOfRangeVals.push("red");
+		}
+		if (this.rangeIsValid(green, 0, 255)) {
+			outOfRangeVals.push("green");
+		}
+		if (this.rangeIsValid(blue, 0, 255)) {
+			outOfRangeVals.push("blue");
+		}
+
+		if (outOfRangeVals.length > 0) {
+			let errorMessage: string = `Attempted to convert HSV model to RGB, but ` +
+			                           `${outOfRangeVals.length} computed RGB value${outOfRangeVals.length>1?"s are":" is "}` +
+			                           `out of the range 0-255: {r: ${red}, g: ${green}, b: ${blue}}`;
+			throw new ColourError(errorMessage);
+		}
+
+		return {"red": red, "green": green, "blue": blue}
+	}
+
 	}
 
 	private rgbToHex(): string {
