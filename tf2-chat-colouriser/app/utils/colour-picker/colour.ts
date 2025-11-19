@@ -17,10 +17,11 @@ export class Colour {
 	};
 
 	public static createFromRGB(red: number, green: number, blue: number): Colour {
-		//TODO: compute all member vars from given rgb values and construct a Colour obj
-		return new Colour({"hue": 0, "saturation": 0, "value": 0},
-		                  {"red": 0, "green": 0, "blue": 0},
-		                  "");
+		let rgb: {"red": number, "green": number, "blue": number} = {"red": red, "green": green, "blue": blue};
+		let hsv: {"hue": number, "saturation": number, "value": number} = Colour.rgbToHSV(rgb);
+		let hex: string = Colour.rgbToHex(rgb);
+
+		return new Colour(hsv, rgb, hex);
 	}
 
 	public static createFromHSV(hue: number, saturation: number, value: number): Colour {
@@ -32,10 +33,11 @@ export class Colour {
 	}
 
 	public static createFromHex(hex: string): Colour {
-		//TODO: compute all member vars from a given hex code and construct a Colour obj
-		return new Colour({"hue": 0, "saturation": 0, "value": 0},
-		                  {"red": 0, "green": 0, "blue": 0},
-		                  "");
+		hex = hex.toUpperCase();
+		let rgb: {"red": number, "green": number, "blue": number} = Colour.hexToRGB(hex);
+		let hsv: {"hue": number, "saturation": number, "value": number} = Colour.rgbToHSV(rgb);
+
+		return new Colour(hsv, rgb, hex);
 	}
 
 	private constructor(hsv: {"hue": number, "saturation": number,"value": number},
@@ -138,7 +140,7 @@ export class Colour {
 
 	public toString(): string {
 		return `Colour:\n` +
-		       `\thsv(${this._hsv.hue} ${this._hsv.saturation.toPrecision(4)}% ${this._hsv.value.toPrecision(4)}%)\n` +
+		       `\thsv(${this._hsv.hue.toFixed(2)} ${this._hsv.saturation.toFixed(2)}% ${this._hsv.value.toFixed(2)}%)\n` +
 		       `\trgb(${this._rgb.red} ${this._rgb.green} ${this._rgb.blue})\n` +
 		       `\thex: ${this._hex}`;
 	}
