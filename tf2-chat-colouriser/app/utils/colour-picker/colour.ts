@@ -130,10 +130,17 @@ export class Colour {
 		}
 
 		if (formattedHex.match(/^#[A-Fa-f\d]{6}$/)) {
-			this._hex = formattedHex;
+			this._hex = formattedHex.toUpperCase();
 		} else {
 			throw new ColourError(Colour.buildMismatchedArgErrorMessage("HEX code", "digits and letters A-F", hex));
 		}
+	}
+
+	public toString(): string {
+		return `Colour:\n` +
+		       `\thsv(${this._hsv.hue} ${this._hsv.saturation.toPrecision(4)}% ${this._hsv.value.toPrecision(4)}%)\n` +
+		       `\trgb(${this._rgb.red} ${this._rgb.green} ${this._rgb.blue})\n` +
+		       `\thex: ${this._hex}`;
 	}
 
 	//https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB
@@ -203,7 +210,7 @@ export class Colour {
 		greenHex = rgb.green.toString(16).padStart(2, '0');
 		blueHex = rgb.blue.toString(16).padStart(2, '0');
 		hex += redHex + greenHex + blueHex;
-		return hex;
+		return hex.toUpperCase();
 	}
 
 	private static hexToRGB(hex: string): {"red": number, "green": number, "blue": number} {
