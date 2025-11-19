@@ -1,4 +1,8 @@
 <script setup lang="ts">
+	import {Colour} from "~/utils/colour-picker/colour";
+
+	const oldColour: Colour = Colour.createFromHex("#fcedcd");
+	let newColour: Colour = Colour.createFromHex(oldColour.hex);
 </script>
 
 <template>
@@ -17,27 +21,47 @@
 						<div id="hue-selection"></div>
 					</div>
 					<div class="colour-previews">
-						<div class="old col-preview">old</div>
-						<div class="new col-preview">new</div>
+						<div class="old col-preview"
+						     :style="`background-color:${oldColour.hex};`+
+						             `color:${oldColour.hsvValue>50?'var(--tf2-shadow-colour)':'var(--tf2-shadow-colour)'}`">
+							old
+						</div>
+						<div class="new col-preview"
+						     :style="`background-color:${newColour.hex};`+
+						             `color:${newColour.hsvValue>50?'var(--tf2-shadow-colour)':'var(--tf2-shadow-colour)'}`">new</div>
 					</div>
 				</div>
 				<div class="codes">
 					<label for="hsl-input-hue">Hue:</label>
-					<input id="hsl-input-hue" type="number" min="0" max="360" placeholder="currH" />
+					<input id="hsl-input-hue" type="number" min="0" max="360"
+					       :value="oldColour.hsvHue.toFixed(2).toString()"
+					       :placeholder="oldColour.hsvHue.toFixed(2).toString()" />
 					<label for="hsl-input-sat">Sat:</label>
-					<input id="hsl-input-sat" type="number" min="0" max="100" placeholder="currS" />
+					<input id="hsl-input-sat" type="number" min="0" max="100"
+					       :value="oldColour.hsvSaturation.toFixed(2).toString()"
+					       :placeholder="oldColour.hsvSaturation.toFixed(2).toString()" />
 					<label for="hsl-input-val" class="grid-separator">Val:</label>
-					<input id="hsl-input-val" class="grid-separator" type="number" min="0" max="100" placeholder="currV" />
+					<input id="hsl-input-val" class="grid-separator" type="number" min="0" max="100"
+					       :value="oldColour.hsvValue.toFixed(2).toString()"
+					       :placeholder="oldColour.hsvValue.toFixed(2).toString()" />
 
 					<label for="rgb-input-red">Red:</label>
-					<input id="rgb-input-red" type="number" min="0" max="255" placeholder="currR" />
+					<input id="rgb-input-red" type="number" min="0" max="255"
+					       :value="oldColour.rgbRed.toString()"
+					       :placeholder="oldColour.rgbRed.toString()" />
 					<label for="rgb-input-green">Green:</label>
-					<input id="rgb-input-green" type="number" min="0" max="255" placeholder="currG" />
+					<input id="rgb-input-green" type="number" min="0" max="255"
+					       :value="oldColour.rgbGreen.toString()"
+					       :placeholder="oldColour.rgbGreen.toString()" />
 					<label for="rgb-input-blue" class="grid-separator">Blue:</label>
-					<input id="rgb-input-blue" class="grid-separator" type="number" min="0" max="255" placeholder="currB" />
+					<input id="rgb-input-blue" class="grid-separator" type="number" min="0" max="255"
+					       :value="oldColour.rgbBlue.toString()"
+					       :placeholder="oldColour.rgbBlue.toString()" />
 
 					<label for="hex-input">HEX:</label>
-					<input id="hex-input" type="text" placeholder="currHEX" />
+					<input id="hex-input" type="text"
+					       :value="oldColour.hex"
+					       :placeholder="oldColour.hex" />
 				</div>
 			</div>
 			<div class="finalise-buttons">
@@ -139,15 +163,6 @@
 		font-family: "verdana", sans-serif;
 		font-size: .5rem;
 		text-align: start;
-	}
-
-	.old.col-preview {
-		background-color: var(--tf2-chat-colour);
-		color: var(--tf2-shadow-colour);
-	}
-
-	.new.col-preview {
-		background-color: var(--tf2-chat-selection-colour);
 	}
 
 	.inputs>.codes {
