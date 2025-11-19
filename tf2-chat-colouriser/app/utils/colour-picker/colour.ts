@@ -49,90 +49,90 @@ export class Colour {
 	}
 
 	// HSV
-	public get hsv(): {"hue": number, "saturation": number, "value": number} {
-		return { "hue": this._hsv.hue, "saturation": this._hsv.saturation, "value": this._hsv.value };
-	}
-	private set hsv(hsv: {"hue": number, "saturation": number, "value": number}) {
-		this._hsv.hue = hsv.hue;
-		this._hsv.saturation = hsv.saturation;
-		this._hsv.value = hsv.value;
-		this.updateFromHSVChanges();
-	}
-
+	public get hsvHue() { return this._hsv.hue; }
 	public set hsvHue(hue: number) {
 		if (Colour.rangeIsValid(hue, Colour._valueRanges.hue.min, Colour._valueRanges.hue.max)) {
 			this._hsv.hue = hue;
-			this.updateFromHSVChanges();
+			this.updateModelsFromHSVChanges();
 		} else {
 			const valueRange: ValueRange = Colour._valueRanges.hue;
 			throw new ColourError(Colour.buildOutOfRangeArgMessage("HSV 'hue'", valueRange.min, valueRange.max, hue));
 		}
 	}
 
+	public get hsvSaturation() { return this._hsv.saturation; }
 	public set hsvSaturation(saturation: number) {
 		if (Colour.rangeIsValid(saturation, Colour._valueRanges.saturation.min, Colour._valueRanges.saturation.max)) {
 			this._hsv.saturation = saturation;
-			this.updateFromHSVChanges();
+			this.updateModelsFromHSVChanges();
 		} else {
 			const valueRange: ValueRange = Colour._valueRanges.saturation;
 			throw new ColourError(Colour.buildOutOfRangeArgMessage("HSV 'saturation'", valueRange.min, valueRange.max, saturation));
 		}
 	}
 
+	public get hsvValue() { return this._hsv.value; }
 	public set hsvValue(value: number) {
 		if (Colour.rangeIsValid(value, Colour._valueRanges.value.min, Colour._valueRanges.value.max)) {
 			this._hsv.value = value;
-			this.updateFromHSVChanges();
+			this.updateModelsFromHSVChanges();
 		} else {
 			const valueRange: ValueRange = Colour._valueRanges.value;
 			throw new ColourError(Colour.buildOutOfRangeArgMessage("HSV 'value'", valueRange.min, valueRange.max, value));
 		}
 	}
 
-	// RGB
-	public get rgb(): {"red": number, "green": number, "blue": number} {
-		return { "red": this._rgb.red, "green": this._rgb.green, "blue": this._rgb.blue };
-	}
-	private set rgb(rgb: {"red": number, "green": number, "blue": number}) {
-		this._rgb.red = rgb.red;
-		this._rgb.green = rgb.green;
-		this._rgb.blue = rgb.blue;
-		this.updateFromRGBChanges();
+	private get hsv() { return {"hue": this._hsv.hue, "saturation": this._hsv.saturation, "value": this._hsv.value} }
+	private set hsv(hsv: {"hue": number, "saturation": number, "value": number}) {
+		this._hsv.hue = hsv.hue;
+		this._hsv.saturation = hsv.saturation;
+		this._hsv.value = hsv.value;
+		this.updateModelsFromHSVChanges();
 	}
 
+	// RGB
+	public get rgbRed() { return this._rgb.red; }
 	public set rgbRed(red: number) {
 		if (Colour.rangeIsValid(red, Colour._valueRanges.red.min, Colour._valueRanges.red.max)) {
 			this._rgb.red = red;
-			this.updateFromRGBChanges();
+			this.updateModelsFromRGBChanges();
 		} else {
 			const valueRange: ValueRange = Colour._valueRanges.red;
 			throw new ColourError(Colour.buildOutOfRangeArgMessage("RGB 'red'", valueRange.min, valueRange.max, red));
 		}
 	}
 
+	public get rgbGreen() { return this._rgb.green; }
 	public set rgbGreen(green: number) {
 		if (Colour.rangeIsValid(green, Colour._valueRanges.green.min, Colour._valueRanges.green.max)) {
 			this._rgb.green = green;
-			this.updateFromRGBChanges();
+			this.updateModelsFromRGBChanges();
 		} else {
 			const valueRange: ValueRange = Colour._valueRanges.green;
 			throw new ColourError(Colour.buildOutOfRangeArgMessage("RGB 'green'", valueRange.min, valueRange.max, green));
 		}
 	}
 
+	public get rgbBlue() { return this._rgb.blue; }
 	public set rgbBlue(blue: number) {
 		if (Colour.rangeIsValid(blue, Colour._valueRanges.blue.min, Colour._valueRanges.blue.max)) {
 			this._rgb.blue = blue;
-			this.updateFromRGBChanges();
+			this.updateModelsFromRGBChanges();
 		} else {
 			const valueRange: ValueRange = Colour._valueRanges.blue;
 			throw new ColourError(Colour.buildOutOfRangeArgMessage("RGB 'blue'", valueRange.min, valueRange.max, blue));
 		}
 	}
 
-	public get hex(): string {
-		return this._hex;
+	private get rgb() { return {"red": this._rgb.red, "green": this._rgb.green, "blue": this._rgb.blue} }
+	private set rgb(rgb: {"red": number, "green": number, "blue": number}) {
+		this._rgb.red = rgb.red;
+		this._rgb.green = rgb.green;
+		this._rgb.blue = rgb.blue;
+		this.updateModelsFromRGBChanges();
 	}
+
+	public get hex(): string { return this._hex; }
 	public set hex(hex: string) {
 		let formattedHex = hex;
 		if (hex.charAt(0) === '#') {
@@ -141,7 +141,7 @@ export class Colour {
 
 		if (formattedHex.match(/^#[A-Fa-f\d]{6}$/)) {
 			this._hex = formattedHex.toUpperCase();
-			this.updateFromHexChanges();
+			this.updateModelsFromHexChanges();
 		} else {
 			throw new ColourError(Colour.buildMismatchedArgErrorMessage("HEX code", "digits and letters A-F", hex));
 		}
@@ -149,9 +149,9 @@ export class Colour {
 
 	public toString(): string {
 		return `Colour:\n` +
-		       `\thsv(${this._hsv.hue.toFixed(2)} ${this._hsv.saturation.toFixed(2)}% ${this._hsv.value.toFixed(2)}%)\n` +
-		       `\trgb(${this._rgb.red} ${this._rgb.green} ${this._rgb.blue})\n` +
-		       `\thex: ${this._hex}`;
+		       `\thsv(${this.hsvHue.toFixed(2)} ${this.hsvSaturation.toFixed(2)}% ${this.hsvValue.toFixed(2)}%)\n` +
+		       `\trgb(${this.rgbRed} ${this.rgbGreen} ${this.rgbBlue})\n` +
+		       `\thex: ${this.hex}`;
 	}
 
 	//https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB
@@ -271,19 +271,19 @@ export class Colour {
 		return {"red": red, "green": green, "blue": blue}
 	}
 
-	private updateFromHexChanges(): void {
-		this._rgb = Colour.hexToRGB(this._hex);
-		this._hsv = Colour.rgbToHSV(this._rgb);
+	private updateModelsFromHexChanges(): void {
+		this._rgb = Colour.hexToRGB(this.hex);
+		this._hsv = Colour.rgbToHSV(this.rgb);
 	}
 
-	private updateFromRGBChanges(): void {
-		this._hsv = Colour.rgbToHSV(this._rgb);
-		this._hex = Colour.rgbToHex(this._rgb);
+	private updateModelsFromRGBChanges(): void {
+		this._hsv = Colour.rgbToHSV(this.rgb);
+		this._hex = Colour.rgbToHex(this.rgb);
 	}
 
-	private updateFromHSVChanges(): void {
-		this._rgb = Colour.hsvToRGB(this._hsv);
-		this._hex = Colour.rgbToHex(this._rgb);
+	private updateModelsFromHSVChanges(): void {
+		this._rgb = Colour.hsvToRGB(this.hsv);
+		this._hex = Colour.rgbToHex(this.rgb);
 	}
 
 	// I wanted to name this inValidRange, but I realised that, unless you verify its behaviour by looking at the camel case,
