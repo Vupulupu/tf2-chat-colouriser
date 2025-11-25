@@ -12,6 +12,9 @@
 
 	const oldColour: Colour.Colour = props.oldColour as Colour.Colour;
 	const newColour: Colour.Colour = props.newColour as Colour.Colour;
+	const hueOnlyNewColour: Ref<Colour.Colour> = computed(() => {
+		return Colour.createFromHSV(newColour.hsv.getHue().value, newColour.hsv.getSaturation().max, newColour.hsv.getValue().max);
+	});
 
 	const colourPickingIsActive: Ref<boolean> = useState("colour-picker-active", ()=>false);
 	const colourPickerEventPositions: UseMouseInElementReturn = useMouseInElement(useTemplateRef("colour-picker"));
@@ -23,6 +26,9 @@
 	const hueSelector: TemplateRef<HTMLElement> = useTemplateRef("hue-selection");
 	const hueSelectorTransform: Ref<string> = useState("hue-selector-transform", ()=>"translateX(0)");
 
+	const pickerHue: Ref<string> = computed(() => hueOnlyNewColour.value.hex.getCode().value);
+	const colourSelectorFill: Ref<string> = computed(() => newColour.hex.getCode().value);
+	const hueSelectorFill: Ref<string> = computed(() => hueOnlyNewColour.value.hex.getCode().value);
 
 	let invertOldPreviewTextColour: boolean = oldColour.hsv.getValue().value<50;
 	let invertNewPreviewTextColour: Ref<boolean> = computed(() => newColour.hsv.getValue().value<50);
@@ -155,11 +161,12 @@
 	}
 
 	.picker-area {
+		--picker-hue: v-bind(pickerHue);
 		position: relative;
 		grid-area: area;
 		width: 256px;
 		height: 256px;
-		background: linear-gradient(to right, black, transparent), linear-gradient(red, white);
+		background: linear-gradient(to right, black, transparent), linear-gradient(var(--picker-hue), white);
 	}
 
 	.hue-slider {
@@ -183,11 +190,13 @@
 
 	#colour-selection {
 		border-radius: 50%;
+		background-color: v-bind(colourSelectorFill);
 	}
 
 	#hue-selection {
 		height: calc(100% + var(--picker-size));
 		border-radius: calc(var(--picker-size) / 4);
+		background-color: v-bind(hueSelectorFill);
 	}
 
 	.colour-previews {
