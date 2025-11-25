@@ -18,6 +18,9 @@
 	const colPickerTracker: TemplateRef<HTMLElement> = useTemplateRef("colour-selection");
 	const colPickerTrackerTransformStyle: Ref<string> = useState("colour-picker-tracker-transform", ()=>"translate(0, 0)");
 
+	let invertOldPreviewTextColour: boolean = oldColour.hsv.getValue().value<50;
+	let invertNewPreviewTextColour: Ref<boolean> = computed(() => newColour.hsv.getValue().value<50);
+
 	watchEffect(async () => {
 		if (colPickerTracker.value?.style) {
 			colPickerTrackerTransformStyle.value = `translate(` +
@@ -69,8 +72,13 @@
 			<div id="hue-selection" ref="hue-selection"></div>
 		</div>
 		<div class="colour-previews">
-			<div class="old col-preview">old</div>
-			<div class="new col-preview" :style="{ backgroundColor: newColour.hex.getCode().value }">new</div>
+			<div class="old col-preview" :class="[(invertOldPreviewTextColour ? 'light' : 'dark'),]">
+				old
+			</div>
+			<div class="new col-preview" :class="[(invertNewPreviewTextColour ? 'light' : 'dark'),]"
+			     :style="{ backgroundColor: newColour.hex.getCode().value }">
+				new
+			</div>
 		</div>
 	</div>
 </template>
@@ -129,5 +137,11 @@
 		font-family: "verdana", sans-serif;
 		font-size: .5rem;
 		text-align: start;
+		&.light {
+			color: var(--tf2-chat-colour);
+		}
+		&.dark {
+			color: var(--tf2-shadow-colour);
+		}
 	}
 </style>
