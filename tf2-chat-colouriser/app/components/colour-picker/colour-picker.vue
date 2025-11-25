@@ -18,24 +18,8 @@
 		</div>
 		<div class="main-content">
 			<div class="inputs">
-				<div class="interactive">
-					<div class="picker-area">
-						<div id="colour-selection"></div>
-					</div>
-					<div class="hue-slider">
-						<div id="hue-selection"></div>
-					</div>
-					<div class="colour-previews">
-						<div class="old col-preview"
-						     :style="`background-color:${oldColour.hex.getCode().value};color:${oldPreviewTextColour}`">
-							old
-						</div>
-						<div class="new col-preview"
-						     :style="`background-color:${newColour.hex.getCode().value};color:${newPreviewTextColour}`">
-							new
-						</div>
-					</div>
-				</div>
+				<ColourPickerInteractiveInput :old-colour="oldColour" :new-colour="newColour"
+				                              @colour-change="(changedColour: Colour.Colour) => newColour = changedColour" />
 				<ColourPickerRawInputs class="raw" :old-colour="oldColour" :new-colour="newColour"
 				                       @colour-change="(changedColour: Colour.Colour) => {newColour = changedColour; console.log(newColour)}" />
 			</div>
