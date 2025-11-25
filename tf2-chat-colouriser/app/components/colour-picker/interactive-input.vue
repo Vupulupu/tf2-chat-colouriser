@@ -2,6 +2,7 @@
 	import * as Colour from "~/utils/colour-picker/colour";
 	import { clamp } from "@vueuse/core";
 	import type { UseMouseInElementReturn } from "@vueuse/core";
+	import type { TemplateRef } from "vue";
 
 	const props = defineProps({
 		oldColour: { type: Object, required: true },
@@ -14,6 +15,16 @@
 
 	const colourPickerIsActive: Ref<boolean> = useState("colour-picker-active", ()=>false);
 	const colPickerMousePositions: UseMouseInElementReturn = useMouseInElement(useTemplateRef("colour-picker"));
+	const colPickerTracker: TemplateRef<HTMLElement> = useTemplateRef("colour-selection");
+	const colPickerTrackerTransformStyle: Ref<string> = useState("colour-picker-tracker-transform", ()=>"translate(0, 0)");
+
+	watchEffect(async () => {
+		if (colPickerTracker.value?.style) {
+			colPickerTrackerTransformStyle.value = `translate(` +
+				`${newColour.hsv.getValue().value/100*colPickerMousePositions.elementWidth.value}px, ` +
+				`${colPickerMousePositions.elementHeight.value-(newColour.hsv.getSaturation().value/100*colPickerMousePositions.elementHeight.value)}px)`;
+		}
+	});
 
 	function preventDefaultWrapper(e: Event) {
 		e.preventDefault();
@@ -52,7 +63,7 @@
 		<div class="picker-area" ref="colour-picker"
 		     @mousedown.left="activateColourPicker(); updatePickerColour();"
 		     @mousemove="updatePickerColour();" @mouseup.left="disableColourPicker();">
-			<div id="colour-selection"></div>
+			<div id="colour-selection" ref="colour-selection" :style="{ transform: colPickerTrackerTransformStyle }"></div>
 		</div>
 		<div class="hue-slider" ref="hue-picker">
 			<div id="hue-selection" ref="hue-selection"></div>
