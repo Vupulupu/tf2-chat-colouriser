@@ -1,14 +1,19 @@
 <script setup lang="ts">
-	import {Colour} from "~/utils/colour-picker/colour";
+	import * as Colour from "~/utils/colour-picker/colour";
 
-	const oldColour: Colour = Colour.createFromHex("#fcedcd");
-	let newColour: Colour = Colour.createFromHex(oldColour.hex);
+	const oldColour: Ref<Colour.Colour> = useState("old-colour", () => Colour.createFromHex("#fcedcd"));
+	let newColour: Ref<Colour.Colour> = useState("new-colour", () => Colour.createFromHex("#fcedcd"));
+
+	let oldPreviewTextColour: Ref<string> = computed(() => {
+		return `${oldColour.value.hsv.getValue().value>50?'var(--tf2-shadow-colour)':'var(--tf2-shadow-colour)'}` });
+	let newPreviewTextColour: Ref<string> = computed(() => {
+		return `${newColour.value.hsv.getValue().value>50?'var(--tf2-shadow-colour)':'var(--tf2-shadow-colour)'}` });
 </script>
 
 <template>
 	<div id="colour-picker">
 		<div class="picker-header">
-			<span>Change Text Colour</span>
+			<span>Change Text ConvertColourModels</span>
 			<button id="close-picker">X</button>
 		</div>
 		<div class="main-content">
@@ -22,47 +27,17 @@
 					</div>
 					<div class="colour-previews">
 						<div class="old col-preview"
-						     :style="`background-color:${oldColour.hex};`+
-						             `color:${oldColour.hsvValue>50?'var(--tf2-shadow-colour)':'var(--tf2-shadow-colour)'}`">
+						     :style="`background-color:${oldColour.hex.getCode().value};color:${oldPreviewTextColour}`">
 							old
 						</div>
 						<div class="new col-preview"
-						     :style="`background-color:${newColour.hex};`+
-						             `color:${newColour.hsvValue>50?'var(--tf2-shadow-colour)':'var(--tf2-shadow-colour)'}`">new</div>
+						     :style="`background-color:${newColour.hex.getCode().value};color:${newPreviewTextColour}`">
+							new
+						</div>
 					</div>
 				</div>
-				<div class="codes">
-					<label for="hsl-input-hue">Hue:</label>
-					<input id="hsl-input-hue" type="number" min="0" max="360"
-					       :value="oldColour.hsvHue.toFixed(2).toString()"
-					       :placeholder="oldColour.hsvHue.toFixed(2).toString()" />
-					<label for="hsl-input-sat">Sat:</label>
-					<input id="hsl-input-sat" type="number" min="0" max="100"
-					       :value="oldColour.hsvSaturation.toFixed(2).toString()"
-					       :placeholder="oldColour.hsvSaturation.toFixed(2).toString()" />
-					<label for="hsl-input-val" class="grid-separator">Val:</label>
-					<input id="hsl-input-val" class="grid-separator" type="number" min="0" max="100"
-					       :value="oldColour.hsvValue.toFixed(2).toString()"
-					       :placeholder="oldColour.hsvValue.toFixed(2).toString()" />
-
-					<label for="rgb-input-red">Red:</label>
-					<input id="rgb-input-red" type="number" min="0" max="255"
-					       :value="oldColour.rgbRed.toString()"
-					       :placeholder="oldColour.rgbRed.toString()" />
-					<label for="rgb-input-green">Green:</label>
-					<input id="rgb-input-green" type="number" min="0" max="255"
-					       :value="oldColour.rgbGreen.toString()"
-					       :placeholder="oldColour.rgbGreen.toString()" />
-					<label for="rgb-input-blue" class="grid-separator">Blue:</label>
-					<input id="rgb-input-blue" class="grid-separator" type="number" min="0" max="255"
-					       :value="oldColour.rgbBlue.toString()"
-					       :placeholder="oldColour.rgbBlue.toString()" />
-
-					<label for="hex-input">HEX:</label>
-					<input id="hex-input" type="text"
-					       :value="oldColour.hex"
-					       :placeholder="oldColour.hex" />
-				</div>
+				<ColourPickerRawInputs class="raw" :old-colour="oldColour" :new-colour="newColour"
+				                       @colour-change="(changedColour: Colour.Colour) => {newColour = changedColour; console.log(newColour)}" />
 			</div>
 			<div class="finalise-buttons">
 				<button id="cancel"><span class="text-icon">✘</span> Cancel</button>
@@ -123,7 +98,7 @@
 		margin-bottom: var(--popup-padded-spacing);
 	}
 
-	.inputs>.interactive {
+	.interactive {
 		grid-area: interactive;
 		display: grid;
 		grid-template: "area preview"
@@ -165,32 +140,6 @@
 		text-align: start;
 	}
 
-	.inputs>.codes {
-		display: grid;
-		grid-template-columns: fit-content(3ch) auto;
-		grid-template-rows: repeat(7, auto);
-		align-items: center;
-		color: var(--tf2-shadow-colour);
-		font-size: .75em;
-		text-align: end;
-		&>* {
-			height: min-content;
-		}
-	}
-
-	.grid-separator {
-		margin-bottom: .75rem;
-	}
-
-	input {
-		width: 96px;
-		padding: .25em;
-		border: none;
-		border-radius: .25em;
-		font-family: "tf2 build", sans-serif;
-		font-size: 1em;
-	}
-
 	.finalise-buttons {
 		display: flex;
 		justify-content: end;
@@ -218,5 +167,17 @@
 	.text-icon {
 		padding: 0 .25em;
 		font-size: 1.25em;
+	}
+
+	@media only screen and (max-width: 320px) {
+		#close-picker {
+			padding: 0 3px;
+		}
+	}
+
+	@media only screen and (min-device-width: 321px) and (max-device-width: 768px) {
+		#close-picker {
+			padding: 0 4px;
+		}
 	}
 </style>
