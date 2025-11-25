@@ -18,6 +18,10 @@
 	const colPickerTracker: TemplateRef<HTMLElement> = useTemplateRef("colour-selection");
 	const colPickerTrackerTransformStyle: Ref<string> = useState("colour-picker-tracker-transform", ()=>"translate(0, 0)");
 
+	const hueSelectorIsActive = useState("hue-picker-active", ()=>false);
+	const hueSelectorMousePosition: UseMouseInElementReturn = useMouseInElement(useTemplateRef("hue-picker"));
+	const hueSelectorTracker: TemplateRef<HTMLElement> = useTemplateRef("hue-selection");
+
 	let invertOldPreviewTextColour: boolean = oldColour.hsv.getValue().value<50;
 	let invertNewPreviewTextColour: Ref<boolean> = computed(() => newColour.hsv.getValue().value<50);
 
@@ -53,16 +57,52 @@
 		window.removeEventListener("selectstart", preventDefaultWrapper);
 	}
 
-	function updatePickerColour() {
-		const value: number = clamp(colPickerMousePositions.elementX.value/colPickerMousePositions.elementWidth.value*100, 0, 100);
-		const saturation: number = clamp(100-colPickerMousePositions.elementY.value/colPickerMousePositions.elementHeight.value*100, 0, 100);
+	function activateHueSelector(e: Event) {
+		e.preventDefault();
+		hueSelectorIsActive.value = true;
+		window.addEventListener("mousemove", updateColourFromHue);
+		window.addEventListener("touchmove", updateColourFromHue);
+		window.addEventListener("mouseup", disableHueSelector);
+		window.addEventListener("touchend", disableHueSelector);
+		window.addEventListener("selectstart", preventDefaultWrapper);
+		updateColourFromPicker();
+	}
+
+	function disableHueSelector(e: Event) {
+		e.preventDefault();
+		hueSelectorIsActive.value = false;
+		window.removeEventListener("mousemove", updateColourFromHue);
+		window.removeEventListener("touchmove", updateColourFromHue);
+		window.removeEventListener("mouseup", disableHueSelector);
+		window.removeEventListener("touchend", disableHueSelector);
+		window.removeEventListener("selectstart", preventDefaultWrapper);
+	}
+
+	function updateColourFromPicker() {
+		const valueClampingRange: ValueRange = new ValueRange(newColour.hsv.getValue().min, newColour.hsv.getValue().max);
+		const saturationClampingRange: ValueRange = new ValueRange(newColour.hsv.getSaturation().min, newColour.hsv.getSaturation().max);
+		const normalisedValueValue: number = colPickerMousePositions.elementX.value/colPickerMousePositions.elementWidth.value*valueClampingRange.max;
+		const normalisedSaturationValue: number = 100-colPickerMousePositions.elementY.value/colPickerMousePositions.elementHeight.value*saturationClampingRange.max;
+
 		if(colourPickerIsActive.value) {
-			newColour.hsv.setSaturation(saturation);
-			newColour.hsv.setValue(value);
+			newColour.hsv.setSaturation(clamp(normalisedSaturationValue, saturationClampingRange.min, saturationClampingRange.max));
+			newColour.hsv.setValue(clamp(normalisedValueValue, valueClampingRange.min, valueClampingRange.max));
 			newColour.rgb = Colour.hsvToRgb(newColour.hsv);
 			newColour.hex = Colour.rgbToHex(newColour.rgb);
 		}
+		emit("colourChange", newColour);
+	}
 
+	function updateColourFromHue() {
+		const hueClampingRange: ValueRange = new ValueRange(newColour.hsv.getHue().min, newColour.hsv.getHue().max);
+		let normalisedHueValue: number = hueSelectorMousePosition.elementX.value/hueSelectorMousePosition.elementWidth.value*hueClampingRange.max;
+		const hue: number = clamp(normalisedHueValue, hueClampingRange.min, hueClampingRange.max);
+
+		if(hueSelectorIsActive.value) {
+			newColour.hsv.setHue(hue);
+			newColour.rgb = Colour.hsvToRgb(newColour.hsv);
+			newColour.hex = Colour.rgbToHex(newColour.rgb);
+		}
 		emit("colourChange", newColour);
 	}
 </script>
@@ -75,7 +115,10 @@
 		     @mouseup.left="disableColourPicker" @touchend="disableColourPicker">
 			<div id="colour-selection" ref="colour-selection" :style="{ transform: colPickerTrackerTransformStyle }"></div>
 		</div>
-		<div class="hue-slider" ref="hue-picker">
+		<div class="hue-slider" ref="hue-picker"
+		     @mousedown.left="activateHueSelector" @touchstart="activateHueSelector"
+		     @mousemove="updateColourFromHue" @touchmove="updateColourFromHue"
+		     @mouseup.left="disableHueSelector" @touchend="disableHueSelector">
 			<div id="hue-selection" ref="hue-selection"></div>
 		</div>
 		<div class="colour-previews">
