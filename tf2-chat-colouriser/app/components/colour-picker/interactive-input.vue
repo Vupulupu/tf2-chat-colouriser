@@ -21,6 +21,8 @@
 	const hueSelectionIsActive = useState("hue-picker-active", ()=>false);
 	const hueSliderEventPositions: UseMouseInElementReturn = useMouseInElement(useTemplateRef("hue-picker"));
 	const hueSelector: TemplateRef<HTMLElement> = useTemplateRef("hue-selection");
+	const hueSelectorTransform: Ref<string> = useState("hue-selector-transform", ()=>"translateX(0)");
+
 
 	let invertOldPreviewTextColour: boolean = oldColour.hsv.getValue().value<50;
 	let invertNewPreviewTextColour: Ref<boolean> = computed(() => newColour.hsv.getValue().value<50);
@@ -31,6 +33,9 @@
 				`${newColour.hsv.getValue().value/newColour.hsv.getValue().max*colourPickerEventPositions.elementWidth.value}px, ` +
 				`${colourPickerEventPositions.elementHeight.value-(newColour.hsv.getSaturation().value/newColour.hsv.getSaturation().max*colourPickerEventPositions.elementHeight.value)}px)`;
 		}
+		if (hueSelector.value?.style) {
+			hueSelectorTransform.value = `translateX(` +
+				`${newColour.hsv.getHue().value/newColour.hsv.getHue().max*hueSliderEventPositions.elementWidth.value}px)`;
 		}
 	});
 
@@ -120,7 +125,7 @@
 		     @mousedown.left="activateHueSelector" @touchstart="activateHueSelector"
 		     @mousemove="updateColourFromHue" @touchmove="updateColourFromHue"
 		     @mouseup.left="disableHueSelector" @touchend="disableHueSelector">
-			<div id="hue-selection" ref="hue-selection"></div>
+			<div id="hue-selection" ref="hue-selection" :style="{ transform: hueSelectorTransform }"></div>
 		</div>
 		<div class="colour-previews">
 			<div class="old col-preview" :class="[(invertOldPreviewTextColour ? 'light' : 'dark'),]"
@@ -157,22 +162,32 @@
 		background: linear-gradient(to right, black, transparent), linear-gradient(red, white);
 	}
 
-	#colour-selection {
-		position: absolute;
-		top: -4px;
-		left: -4px;
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		border: 1px solid white;
-		box-shadow: var(--interactive-menu-shadow);
-	}
-
 	.hue-slider {
+		position: relative;
 		grid-area: slider;
 		width: 360px;
 		height: 32px;
 		background: linear-gradient(to right, #F00, #FF0, #0F0, #0FF, #00F, #F0F, #F00);
+	}
+
+	#colour-selection, #hue-selection {
+		--picker-size: 8px;
+		position: absolute;
+		top: calc(var(--picker-size) / -2);
+		left: calc(var(--picker-size) / -2);
+		width: var(--picker-size);
+		height: var(--picker-size);
+		border: 1px solid white;
+		box-shadow: var(--interactive-menu-shadow);
+	}
+
+	#colour-selection {
+		border-radius: 50%;
+	}
+
+	#hue-selection {
+		height: calc(100% + var(--picker-size));
+		border-radius: calc(var(--picker-size) / 4);
 	}
 
 	.colour-previews {
