@@ -2,18 +2,13 @@
 	import * as Colour from "~/utils/colour-picker/colour";
 
 	const oldColour: Ref<Colour.Colour> = useState("old-colour", () => Colour.createFromHex("#fcedcd"));
-	let newColour: Ref<Colour.Colour> = useState("new-colour", () => Colour.createFromHex("#fcedcd"));
-
-	let oldPreviewTextColour: Ref<string> = computed(() => {
-		return `${oldColour.value.hsv.getValue().value>50?'var(--tf2-shadow-colour)':'var(--tf2-shadow-colour)'}` });
-	let newPreviewTextColour: Ref<string> = computed(() => {
-		return `${newColour.value.hsv.getValue().value>50?'var(--tf2-shadow-colour)':'var(--tf2-shadow-colour)'}` });
+	const newColour: Ref<Colour.Colour> = useState("new-colour", () => Colour.createFromHex("#fcedcd"));
 </script>
 
 <template>
 	<div id="colour-picker">
 		<div class="picker-header">
-			<span>Change Text ConvertColourModels</span>
+			<span>Change Text Colour</span>
 			<button id="close-picker">X</button>
 		</div>
 		<div class="main-content">
@@ -21,7 +16,7 @@
 				<ColourPickerInteractiveInput :old-colour="oldColour" :new-colour="newColour"
 				                              @colour-change="(changedColour: Colour.Colour) => newColour = changedColour" />
 				<ColourPickerRawInputs class="raw" :old-colour="oldColour" :new-colour="newColour"
-				                       @colour-change="(changedColour: Colour.Colour) => {newColour = changedColour; console.log(newColour)}" />
+				                       @colour-change="(changedColour: Colour.Colour) => newColour = changedColour" />
 			</div>
 			<div class="finalise-buttons">
 				<button id="cancel"><span class="text-icon">✘</span> Cancel</button>
@@ -80,48 +75,6 @@
 		display: flex;
 		gap: var(--popup-padded-spacing);
 		margin-bottom: var(--popup-padded-spacing);
-	}
-
-	.interactive {
-		grid-area: interactive;
-		display: grid;
-		grid-template: "area preview"
-		               "slider slider" / 1fr auto;
-		gap: var(--popup-padded-spacing);
-		&>* {
-			box-shadow: var(--tf2-shadow-colour) 0 0 2px, var(--tf2-shadow-colour) 0 0 2px, var(--tf2-shadow-colour) 0 0 2px;
-			border-radius: 2px;
-		}
-	}
-
-	.picker-area {
-		grid-area: area;
-		width: 256px;
-		height: 256px;
-		background: linear-gradient(to right, black, transparent), linear-gradient(red, white);
-	}
-
-	.hue-slider {
-		grid-area: slider;
-		width: 360px;
-		height: 32px;
-		background: linear-gradient(to right, #F00, #FF0, #0F0, #0FF, #00F, #F0F, #F00);
-	}
-
-	.colour-previews {
-		grid-area: preview;
-		height: 75%;
-		display: grid;
-		margin: 8px 8px 0 0;
-		user-select: none;
-	}
-
-	.col-preview {
-		width: 48px;
-		padding-left: 3px;
-		font-family: "verdana", sans-serif;
-		font-size: .5rem;
-		text-align: start;
 	}
 
 	.finalise-buttons {

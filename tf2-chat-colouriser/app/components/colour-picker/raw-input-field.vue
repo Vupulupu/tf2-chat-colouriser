@@ -25,11 +25,11 @@
 <style scoped>
 	label, input {
 		height: min-content;
+		padding: .25em;
 	}
 
 	input {
 		width: 96px;
-		padding: .25em;
 		border: none;
 		border-radius: .25em;
 		font-family: "tf2 build", sans-serif;

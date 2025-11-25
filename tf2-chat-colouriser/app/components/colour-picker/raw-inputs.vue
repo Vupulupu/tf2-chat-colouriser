@@ -10,8 +10,8 @@
 	});
 	const emit = defineEmits(["colourChange"]);
 
-	const oldColour = props.oldColour as Colour.Colour;
-	const newColour = props.newColour as Colour.Colour;
+	const oldColour: Colour.Colour = props.oldColour as Colour.Colour;
+	const newColour: Colour.Colour = props.newColour as Colour.Colour;
 
 	interface ValueSetter {
 		setValue: (_: any)=>void,
@@ -19,7 +19,7 @@
 	}
 
 	let colourFieldModels: { oldField: ColourField, newField: ColourField, valueSetter: ValueSetter }[][];
-	watchEffect(() => {
+	watchEffect(async () => {
 		colourFieldModels = [
 			[
 				{

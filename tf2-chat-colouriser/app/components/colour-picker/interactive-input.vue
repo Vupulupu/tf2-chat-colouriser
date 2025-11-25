@@ -36,16 +36,20 @@
 	function activateColourPicker(e: Event) {
 		e.preventDefault();
 		colourPickerIsActive.value = true;
-		window.addEventListener("mousemove", updatePickerColour);
+		window.addEventListener("mousemove", updateColourFromPicker);
+		window.addEventListener("touchmove", updateColourFromPicker);
 		window.addEventListener("mouseup", disableColourPicker);
+		window.addEventListener("touchend", disableColourPicker);
 		window.addEventListener("selectstart", preventDefaultWrapper);
 	}
 
 	function disableColourPicker(e: Event) {
 		e.preventDefault();
 		colourPickerIsActive.value = false;
-		window.removeEventListener("mousemove", updatePickerColour);
+		window.removeEventListener("mousemove", updateColourFromPicker);
+		window.removeEventListener("touchmove", updateColourFromPicker);
 		window.removeEventListener("mouseup", disableColourPicker);
+		window.removeEventListener("touchend", disableColourPicker);
 		window.removeEventListener("selectstart", preventDefaultWrapper);
 	}
 
@@ -67,7 +71,7 @@
 	<div class="interactive">
 		<div class="picker-area" ref="colour-picker"
 		     @mousedown.left="activateColourPicker" @touchstart="activateColourPicker"
-		     @mousemove="updatePickerColour" @touchmove="updatePickerColour"
+		     @mousemove="updateColourFromPicker" @touchmove="updateColourFromPicker"
 		     @mouseup.left="disableColourPicker" @touchend="disableColourPicker">
 			<div id="colour-selection" ref="colour-selection" :style="{ transform: colPickerTrackerTransformStyle }"></div>
 		</div>
@@ -75,7 +79,8 @@
 			<div id="hue-selection" ref="hue-selection"></div>
 		</div>
 		<div class="colour-previews">
-			<div class="old col-preview" :class="[(invertOldPreviewTextColour ? 'light' : 'dark'),]">
+			<div class="old col-preview" :class="[(invertOldPreviewTextColour ? 'light' : 'dark'),]"
+			     :style="{ backgroundColor: oldColour.hex.getCode().value }">
 				old
 			</div>
 			<div class="new col-preview" :class="[(invertNewPreviewTextColour ? 'light' : 'dark'),]"
@@ -92,7 +97,7 @@
 		grid-area: interactive;
 		display: grid;
 		grid-template: "area preview"
-			               "slider slider" / 1fr auto;
+			           "slider slider" / 1fr auto;
 		gap: var(--popup-padded-spacing);
 		&>* {
 			box-shadow: var(--interactive-menu-shadow);

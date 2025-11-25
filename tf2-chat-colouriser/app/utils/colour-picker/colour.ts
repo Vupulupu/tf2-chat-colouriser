@@ -52,7 +52,7 @@ export function hsvToRgb(hsv: HsvColourModel): RgbColourModel {
 	} else if (4<=hueNormalised && hueNormalised<5) {   // #Lo00Hi
 		blue = chromaNormalised;
 		red = hueAdjustment;
-	} else if (5<=hueNormalised && hueNormalised<6) {   // #Hi00Lo
+	} else if (5<=hueNormalised && hueNormalised<=6) {  // #Hi00Lo
 		red = chromaNormalised;
 		blue = hueAdjustment;
 	} else {
