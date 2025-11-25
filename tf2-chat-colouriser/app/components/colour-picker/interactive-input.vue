@@ -33,14 +33,16 @@
 		e.preventDefault();
 	}
 
-	function activateColourPicker() {
+	function activateColourPicker(e: Event) {
+		e.preventDefault();
 		colourPickerIsActive.value = true;
 		window.addEventListener("mousemove", updatePickerColour);
 		window.addEventListener("mouseup", disableColourPicker);
 		window.addEventListener("selectstart", preventDefaultWrapper);
 	}
 
-	function disableColourPicker() {
+	function disableColourPicker(e: Event) {
+		e.preventDefault();
 		colourPickerIsActive.value = false;
 		window.removeEventListener("mousemove", updatePickerColour);
 		window.removeEventListener("mouseup", disableColourPicker);
@@ -64,8 +66,9 @@
 <template>
 	<div class="interactive">
 		<div class="picker-area" ref="colour-picker"
-		     @mousedown.left="activateColourPicker(); updatePickerColour();"
-		     @mousemove="updatePickerColour();" @mouseup.left="disableColourPicker();">
+		     @mousedown.left="activateColourPicker" @touchstart="activateColourPicker"
+		     @mousemove="updatePickerColour" @touchmove="updatePickerColour"
+		     @mouseup.left="disableColourPicker" @touchend="disableColourPicker">
 			<div id="colour-selection" ref="colour-selection" :style="{ transform: colPickerTrackerTransformStyle }"></div>
 		</div>
 		<div class="hue-slider" ref="hue-picker">
