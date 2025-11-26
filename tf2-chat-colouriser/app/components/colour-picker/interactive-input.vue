@@ -17,12 +17,14 @@
 	});
 
 	const colourPickingIsActive: Ref<boolean> = useState("colour-picker-active", ()=>false);
-	const colourPickerEventPositions: UseMouseInElementReturn = useMouseInElement(useTemplateRef("colour-picker"));
-	const colPickerSelector: TemplateRef<HTMLElement> = useTemplateRef("colour-selection");
-	const colPickerSelectorTransform: Ref<string> = useState("colour-picker-selector-transform", ()=>"translate(0, 0)");
+	const colourPickerArea: TemplateRef<HTMLElement> = useTemplateRef("colour-picker");
+	const colourPickerEventPositions: UseMouseInElementReturn = useMouseInElement(colourPickerArea);
+	const colourSelector: TemplateRef<HTMLElement> = useTemplateRef("colour-selection");
+	const colourSelectorTransform: Ref<string> = useState("colour-picker-selector-transform", ()=>"translate(0, 0)");
 
 	const hueSelectionIsActive = useState("hue-picker-active", ()=>false);
-	const hueSliderEventPositions: UseMouseInElementReturn = useMouseInElement(useTemplateRef("hue-picker"));
+	const hueSliderArea: TemplateRef<HTMLElement> = useTemplateRef("hue-picker");
+	const hueSliderEventPositions: UseMouseInElementReturn = useMouseInElement(hueSliderArea);
 	const hueSelector: TemplateRef<HTMLElement> = useTemplateRef("hue-selection");
 	const hueSelectorTransform: Ref<string> = useState("hue-selector-transform", ()=>"translateX(0)");
 
@@ -30,26 +32,21 @@
 	const colourSelectorFill: Ref<string> = computed(() => newColour.hex.getCode().value);
 	const hueSelectorFill: Ref<string> = computed(() => hueOnlyNewColour.value.hex.getCode().value);
 
-	let invertOldPreviewTextColour: boolean = oldColour.hsv.getValue().value<50;
-	let invertNewPreviewTextColour: Ref<boolean> = computed(() => newColour.hsv.getValue().value<50);
+	const invertOldPreviewTextColour: boolean = oldColour.hsv.getValue().value>50;
+	const invertNewPreviewTextColour: Ref<boolean> = computed(() => newColour.hsv.getValue().value>50);
 
-	watchEffect(async () => {
-		if (colPickerSelector.value?.style) {
-			colPickerSelectorTransform.value = `translate(` +
-				`${newColour.hsv.getValue().value/newColour.hsv.getValue().max*colourPickerEventPositions.elementWidth.value}px, ` +
-				`${colourPickerEventPositions.elementHeight.value-(newColour.hsv.getSaturation().value/newColour.hsv.getSaturation().max*colourPickerEventPositions.elementHeight.value)}px)`;
-		}
-		if (hueSelector.value?.style) {
-			hueSelectorTransform.value = `translateX(` +
-				`${newColour.hsv.getHue().value/newColour.hsv.getHue().max*hueSliderEventPositions.elementWidth.value}px)`;
-		}
-	});
+	watch([newColour, colourSelectorTransform, hueSelectorTransform], async () => { await updateSelectorPositions(); });
+
+	// For some reason this needs to be wrapped in a setTimeout, even if it has a 0ms delay.
+	// I have no idea how it works under the hood lmao.
+	setTimeout(()=>updateSelectorPositions(), 0);
+
 
 	function preventDefault(e: Event) {
 		e.preventDefault();
 	}
 
-	function activateColourPicker(e: Event) {
+	async function activateColourPicker(e: Event) {
 		preventDefault(e);
 		colourPickingIsActive.value = true;
 		window.addEventListener("mousemove", updateColourFromPicker);
@@ -57,9 +54,10 @@
 		window.addEventListener("mouseup", disableColourPicker);
 		window.addEventListener("touchend", disableColourPicker);
 		window.addEventListener("selectstart", preventDefault);
+		await updateColourFromPicker();
 	}
 
-	function disableColourPicker(e: Event) {
+	async function disableColourPicker(e: Event) {
 		preventDefault(e);
 		colourPickingIsActive.value = false;
 		window.removeEventListener("mousemove", updateColourFromPicker);
@@ -69,7 +67,7 @@
 		window.removeEventListener("selectstart", preventDefault);
 	}
 
-	function activateHueSelector(e: Event) {
+	async function activateHueSelector(e: Event) {
 		preventDefault(e);
 		hueSelectionIsActive.value = true;
 		window.addEventListener("mousemove", updateColourFromHue);
@@ -77,10 +75,10 @@
 		window.addEventListener("mouseup", disableHueSelector);
 		window.addEventListener("touchend", disableHueSelector);
 		window.addEventListener("selectstart", preventDefault);
-		updateColourFromPicker();
+		await updateColourFromHue();
 	}
 
-	function disableHueSelector(e: Event) {
+	async function disableHueSelector(e: Event) {
 		preventDefault(e);
 		hueSelectionIsActive.value = false;
 		window.removeEventListener("mousemove", updateColourFromHue);
@@ -90,13 +88,13 @@
 		window.removeEventListener("selectstart", preventDefault);
 	}
 
-	function updateColourFromPicker() {
-		const valueClampingRange: ValueRange = new ValueRange(newColour.hsv.getValue().min, newColour.hsv.getValue().max);
-		const saturationClampingRange: ValueRange = new ValueRange(newColour.hsv.getSaturation().min, newColour.hsv.getSaturation().max);
-		const normalisedValueValue: number = colourPickerEventPositions.elementX.value/colourPickerEventPositions.elementWidth.value*valueClampingRange.max;
-		const normalisedSaturationValue: number = 100-colourPickerEventPositions.elementY.value/colourPickerEventPositions.elementHeight.value*saturationClampingRange.max;
+	async function updateColourFromPicker() {
+		if(colourPickingIsActive.value && colourPickerArea.value) {
+			const valueClampingRange: ValueRange = new ValueRange(newColour.hsv.getValue().min, newColour.hsv.getValue().max);
+			const saturationClampingRange: ValueRange = new ValueRange(newColour.hsv.getSaturation().min, newColour.hsv.getSaturation().max);
+			const normalisedValueValue: number = colourPickerEventPositions.elementX.value/colourPickerArea.value.offsetHeight*valueClampingRange.max;
+			const normalisedSaturationValue: number = 100-colourPickerEventPositions.elementY.value/colourPickerArea.value.offsetHeight*saturationClampingRange.max;
 
-		if(colourPickingIsActive.value) {
 			newColour.hsv.setSaturation(clamp(normalisedSaturationValue, saturationClampingRange.min, saturationClampingRange.max));
 			newColour.hsv.setValue(clamp(normalisedValueValue, valueClampingRange.min, valueClampingRange.max));
 			newColour.rgb = Colour.hsvToRgb(newColour.hsv);
@@ -105,17 +103,29 @@
 		emit("colourChange", newColour);
 	}
 
-	function updateColourFromHue() {
+	async function updateColourFromHue() {
+		if(hueSelectionIsActive.value && hueSliderArea.value) {
 		const hueClampingRange: ValueRange = new ValueRange(newColour.hsv.getHue().min, newColour.hsv.getHue().max);
-		let normalisedHueValue: number = hueSliderEventPositions.elementX.value/hueSliderEventPositions.elementWidth.value*hueClampingRange.max;
+		const normalisedHueValue: number = hueSliderEventPositions.elementX.value/hueSliderArea.value.offsetWidth*hueClampingRange.max;
 		const hue: number = clamp(normalisedHueValue, hueClampingRange.min, hueClampingRange.max);
 
-		if(hueSelectionIsActive.value) {
 			newColour.hsv.setHue(hue);
 			newColour.rgb = Colour.hsvToRgb(newColour.hsv);
 			newColour.hex = Colour.rgbToHex(newColour.rgb);
 		}
 		emit("colourChange", newColour);
+	}
+
+	async function updateSelectorPositions() {
+		if (colourSelector.value?.style && colourPickerArea.value) {
+			colourSelectorTransform.value = `translate(` +
+				`${newColour.hsv.getValue().value/newColour.hsv.getValue().max*colourPickerArea.value.offsetWidth}px, ` +
+				`${colourPickerArea.value.offsetHeight-(newColour.hsv.getSaturation().value/newColour.hsv.getSaturation().max*colourPickerArea.value.offsetHeight)}px)`;
+		}
+		if (hueSelector.value?.style && hueSliderArea.value) {
+			hueSelectorTransform.value = `translateX(` +
+				`${newColour.hsv.getHue().value/newColour.hsv.getHue().max*hueSliderArea.value.offsetWidth}px)`;
+		}
 	}
 </script>
 
@@ -125,7 +135,7 @@
 		     @mousedown.left="activateColourPicker" @touchstart="activateColourPicker"
 		     @mousemove="updateColourFromPicker" @touchmove="updateColourFromPicker"
 		     @mouseup.left="disableColourPicker" @touchend="disableColourPicker">
-			<div id="colour-selection" ref="colour-selection" :style="{ transform: colPickerSelectorTransform }"></div>
+			<div id="colour-selection" ref="colour-selection" :style="{ transform: colourSelectorTransform }"></div>
 		</div>
 		<div class="hue-slider" ref="hue-picker"
 		     @mousedown.left="activateHueSelector" @touchstart="activateHueSelector"
@@ -134,11 +144,11 @@
 			<div id="hue-selection" ref="hue-selection" :style="{ transform: hueSelectorTransform }"></div>
 		</div>
 		<div class="colour-previews">
-			<div class="old col-preview" :class="[(invertOldPreviewTextColour ? 'light' : 'dark'),]"
+			<div class="old col-preview" :class="{dark: invertOldPreviewTextColour}"
 			     :style="{ backgroundColor: oldColour.hex.getCode().value }">
 				old
 			</div>
-			<div class="new col-preview" :class="[(invertNewPreviewTextColour ? 'light' : 'dark'),]"
+			<div class="new col-preview" :class="{dark: invertNewPreviewTextColour}"
 			     :style="{ backgroundColor: newColour.hex.getCode().value }">
 				new
 			</div>
@@ -186,6 +196,7 @@
 		height: var(--picker-size);
 		border: 1px solid white;
 		box-shadow: var(--interactive-menu-shadow);
+		transition: transform .1s ease-out;
 	}
 
 	#colour-selection {
@@ -213,9 +224,6 @@
 		font-family: "verdana", sans-serif;
 		font-size: .5rem;
 		text-align: start;
-		&.light {
-			color: var(--tf2-chat-colour);
-		}
 		&.dark {
 			color: var(--tf2-shadow-colour);
 		}

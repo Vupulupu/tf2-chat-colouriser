@@ -27,6 +27,18 @@
 </template>
 
 <style scoped>
+	@keyframes init-grow {
+		0% {
+			transform: scale(0, 0);
+		}
+		60% {
+			transform: scale(102%, 102%);
+		}
+		100% {
+			transform: scale(100%, 100%);
+		}
+	}
+
 	#colour-picker {
 		--popup-padded-spacing: .5rem;
 
@@ -41,6 +53,9 @@
 		& * {
 			box-sizing: border-box;
 		}
+
+		transform-origin: bottom right;
+		animation: init-grow .6s ease 1;
 	}
 
 	.picker-header {
