@@ -1,15 +1,21 @@
 <script setup lang="ts">
 	import * as Colour from "~/utils/colour-picker/colour";
 
-	const oldColour: Ref<Colour.Colour> = useState("old-colour", () => Colour.createFromHex("#fcedcd"));
-	const newColour: Ref<Colour.Colour> = useState("new-colour", () => Colour.createFromHex("#fcedcd"));
+	const props = defineProps({
+		oldColourHex: { type: String, default: "#fcedcd" },
+	});
+
+	const emit = defineEmits(["colourSet", "colourCancelled"]);
+
+	const oldColour: Ref<Colour.Colour> = useState("old-colour", () => Colour.createFromHex(props.oldColourHex));
+	const newColour: Ref<Colour.Colour> = useState("new-colour", () => Colour.createFromHex(props.oldColourHex));
 </script>
 
 <template>
 	<div id="colour-picker">
 		<div class="picker-header">
 			<span>Change Text Colour</span>
-			<button id="close-picker">X</button>
+			<button id="close-picker" @click="emit('colourCancelled')">X</button>
 		</div>
 		<div class="main-content">
 			<div class="inputs">
@@ -19,8 +25,8 @@
 				                       @colour-change="(changedColour: Colour.Colour) => newColour = changedColour" />
 			</div>
 			<div class="finalise-buttons">
-				<button id="cancel"><span class="text-icon">✘</span> Cancel</button>
-				<button id="confirm"><span class="text-icon">✔</span> Confirm</button>
+				<button id="cancel" @click="emit('colourCancelled')"><span class="text-icon">✘</span> Cancel</button>
+				<button id="confirm" @click="emit('colourSet', newColour)"><span class="text-icon">✔</span> Confirm</button>
 			</div>
 		</div>
 	</div>
