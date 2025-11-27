@@ -1,7 +1,7 @@
 :root {
 	--hsl-black: 0 0% 0%;
 	--hsl-white: 0 0% 100%;
-	--tf2-hsl-shadow-colour: 40 9% 6.5%;
+	--tf2-hsl-shadow-colour: 30 13.3% 11.8%;
 	--tf2-hsl-chat-colour: 41 88.7% 89.6%;
 	--tf2-hsl-chat-selection-colour: 38 100% 50%;
 	--hsl-link-selection-colour: 15 95% 35%;
@@ -12,5 +12,10 @@
 	--tf2-chat-selection-colour: hsl(var(--tf2-hsl-chat-selection-colour));
 	--tf2-health-gradient-top: hsl(39 96.1% 90%);
 	--tf2-health-gradient-bottom: hsl(41 17.4% 63.9%);
+	--tf2-section-gradient-top: hsl(33 10.9% 19.8%);
+	--tf2-section-gradient-bottom: hsl(30 13.3% 11.8%);
+	--tf2-init-menu-head-colour: hsl(79 50.6% 46.9%);
+	--tf2-menu-head-colour: hsl(25 54% 46.9%);
+	--tf2-accent-color: hsl(9 57.1% 50.6%);
 	--link-selection-colour: hsl(var(--hsl-link-selection-colour));
 }
