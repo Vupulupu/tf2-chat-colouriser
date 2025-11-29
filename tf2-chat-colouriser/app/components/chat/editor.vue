@@ -23,12 +23,18 @@
 
 <template>
 	<div id="editor">
-		<label for="message-input" ref="message-label" class="message-label" :style="tfStyleTextShadow('var(--tf2-chat-colour)', -1, -1, 2)">Chat Message</label>
+		<label for="message-input" ref="message-label" class="message-label"
+		       :style="{ textShadow: tfStyleTextShadow('var(--tf2-chat-colour)', -1, -1, 2) }">
+			Chat Message
+		</label>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<input id="message-input" ref="message-input" type="text" value="" @input="handleResize" @resize="handleResize" autofocus/>
 		</div>
-		<p id="message-byte-length" ref="message-byte-length" :style="tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0)">0/127 bytes used</p>
+		<p id="message-byte-length" ref="message-byte-length"
+		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
+			0/127 bytes used
+		</p>
 		<p ref="message-width" class="message-width">-</p>
 	</div>
 </template>

@@ -1,4 +1,4 @@
-export function tfStyleTextShadow(colour: string, startingX: number, startingY: number, width: number = 1, length: number = 5): {"text-shadow": string} {
+export function tfStyleTextShadow(colour: string, startingX: number, startingY: number, width: number = 1, length: number = 5): string {
 	const DIAG_INCR: number = 1;
 	const WIDTH_INCR: number = 1;
 	let finalStyle: string = '';
@@ -21,6 +21,5 @@ export function tfStyleTextShadow(colour: string, startingX: number, startingY: 
 			appendTextShadow(x, startingY+length-1);
 	}
 
-	console.log(finalStyle);
-	return { 'text-shadow': finalStyle.slice(0, finalStyle.length-2) };
+	return finalStyle.slice(0, finalStyle.length-2);
 }
