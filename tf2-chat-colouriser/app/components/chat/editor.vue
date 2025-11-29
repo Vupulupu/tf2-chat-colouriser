@@ -58,19 +58,23 @@
 		font-weight: bold;
 	}
 
-	#message-input, .chat-container,  .message-width {
+	#message-input,
+	.chat-container,
+	.message-width {
 		box-sizing: border-box;
 		font-family: "verdana", "sans-serif";
 		font-weight: bold;
 		font-size: var(--verdana-font-size);
 	}
 
-	#message-input, .say-text {
+	#message-input,
+	.say-text {
 		padding: 5px 10px calc(5px + .1em) 10px;
 		text-shadow: hsla(var(--hsl-black) / 50%) 2px 2px 1px;
 	}
 
-	#message-input, .message-width {
+	#message-input,
+	.message-width {
 		max-width: calc(95dvw - v-bind(sayTextWidth));
 	}
 
@@ -91,7 +95,8 @@
 		}
 	}
 
-	.chat-container, .say-text {
+	.chat-container,
+	.say-text {
 		--container-border-style: 2px solid hsla(var(--hsl-white) / 50%);
 	}
 

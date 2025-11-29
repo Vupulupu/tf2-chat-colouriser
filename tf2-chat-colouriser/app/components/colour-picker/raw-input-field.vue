@@ -23,7 +23,8 @@
 </template>
 
 <style scoped>
-	label, input {
+	label,
+	input {
 		height: min-content;
 		padding: .25em;
 	}

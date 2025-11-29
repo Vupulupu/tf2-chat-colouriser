@@ -187,7 +187,8 @@
 		background: linear-gradient(to right, #F00, #FF0, #0F0, #0FF, #00F, #F0F, #F00);
 	}
 
-	#colour-selection, #hue-selection {
+	#colour-selection,
+	#hue-selection {
 		--picker-size: 8px;
 		position: absolute;
 		top: calc(var(--picker-size) / -2);
