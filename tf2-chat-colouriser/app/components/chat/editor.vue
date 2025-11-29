@@ -11,9 +11,9 @@
 	let sayTextWidth: Ref<string, string> = useState("say-text-width", () => "0");
 
 	onMounted(() => {
-		minInputWidth.value = (editorComponents.messageLabel().offsetWidth - editorComponents.sayText().offsetWidth) + "px";
+		minInputWidth.value = (editorComponents.messageLabel.offsetWidth - editorComponents.sayText.offsetWidth) + "px";
 		animateExpandStartingInput(editorComponents, minInputWidth);
-		sayTextWidth.value = editorComponents.sayText().offsetWidth + "px";
+		sayTextWidth.value = editorComponents.sayText.offsetWidth + "px";
 	});
 
 	function handleResize() {
@@ -23,12 +23,18 @@
 
 <template>
 	<div id="editor">
-		<label for="message-input" ref="message-label" class="message-label" :style="tfStyleTextShadow('var(--tf2-chat-colour)', -1, -1, 2)">Chat Message</label>
+		<label for="message-input" ref="message-label" class="message-label"
+		       :style="{ textShadow: tfStyleTextShadow('var(--tf2-chat-colour)', -1, -1, 2) }">
+			Chat Message
+		</label>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<input id="message-input" ref="message-input" type="text" value="" @input="handleResize" @resize="handleResize" autofocus/>
 		</div>
-		<p id="message-byte-length" ref="message-byte-length" :style="tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0)">0/127 bytes used</p>
+		<p id="message-byte-length" ref="message-byte-length"
+		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
+			0/127 bytes used
+		</p>
 		<p ref="message-width" class="message-width">-</p>
 	</div>
 </template>
@@ -52,19 +58,23 @@
 		font-weight: bold;
 	}
 
-	#message-input, .chat-container,  .message-width {
+	#message-input,
+	.chat-container,
+	.message-width {
 		box-sizing: border-box;
 		font-family: "verdana", "sans-serif";
 		font-weight: bold;
 		font-size: var(--verdana-font-size);
 	}
 
-	#message-input, .say-text {
+	#message-input,
+	.say-text {
 		padding: 5px 10px calc(5px + .1em) 10px;
 		text-shadow: hsla(var(--hsl-black) / 50%) 2px 2px 1px;
 	}
 
-	#message-input, .message-width {
+	#message-input,
+	.message-width {
 		max-width: calc(95dvw - v-bind(sayTextWidth));
 	}
 
@@ -85,7 +95,8 @@
 		}
 	}
 
-	.chat-container, .say-text {
+	.chat-container,
+	.say-text {
 		--container-border-style: 2px solid hsla(var(--hsl-white) / 50%);
 	}
 
