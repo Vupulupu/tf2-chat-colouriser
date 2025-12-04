@@ -1,8 +1,7 @@
 <script setup lang="ts">
 	import { EditorComponents } from "~/utils/chat/editor-components";
-	import { animateExpandStartingInput, autoResizeInput } from "~/utils/chat/input-width";
+	import * as InputResize from "~/utils/chat/input-resize";
 	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
-	import { openColourOptions } from "~/utils/chat/selection-options";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
@@ -15,16 +14,16 @@
 
 	onMounted(() => {
 		minInputWidth.value = (editorComponents.messageLabel.offsetWidth - editorComponents.sayText.offsetWidth) + "px";
-		animateExpandStartingInput(editorComponents, minInputWidth);
+		InputResize.animateExpandStartingInput(editorComponents, minInputWidth);
 		sayTextWidth.value = editorComponents.sayText.offsetWidth + "px";
 
 		editorComponents.messageInput.addEventListener("selectionchange", () => {
-			inputSelectRect.value = openColourOptions(editorComponents.messageInput, editorComponents.messageMirror);
+			inputSelectRect.value = InputResize.parseSelectionRect(editorComponents.messageInput, editorComponents.messageMirror);
 		});
 	});
 
-		autoResizeInput(editorComponents);
 	function resizeMessage(): void {
+		InputResize.resizeInputComponent(editorComponents);
 	}
 </script>
 
