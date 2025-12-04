@@ -2,6 +2,7 @@
 	import { EditorComponents } from "~/utils/chat/editor-components";
 	import { animateExpandStartingInput, autoResizeInput } from "~/utils/chat/input-width";
 	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
+	import { openColourOptions } from "~/utils/chat/selection-options";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
@@ -10,11 +11,16 @@
 	let sayTextWidth: Ref<string, string> = useState("say-text-width", () => "0");
 	                                                                useTemplateRef("message-input-mirror"),
 	                                                                useTemplateRef("message-raw-width"));
+	const inputSelectRect: Ref<DOMRect> = useState("input-select-rect", () => new DOMRect());
 
 	onMounted(() => {
 		minInputWidth.value = (editorComponents.messageLabel.offsetWidth - editorComponents.sayText.offsetWidth) + "px";
 		animateExpandStartingInput(editorComponents, minInputWidth);
 		sayTextWidth.value = editorComponents.sayText.offsetWidth + "px";
+
+		editorComponents.messageInput.addEventListener("selectionchange", () => {
+			inputSelectRect.value = openColourOptions(editorComponents.messageInput, editorComponents.messageMirror);
+		});
 	});
 
 	function handleResize() {
@@ -80,6 +86,7 @@
 	#message-input>*,
 	.message-width {
 		max-width: calc(95dvw - v-bind(sayTextWidth));
+		overflow: hidden;
 	}
 
 	#message-input {

@@ -16,6 +16,9 @@ export function animateExpandStartingInput(components: EditorComponents, inputWi
 }
 
 export function autoResizeInput(components: EditorComponents): void {
+	components.messageMirror.innerHTML = components.messageInput.value;
 	components.messageWidth.innerHTML = components.messageInput.value.replace(/\s/g, "&nbsp;");
-	components.messageInput.style.width = (components.messageWidth.offsetWidth + INPUT_WIDTH_PADDING) + "px";
+	const newWidth: number = components.messageWidth.offsetWidth + INPUT_WIDTH_PADDING;
+	components.messageInput.style.width = `${newWidth}px`;
+	components.messageMirror.style.width = `${newWidth}px`;
 }
