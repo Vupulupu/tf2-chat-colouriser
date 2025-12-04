@@ -6,9 +6,10 @@
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
 	                                                                useTemplateRef("message-input"),
-	                                                                useTemplateRef("message-width"));
 	let minInputWidth: Ref<string, string> = useState("min-input-width", () => "0");
 	let sayTextWidth: Ref<string, string> = useState("say-text-width", () => "0");
+	                                                                useTemplateRef("message-input-mirror"),
+	                                                                useTemplateRef("message-raw-width"));
 
 	onMounted(() => {
 		minInputWidth.value = (editorComponents.messageLabel.offsetWidth - editorComponents.sayText.offsetWidth) + "px";
@@ -29,13 +30,16 @@
 		</label>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
-			<input id="message-input" ref="message-input" type="text" value="" @input="handleResize" @resize="handleResize" autofocus/>
+			<span id="message-input">
+				<input ref="message-input" type="text" value="" @input="resizeMessage" @resize="resizeMessage" />
+				<span class="mirror" ref="message-input-mirror"></span>
+			</span>
 		</div>
 		<p id="message-byte-length" ref="message-byte-length"
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used
 		</p>
-		<p ref="message-width" class="message-width">-</p>
+		<p ref="message-raw-width" class="message-width">-</p>
 	</div>
 </template>
 
@@ -58,7 +62,7 @@
 		font-weight: bold;
 	}
 
-	#message-input,
+	#message-input>*,
 	.chat-container,
 	.message-width {
 		box-sizing: border-box;
@@ -67,31 +71,42 @@
 		font-size: var(--verdana-font-size);
 	}
 
-	#message-input,
+	#message-input>*,
 	.say-text {
 		padding: 5px 10px calc(5px + .1em) 10px;
 		text-shadow: hsla(var(--hsl-black) / 50%) 2px 2px 1px;
 	}
 
-	#message-input,
+	#message-input>*,
 	.message-width {
 		max-width: calc(95dvw - v-bind(sayTextWidth));
 	}
 
 	#message-input {
-		min-width: v-bind(minInputWidth);
-		width: v-bind(minInputWidth);
-		padding: 5px 10px calc(5px + .1em) 10px;
-		color: var(--tf2-chat-colour);
-		text-align: center;
-		background: none;
-		border: none;
-		border-top-right-radius: 10px;
-		border-bottom-right-radius: 10px;
+		position: relative;
+		&>input {
 
-		&:focus-visible, &:focus-within {
-			background: hsla(var(--hsl-black) / 10%);
-			outline: 3px solid var(--tf2-chat-selection-colour);
+			&:focus-visible, &:focus-within {
+				background: hsla(var(--hsl-black) / 10%);
+				outline: 3px solid var(--tf2-chat-selection-colour);
+			}
+		}
+		&>.mirror {
+			position: absolute;
+			left: 0;
+			z-index: -1;
+			opacity: 0;
+		}
+		&>* {
+			min-width: v-bind(minInputWidth);
+			width: v-bind(minInputWidth);
+			padding: 5px 10px calc(5px + .1em) 10px;
+			color: var(--tf2-chat-colour);
+			text-align: center;
+			background: none;
+			border: none;
+			border-top-right-radius: 10px;
+			border-bottom-right-radius: 10px;
 		}
 	}
 

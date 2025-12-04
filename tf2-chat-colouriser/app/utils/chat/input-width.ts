@@ -16,6 +16,6 @@ export function animateExpandStartingInput(components: EditorComponents, inputWi
 }
 
 export function autoResizeInput(components: EditorComponents): void {
-	components.messageWidthSpan.innerHTML = components.messageInput.value.replace(/\s/g, "&nbsp;");
-	components.messageInput.style.width = (components.messageWidthSpan.offsetWidth + INPUT_WIDTH_PADDING) + "px";
+	components.messageWidth.innerHTML = components.messageInput.value.replace(/\s/g, "&nbsp;");
+	components.messageInput.style.width = (components.messageWidth.offsetWidth + INPUT_WIDTH_PADDING) + "px";
 }
