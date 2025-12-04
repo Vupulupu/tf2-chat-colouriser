@@ -23,8 +23,8 @@
 		});
 	});
 
-	function handleResize() {
 		autoResizeInput(editorComponents);
+	function resizeMessage(): void {
 	}
 </script>
 
