@@ -6,10 +6,10 @@
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
 	                                                                useTemplateRef("message-input"),
-	let minInputWidth: Ref<string, string> = useState("min-input-width", () => "0");
-	let sayTextWidth: Ref<string, string> = useState("say-text-width", () => "0");
 	                                                                useTemplateRef("message-input-mirror"),
 	                                                                useTemplateRef("message-raw-width"));
+	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
+	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
 	const inputSelectRect: Ref<DOMRect> = useState("input-select-rect", () => new DOMRect());
 
 	onMounted(() => {
