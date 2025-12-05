@@ -10,7 +10,7 @@
 	                                                                useTemplateRef("message-raw-width"));
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
-	const inputSelectRect: Ref<DOMRect> = useState("input-select-rect", () => new DOMRect());
+	const inputSelectRect: Ref<DOMRect | null> = useState("input-select-rect", () => null);
 
 	onMounted(() => {
 		minInputWidth.value = (editorComponents.messageLabel.offsetWidth - editorComponents.sayText.offsetWidth) + "px";
@@ -33,6 +33,9 @@
 		       :style="{ textShadow: tfStyleTextShadow('var(--tf2-chat-colour)', -1, -1, 2) }">
 			Chat Message
 		</label>
+		<template v-if="inputSelectRect">
+			<button class="colour-options">Colourise</button>
+		</template>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<span id="message-input">
@@ -146,6 +149,11 @@
 		color: transparent;
 		text-shadow: none;
 		user-select: none;
+	}
+
+	.colour-options {
+		width: 5em;
+		height: 3em;
 	}
 
 	@media only screen and (max-width: 320px) {

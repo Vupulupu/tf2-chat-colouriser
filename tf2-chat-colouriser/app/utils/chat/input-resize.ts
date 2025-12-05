@@ -23,13 +23,13 @@ export function resizeInputComponent(components: EditorComponents): void {
 	components.messageMirror.style.width = `${newWidth}px`;
 }
 
-export function parseSelectionRect(input: HTMLInputElement, textMirror: HTMLElement): DOMRect {
-	let selectionRect: DOMRect = new DOMRect();
-	if (textMirror.firstChild) {
+export function parseSelectionRect(input: HTMLInputElement, textMirror: HTMLElement): DOMRect | null {
+	let selectionRect: DOMRect | null = null;
+	if (textMirror.firstChild && input.selectionStart!==input.selectionEnd) {
 		const mirrorContent: Node = textMirror.firstChild as Node;
 		const startIndex: number = input.selectionStart ?? 0;
 		const endIndex: number = input.selectionEnd ?? 0;
-		const mirrorRange = document.createRange();
+		const mirrorRange: Range = document.createRange();
 		mirrorRange.setStart(mirrorContent, startIndex);
 		mirrorRange.setEnd(mirrorContent, endIndex);
 		selectionRect = mirrorRange.getBoundingClientRect();
