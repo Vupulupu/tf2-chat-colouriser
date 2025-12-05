@@ -12,6 +12,17 @@
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
 	const inputSelectRect: Ref<DOMRect | null> = useState("input-select-rect", () => null);
 
+	const leadingTailWidth: string = "15px";
+	const leadingTailHeight: string = "20px";
+	const selectionPositionCentreX: ComputedRef<string> = computed(() => {
+		if (!inputSelectRect.value) return '0';
+		else return (inputSelectRect.value.left + (inputSelectRect.value.width/2)) + "px";
+	});
+	const selectionPositionTopY: ComputedRef<string> = computed(() => {
+		if (!inputSelectRect.value) return '0';
+		else return (inputSelectRect.value.top - parseInt(leadingTailHeight) - 10) + "px";
+	});
+
 	onMounted(() => {
 		minInputWidth.value = (editorComponents.messageLabel.offsetWidth - editorComponents.sayText.offsetWidth) + "px";
 		InputResize.animateExpandStartingInput(editorComponents, minInputWidth);
@@ -35,7 +46,8 @@
 		</label>
 		<div v-if="inputSelectRect" id="tailed-button">
 			<button>Colourise</button>
-			<LeadingTail width="10px" height="20px" />
+			<LeadingTail :width="leadingTailWidth" :height="leadingTailHeight"
+			             :style="{ position: `absolute`, left: `calc(50% - (${leadingTailWidth} / 2))` }" />
 		</div>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
@@ -153,6 +165,12 @@
 	}
 
 	#tailed-button {
+		position: absolute;
+		z-index: 1;
+		left: v-bind(selectionPositionCentreX);
+		top: v-bind(selectionPositionTopY);
+		transform: translate(-50%, -100%);
+
 		&>button {
 			width: 5em;
 			height: 3em;
