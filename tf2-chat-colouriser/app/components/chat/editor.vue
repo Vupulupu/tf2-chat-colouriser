@@ -46,7 +46,7 @@
 		</label>
 		<div v-if="inputSelectRect" id="tailed-button">
 			<button>Colourise</button>
-			<LeadingTail :width="leadingTailWidth" :height="leadingTailHeight"
+			<LeadingTail :width="leadingTailWidth" :height="leadingTailHeight" colour="var(--tf2-shadow-colour)"
 			             :style="{ position: `absolute`, left: `calc(50% - (${leadingTailWidth} / 2))` }" />
 		</div>
 		<div class="chat-container">
