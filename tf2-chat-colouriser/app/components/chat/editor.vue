@@ -33,9 +33,10 @@
 		       :style="{ textShadow: tfStyleTextShadow('var(--tf2-chat-colour)', -1, -1, 2) }">
 			Chat Message
 		</label>
-		<template v-if="inputSelectRect">
-			<button class="colour-options">Colourise</button>
-		</template>
+		<div v-if="inputSelectRect" id="tailed-button">
+			<button>Colourise</button>
+			<LeadingTail width="10px" height="20px" />
+		</div>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<span id="message-input">
@@ -151,9 +152,11 @@
 		user-select: none;
 	}
 
-	.colour-options {
-		width: 5em;
-		height: 3em;
+	#tailed-button {
+		&>button {
+			width: 5em;
+			height: 3em;
+		}
 	}
 
 	@media only screen and (max-width: 320px) {
