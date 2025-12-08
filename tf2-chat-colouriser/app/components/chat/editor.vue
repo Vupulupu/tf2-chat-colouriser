@@ -44,10 +44,12 @@
 		       :style="{ textShadow: tfStyleTextShadow('var(--tf2-chat-colour)', -1, -1, 2) }">
 			Chat Message
 		</label>
-		<div v-if="inputSelectRect" id="tailed-button">
-			<button>Colourise</button>
-			<LeadingTail :width="leadingTailWidth" :height="leadingTailHeight" colour="var(--tf2-shadow-colour)"
-			             :style="{ position: `absolute`, left: `calc(50% - (${leadingTailWidth} / 2))` }" />
+		<div v-if="inputSelectRect" class="tailed-button">
+			<div class="init-grow-wrapper">
+				<button>Colourise</button>
+				<LeadingTail :width="leadingTailWidth" :height="leadingTailHeight" colour="var(--tf2-shadow-colour)"
+				             :style="{ position: `absolute`, left: `calc(50% - (${leadingTailWidth} / 2))` }" />
+			</div>
 		</div>
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
@@ -164,16 +166,27 @@
 		user-select: none;
 	}
 
-	#tailed-button {
+	.tailed-button {
 		position: absolute;
 		z-index: 1;
 		left: v-bind(selectionPositionCentreX);
 		top: v-bind(selectionPositionTopY);
 		transform: translate(-50%, -100%);
+		transition: left .1s ease;
 
-		&>button {
+		& .init-grow-wrapper {
+			transform-origin: 50% calc(100% + 20px);
+			animation: init-grow .6s ease 1;
+		}
+
+		& button {
 			width: 5em;
-			height: 3em;
+			height: 4em;
+			transition: transform .2s ease;
+			&:hover {
+				transform-origin: bottom;
+				transform: scale(110%);
+			}
 		}
 	}
 
