@@ -15,18 +15,18 @@
 	const leadingTailWidth: string = "15px";
 	const leadingTailHeight: string = "20px";
 	const selectionPositionCentreX: ComputedRef<string> = computed(() => {
-		if (!inputSelectRect.value) return '0';
-		else return (inputSelectRect.value.left + (inputSelectRect.value.width/2)) + "px";
+		if (!inputSelectRect.value) return "0";
+		else return `${inputSelectRect.value.left + (inputSelectRect.value.width/2)}px`;
 	});
 	const selectionPositionTopY: ComputedRef<string> = computed(() => {
-		if (!inputSelectRect.value) return '0';
-		else return (inputSelectRect.value.top - parseInt(leadingTailHeight) - 10) + "px";
+		if (!inputSelectRect.value) return "0";
+		else return `${(inputSelectRect.value.top - parseInt(leadingTailHeight) - 10)}px`;
 	});
 
 	onMounted(() => {
-		minInputWidth.value = (editorComponents.messageLabel.offsetWidth - editorComponents.sayText.offsetWidth) + "px";
+		minInputWidth.value = `${(editorComponents.messageLabel.offsetWidth - editorComponents.sayText.offsetWidth)}px`;
 		InputResize.animateExpandStartingInput(editorComponents, minInputWidth);
-		sayTextWidth.value = editorComponents.sayText.offsetWidth + "px";
+		sayTextWidth.value = `${editorComponents.sayText.offsetWidth}px`;
 
 		editorComponents.messageInput.addEventListener("selectionchange", () => {
 			inputSelectRect.value = InputResize.parseSelectionRect(editorComponents.messageInput, editorComponents.messageMirror);
@@ -55,14 +55,14 @@
 			<span ref="say-text" class="say-text">Say :</span>
 			<span id="message-input">
 				<input ref="message-input" type="text" value="" @input="resizeMessage" @resize="resizeMessage" />
-				<span class="mirror" ref="message-input-mirror"></span>
+				<span class="message-mirror" ref="message-input-mirror"></span>
 			</span>
+			<p ref="message-raw-width" class="message-width">-</p>
 		</div>
 		<p id="message-byte-length" ref="message-byte-length"
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used
 		</p>
-		<p ref="message-raw-width" class="message-width">-</p>
 	</div>
 </template>
 
@@ -106,20 +106,22 @@
 		overflow: hidden;
 	}
 
+	.message-mirror,
+	.message-width {
+		position: absolute;
+		left: 0;
+		opacity: 0;
+		user-select: none;
+		pointer-events: none;
+	}
+
 	#message-input {
 		position: relative;
 		&>input {
-
 			&:focus-visible, &:focus-within {
 				background: hsla(var(--hsl-black) / 10%);
 				outline: 3px solid var(--tf2-chat-selection-colour);
 			}
-		}
-		&>.mirror {
-			position: absolute;
-			left: 0;
-			z-index: -1;
-			opacity: 0;
 		}
 		&>* {
 			min-width: v-bind(minInputWidth);
@@ -160,10 +162,6 @@
 
 	.message-width {
 		min-width: var(--input-width)px;
-		position: fixed;
-		color: transparent;
-		text-shadow: none;
-		user-select: none;
 	}
 
 	.tailed-button {
@@ -175,17 +173,17 @@
 		transition: left .1s ease;
 
 		& .init-grow-wrapper {
-			transform-origin: 50% calc(100% + 20px);
+			transform-origin: 50% calc(100% + v-bind(leadingTailHeight));
 			animation: init-grow .6s ease 1;
 		}
 
 		& button {
 			width: 5em;
 			height: 4em;
-			transition: transform .2s ease;
+			transition: transform .3s ease;
 			&:hover {
 				transform-origin: bottom;
-				transform: scale(110%);
+				transform: scale(105%);
 			}
 		}
 	}
