@@ -12,6 +12,7 @@
 </script>
 
 <template>
+	<div class="overlay" @click="emit('colourCancelled')"></div>
 	<div id="colour-picker">
 		<div class="picker-header">
 			<span>Change Text Colour</span>
@@ -125,5 +126,12 @@
 		#close-picker {
 			padding: 0 4px;
 		}
+	}
+	.overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100dvw;
+		height: 100dvh;
 	}
 </style>

@@ -11,6 +11,7 @@
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
 	const inputSelectRect: Ref<DOMRect | null> = useState("input-select-rect", () => null);
+	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", ()=>false);
 
 	const colourOptionSize: string = "50px";
 	const colourOptionTailWidth: string = "15px";
@@ -57,16 +58,20 @@
 		</label>
 		<div v-if="inputSelectRect" class="tailed-button">
 			<div class="init-grow-wrapper">
-				<button>colour-ise</button>
+				<button @click="inputSelectRect=null; pickerIsOpen=true">colour-ise</button>
 				<LeadingTail :width="colourOptionTailWidth" :height="colourOptionTailHeight" colour="var(--tf2-shadow-colour)"
 				             :style="{ position: `absolute`,
 				                       left: `calc(50% - (${colourOptionTailWidth} / 2) + ${colourOptionTailOffset}` }" />
 			</div>
 		</div>
+		<ColourPicker v-if="pickerIsOpen"
+		              @colour-cancelled="pickerIsOpen=false;"
+		              @colour-set="() => { pickerIsOpen=false; }" />
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<span id="message-input">
-				<input ref="message-input" type="text" value="" @input="resizeMessage" @resize="resizeMessage" />
+				<input ref="message-input" type="text" value=""
+				       @input="resizeMessage" @resize="resizeMessage" @blur="inputSelectRect=null;" />
 				<span class="message-mirror" ref="message-input-mirror"></span>
 			</span>
 			<p ref="message-raw-width" class="message-width">-</p>
