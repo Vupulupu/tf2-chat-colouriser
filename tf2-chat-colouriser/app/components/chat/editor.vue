@@ -12,15 +12,26 @@
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
 	const inputSelectRect: Ref<DOMRect | null> = useState("input-select-rect", () => null);
 
-	const leadingTailWidth: string = "15px";
-	const leadingTailHeight: string = "20px";
+	const colourOptionSize: string = "50px";
+	const colourOptionTailWidth: string = "15px";
+	const colourOptionTailHeight: string = "20px";
+	const colourOptionTailOffset: ComputedRef<string> = computed(() => {
+		if (!inputSelectRect.value || !editorComponents.messageInput) return "0";
+		else {
+			const inputCenter: number = editorComponents.messageInput.getBoundingClientRect().left+(editorComponents.messageInput.offsetWidth/2);
+			const offsetFromCentre: number = inputSelectRect.value.left+(inputSelectRect.value.width/2)-inputCenter;
+			return `${offsetFromCentre/(editorComponents.messageInput.offsetWidth/2) * 10}px`
+		}
+	});
 	const selectionPositionCentreX: ComputedRef<string> = computed(() => {
 		if (!inputSelectRect.value) return "0";
-		else return `${inputSelectRect.value.left + (inputSelectRect.value.width/2)}px`;
+		else return `clamp(2rem,` +
+			`${inputSelectRect.value.left + (inputSelectRect.value.width/2) - parseInt(colourOptionTailOffset.value)}px,` +
+			`calc(100dvw - ${colourOptionSize}))`;
 	});
 	const selectionPositionTopY: ComputedRef<string> = computed(() => {
 		if (!inputSelectRect.value) return "0";
-		else return `${(inputSelectRect.value.top - parseInt(leadingTailHeight) - 10)}px`;
+		else return `${(inputSelectRect.value.top - parseInt(colourOptionTailHeight) - 10)}px`;
 	});
 
 	onMounted(() => {
@@ -46,9 +57,10 @@
 		</label>
 		<div v-if="inputSelectRect" class="tailed-button">
 			<div class="init-grow-wrapper">
-				<button>Colourise</button>
-				<LeadingTail :width="leadingTailWidth" :height="leadingTailHeight" colour="var(--tf2-shadow-colour)"
-				             :style="{ position: `absolute`, left: `calc(50% - (${leadingTailWidth} / 2))` }" />
+				<button>colour-ise</button>
+				<LeadingTail :width="colourOptionTailWidth" :height="colourOptionTailHeight" colour="var(--tf2-shadow-colour)"
+				             :style="{ position: `absolute`,
+				                       left: `calc(50% - (${colourOptionTailWidth} / 2) + ${colourOptionTailOffset}` }" />
 			</div>
 		</div>
 		<div class="chat-container">
@@ -173,13 +185,13 @@
 		transition: left .1s ease;
 
 		& .init-grow-wrapper {
-			transform-origin: 50% calc(100% + v-bind(leadingTailHeight));
+			transform-origin: 50% calc(100% + v-bind(colourOptionTailHeight));
 			animation: init-grow .6s ease 1;
 		}
 
 		& button {
-			width: 5em;
-			height: 4em;
+			width: v-bind(colourOptionSize);
+			height: v-bind(colourOptionSize);
 			transition: transform .3s ease;
 			&:hover {
 				transform-origin: bottom;
