@@ -33,4 +33,12 @@
 			transform: scale(100%, 100%);
 		}
 	}
+
+	.overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100dvw;
+		height: 100dvh;
+	}
 </style>
