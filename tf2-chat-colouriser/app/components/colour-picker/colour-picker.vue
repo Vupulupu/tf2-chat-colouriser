@@ -12,6 +12,7 @@
 </script>
 
 <template>
+	<div class="overlay" style="background-color: #0004;" @click="emit('colourCancelled')"></div>
 	<div id="colour-picker">
 		<div class="picker-header">
 			<span>Change Text Colour</span>
@@ -33,17 +34,6 @@
 </template>
 
 <style scoped>
-	@keyframes init-grow {
-		0% {
-			transform: scale(0, 0);
-		}
-		60% {
-			transform: scale(102%, 102%);
-		}
-		100% {
-			transform: scale(100%, 100%);
-		}
-	}
 
 	#colour-picker {
 		--popup-padded-spacing: .5rem;
@@ -117,7 +107,7 @@
 		line-height: 1.2em;
 		font-size: .75em;
 		text-align: start;
-		&:hover {
+		&:active, &:hover {
 			background: var(--tf2-accent-color);
 		}
 	}
