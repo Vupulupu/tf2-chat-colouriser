@@ -11,7 +11,11 @@
 	                                                                useTemplateRef("message-raw-width"));
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
-	const inputSelectRect: Ref<DOMRect | null> = useState("input-select-rect", () => null);
+	const inputSelectRange: Ref<Range | null> = useState("input-select-rect", () => null);
+	const inputSelectRect: ComputedRef<DOMRect | null> = computed(() => {
+		if (inputSelectRange.value) return inputSelectRange.value.getBoundingClientRect();
+		else return null;
+	});
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
 	const colouredRanges: Ref<ColouredSubstring[]> = useState("coloured-ranges", () => []);
 
@@ -43,7 +47,7 @@
 		sayTextWidth.value = `${editorComponents.sayText.offsetWidth}px`;
 
 		editorComponents.messageInput.addEventListener("selectionchange", () => {
-			inputSelectRect.value = InputResize.parseSelectionRect(editorComponents.messageInput, editorComponents.messageMirror);
+			inputSelectRange.value = InputResize.parseSelectionRect(editorComponents.messageInput, editorComponents.messageMirror);
 		});
 	});
 
@@ -71,12 +75,12 @@
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used
 		</p>
-		<template v-if="inputSelectRect">
-			<div class="overlay" @mousedown="inputSelectRect=null;"></div>
+		<template v-if="inputSelectRange">
+			<div class="overlay" @mousedown="inputSelectRange=null;"></div>
 			<div class="tailed-button">
 				<div class="init-grow-wrapper">
-					<button @click="inputSelectRect=null; pickerIsOpen=true;">colour-ise</button>
 					<LeadingTail :width="colourOptionTailWidth" :height="colourOptionTailHeight" colour="var(--tf2-shadow-colour)"
+					<button @click="inputSelectRange=null; pickerIsOpen=true;">colour-ise</button>
 					             :style="{ position: `absolute`,
 				                           left: `calc(50% - (${colourOptionTailWidth} / 2) + ${colourOptionTailOffset}` }" />
 				</div>
