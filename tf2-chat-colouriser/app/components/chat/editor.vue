@@ -1,6 +1,7 @@
 <script setup lang="ts">
 	import { EditorComponents } from "~/utils/chat/editor-components";
 	import * as InputResize from "~/utils/chat/input-resize";
+	import { ColouredSubstring } from "~/utils/chat/coloured-substring";
 	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
@@ -12,6 +13,7 @@
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
 	const inputSelectRect: Ref<DOMRect | null> = useState("input-select-rect", () => null);
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
+	const colouredRanges: Ref<ColouredSubstring[]> = useState("coloured-ranges", () => []);
 
 	const colourOptionSize: string = "50px";
 	const colourOptionTailWidth: string = "15px";
