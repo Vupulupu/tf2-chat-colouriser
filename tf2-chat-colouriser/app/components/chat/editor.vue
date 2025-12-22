@@ -68,7 +68,7 @@
 			const startIndex: number = inputSelectRange.value.startOffset;
 			const endIndex: number = inputSelectRange.value.endOffset;
 			const newSubstring: ColouredSubstring = new ColouredSubstring(colour.hex.getCode().value, startIndex, endIndex);
-			Colourise.applyColour(newSubstring, colourisedRanges.value);
+			Colourise.applyColour(newSubstring, colourisedRanges);
 		}
 	}
 </script>

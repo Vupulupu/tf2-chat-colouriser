@@ -25,11 +25,19 @@ export class ColouredSubstring {
 		this.COLOUR_HEX.setCode(hexStr);
 	}
 
-	public includes(compareRange: {startIndex:number, endIndex:number}): boolean {
-		return (this.startIndex < compareRange.startIndex && this.endIndex > compareRange.endIndex);
+	public subsumes(compareRange: {startIndex:number, endIndex:number}): boolean {
+		return (this.startIndex <= compareRange.startIndex && this.endIndex >= compareRange.endIndex);
 	}
 
 	public contains(compareIndex: number): boolean {
 		return (this.startIndex < compareIndex && this.endIndex > compareIndex);
+	}
+
+	public compare(compareSubstr: ColouredSubstring): number {
+		if (this.startIndex === compareSubstr.startIndex) {
+			return this.endIndex - compareSubstr.endIndex;
+		} else {
+			return this.startIndex - compareSubstr.startIndex;
+		}
 	}
 }
