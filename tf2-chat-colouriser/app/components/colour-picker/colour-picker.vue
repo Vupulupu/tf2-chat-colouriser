@@ -12,8 +12,8 @@
 </script>
 
 <template>
-	<div class="overlay" style="background-color: #0004;" @click="emit('colourCancelled')"></div>
-	<div id="colour-picker">
+	<div class="overlay" style="background-color: #0004; z-index: 9;" @click="emit('colourCancelled')"></div>
+	<div id="colour-picker" style="z-index: 10;">
 		<div class="picker-header">
 			<span>Change Text Colour</span>
 			<button id="close-picker" @click="emit('colourCancelled')">X</button>

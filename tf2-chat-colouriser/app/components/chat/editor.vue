@@ -61,6 +61,12 @@
 
 	function updateMirror() {
 		inputContents.value = editorComponents.messageInput.value;
+		editorComponents.messageMirror.scrollLeft = editorComponents.messageInput.scrollLeft;
+	}
+
+	function resetInputSelection() {
+		editorComponents.messageInput.selectionStart = 0;
+		editorComponents.messageInput.selectionEnd = 0;
 	}
 
 	function colouriseSubstring(colour: Colour) {
@@ -82,22 +88,22 @@
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<span id="message-input">
-				<input ref="message-input" type="text" value=""
-				       @input="resizeMessage" @resize="resizeMessage" />
-				<span class="message-mirror" ref="message-input-mirror"></span>
+				<input ref="message-input" type="text" value="" @scroll="updateMirror"
+				       @input="resizeMessage();updateMirror();" @resize="resizeMessage" />
+				<span class="message-mirror" ref="message-input-mirror">{{inputContents}}</span>
 			</span>
-			<p ref="message-raw-width" class="message-width">-</p>
+			<p ref="message-raw-width" class="message-width">{{inputContents.replace(/\s/g,"&nbsp;") || "-"}}</p>
 		</div>
 		<p id="message-byte-length" ref="message-byte-length"
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used
 		</p>
-		<template v-if="inputSelectRange">
-			<div class="overlay" @mousedown="inputSelectRange=null;"></div>
+		<template v-if="inputSelectRange && !pickerIsOpen">
+			<div class="overlay" @mousedown="resetInputSelection"></div>
 			<div class="tailed-button">
 				<div class="init-grow-wrapper">
-					<LeadingTail :width="colourOptionTailWidth" :height="colourOptionTailHeight" colour="var(--tf2-shadow-colour)"
 					<button @click="inputSelectRange=null; pickerIsOpen=true;">colour-ise</button>
+					<LeadingTail :width="colourOptionTailWidth" :height="colourOptionTailHeight" colour="var(--tf2-shadow-colour)"
 					             :style="{ position: `absolute`,
 				                           left: `calc(50% - (${colourOptionTailWidth} / 2) + ${colourOptionTailOffset}` }" />
 				</div>
@@ -105,7 +111,7 @@
 		</template>
 		<ColourPicker v-if="pickerIsOpen"
 		              @colour-cancelled="pickerIsOpen=false;"
-		              @colour-set="(colour: Colour) => { colouriseSubstring(colour); inputSelectRange=null; pickerIsOpen=false; }" />
+		              @colour-set="(colour:Colour) => {colouriseSubstring(colour);resetInputSelection();pickerIsOpen=false;}" />
 	</div>
 </template>
 
@@ -153,7 +159,6 @@
 	.message-width {
 		position: absolute;
 		left: 0;
-		opacity: 0;
 		user-select: none;
 		pointer-events: none;
 	}
@@ -205,6 +210,7 @@
 
 	.message-width {
 		min-width: var(--input-width)px;
+		opacity: 0;
 	}
 
 	.tailed-button {
