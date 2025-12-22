@@ -7,6 +7,12 @@ export class ColouredSubstring {
 
 	public constructor(colourHexStr: string, startIndex: number, endIndex: number) {
 		this.COLOUR_HEX = new HexColourModel(colourHexStr);
+
+		if (startIndex > endIndex) {
+			const temp: number = startIndex;
+			startIndex = endIndex;
+			endIndex = temp;
+		}
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
 	}
@@ -17,5 +23,13 @@ export class ColouredSubstring {
 
 	public set colourHex(hexStr: string) {
 		this.COLOUR_HEX.setCode(hexStr);
+	}
+
+	public includes(compareRange: {startIndex:number, endIndex:number}): boolean {
+		return (this.startIndex < compareRange.startIndex && this.endIndex > compareRange.endIndex);
+	}
+
+	public contains(compareIndex: number): boolean {
+		return (this.startIndex < compareIndex && this.endIndex > compareIndex);
 	}
 }

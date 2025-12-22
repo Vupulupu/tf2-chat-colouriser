@@ -1,7 +1,9 @@
 <script setup lang="ts">
 	import { EditorComponents } from "~/utils/chat/editor-components";
 	import * as InputResize from "~/utils/chat/input-resize";
+	import type { Colour } from "~/utils/colour-picker/colour";
 	import { ColouredSubstring } from "~/utils/chat/coloured-substring";
+	import * as Colourise from "~/utils/chat/colourise";
 	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
@@ -17,7 +19,7 @@
 		else return null;
 	});
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
-	const colouredRanges: Ref<ColouredSubstring[]> = useState("coloured-ranges", () => []);
+	const colourisedRanges: Ref<ColouredSubstring[]> = useState("coloured-ranges", () => []);
 
 	const colourOptionSize: string = "50px";
 	const colourOptionTailWidth: string = "15px";
@@ -54,6 +56,15 @@
 	function resizeMessage(): void {
 		InputResize.resizeInputComponent(editorComponents);
 	}
+
+	function colouriseSubstring(colour: Colour) {
+		if (inputSelectRange.value) {
+			const startIndex: number = inputSelectRange.value.startOffset;
+			const endIndex: number = inputSelectRange.value.endOffset;
+			const newSubstring: ColouredSubstring = new ColouredSubstring(colour.hex.getCode().value, startIndex, endIndex);
+			Colourise.applyColour(newSubstring, colourisedRanges.value);
+		}
+	}
 </script>
 
 <template>
@@ -88,7 +99,7 @@
 		</template>
 		<ColourPicker v-if="pickerIsOpen"
 		              @colour-cancelled="pickerIsOpen=false;"
-		              @colour-set="() => { pickerIsOpen=false; }" />
+		              @colour-set="(colour: Colour) => { colouriseSubstring(colour); inputSelectRange=null; pickerIsOpen=false; }" />
 	</div>
 </template>
 
