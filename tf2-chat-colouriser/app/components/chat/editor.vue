@@ -5,6 +5,7 @@
 	import { ColouredSubstring } from "~/utils/chat/coloured-substring";
 	import * as Colourise from "~/utils/chat/colourise";
 	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
+	import MessagePreview from "~/components/chat/message-preview.vue";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
@@ -13,6 +14,7 @@
 	                                                                useTemplateRef("message-raw-width"));
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
+	const inputContents: Ref<string> = useState("input-contents", () => "");
 	const inputSelectRange: Ref<Range | null> = useState("input-select-rect", () => null);
 	const inputSelectRect: ComputedRef<DOMRect | null> = computed(() => {
 		if (inputSelectRange.value) return inputSelectRange.value.getBoundingClientRect();
@@ -55,6 +57,10 @@
 
 	function resizeMessage(): void {
 		InputResize.resizeInputComponent(editorComponents);
+	}
+
+	function updateMirror() {
+		inputContents.value = editorComponents.messageInput.value;
 	}
 
 	function colouriseSubstring(colour: Colour) {
