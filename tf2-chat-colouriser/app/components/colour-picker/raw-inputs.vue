@@ -10,57 +10,54 @@
 	});
 	const emit = defineEmits(["colourChange"]);
 
-	const oldColour: Colour.Colour = props.oldColour as Colour.Colour;
-	const newColour: Colour.Colour = props.newColour as Colour.Colour;
+	const OLD_COLOUR: Colour.Colour = props.oldColour as Colour.Colour;
+	const newColour: Ref<Colour.Colour> = useState("new-colour", () => props.newColour as Colour.Colour);
 
 	interface ValueSetter {
 		setValue: (_: any)=>void,
 		context: Object,
 	}
 
-	let colourFieldModels: { oldField: ColourField, newField: ColourField, valueSetter: ValueSetter }[][];
-	watchEffect(async () => {
-		colourFieldModels = [
-			[
-				{
-					oldField: oldColour.hsv.getHue(), newField: newColour.hsv.getHue(),
-					valueSetter: {setValue: newColour.hsv.setHue, context: newColour.hsv},
-				},
-				{
-					oldField: oldColour.hsv.getSaturation(), newField: newColour.hsv.getSaturation(),
-					valueSetter: {setValue: newColour.hsv.setSaturation, context: newColour.hsv},
-				},
-				{
-					oldField: oldColour.hsv.getValue(), newField: newColour.hsv.getValue(),
-					valueSetter: {setValue: newColour.hsv.setValue, context: newColour.hsv},
-				},
-			],
-			[
-				{
-					oldField: oldColour.rgb.getRed(), newField: newColour.rgb.getRed(),
-					valueSetter: {setValue: newColour.rgb.setRed, context: newColour.rgb},
-				},
-				{
-					oldField: oldColour.rgb.getGreen(), newField: newColour.rgb.getGreen(),
-					valueSetter: {setValue: newColour.rgb.setGreen, context: newColour.rgb},
-				},
-				{
-					oldField: oldColour.rgb.getBlue(), newField: newColour.rgb.getBlue(),
-					valueSetter: {setValue: newColour.rgb.setBlue, context: newColour.rgb},
-				},
-			],
-		];
-	})
+	let colourFieldModels: ComputedRef<{oldField:ColourField, newField:ColourField, valueSetter:ValueSetter}[][]> = computed(() => [
+		[
+			{
+				oldField: OLD_COLOUR.hsv.getHue(), newField: newColour.value.hsv.getHue(),
+				valueSetter: {setValue: newColour.value.hsv.setHue, context: newColour.value.hsv},
+			},
+			{
+				oldField: OLD_COLOUR.hsv.getSaturation(), newField: newColour.value.hsv.getSaturation(),
+				valueSetter: {setValue: newColour.value.hsv.setSaturation, context: newColour.value.hsv},
+			},
+			{
+				oldField: OLD_COLOUR.hsv.getValue(), newField: newColour.value.hsv.getValue(),
+				valueSetter: {setValue: newColour.value.hsv.setValue, context: newColour.value.hsv},
+			},
+		],
+		[
+			{
+				oldField: OLD_COLOUR.rgb.getRed(), newField: newColour.value.rgb.getRed(),
+				valueSetter: {setValue: newColour.value.rgb.setRed, context: newColour.value.rgb},
+			},
+			{
+				oldField: OLD_COLOUR.rgb.getGreen(), newField: newColour.value.rgb.getGreen(),
+				valueSetter: {setValue: newColour.value.rgb.setGreen, context: newColour.value.rgb},
+			},
+			{
+				oldField: OLD_COLOUR.rgb.getBlue(), newField: newColour.value.rgb.getBlue(),
+				valueSetter: {setValue: newColour.value.rgb.setBlue, context: newColour.value.rgb},
+			},
+		],
+	]);
 
 	function updateField(valueSetter: ValueSetter, newVal: string): void {
 		valueSetter.setValue.call(valueSetter.context, parseFloat(newVal));
 
 		if (valueSetter.context instanceof HsvColourModel) {
-			newColour.rgb = Colour.hsvToRgb(newColour.hsv);
-			newColour.hex = Colour.rgbToHex(newColour.rgb);
+			newColour.value.rgb = Colour.hsvToRgb(newColour.value.hsv);
+			newColour.value.hex = Colour.rgbToHex(newColour.value.rgb);
 		} else if (valueSetter.context instanceof RgbColourModel) {
-			newColour.hsv = Colour.rgbToHsv(newColour.rgb);
-			newColour.hex = Colour.rgbToHex(newColour.rgb);
+			newColour.value.hsv = Colour.rgbToHsv(newColour.value.rgb);
+			newColour.value.hex = Colour.rgbToHex(newColour.value.rgb);
 		}
 
 		emit("colourChange", newColour);
@@ -68,8 +65,8 @@
 
 	function updateCode(valueSetter: ValueSetter, newVal: string): void {
 		valueSetter.setValue.call(valueSetter.context, newVal);
-		newColour.rgb = Colour.hexToRgb(newColour.hex);
-		newColour.hsv = Colour.rgbToHsv(newColour.rgb);
+		newColour.value.rgb = Colour.hexToRgb(newColour.value.hex);
+		newColour.value.hsv = Colour.rgbToHsv(newColour.value.rgb);
 
 		emit("colourChange", newColour);
 	}
