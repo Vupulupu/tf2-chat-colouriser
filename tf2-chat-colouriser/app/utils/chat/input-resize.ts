@@ -1,4 +1,5 @@
 import { EditorComponents } from "~/utils/chat/editor-components";
+import type { IndexRange } from "~/utils/chat/index-range";
 
 const INIT_INPUT_ANIMATION_DURATION: number = 750;
 const INPUT_WIDTH_PADDING: number = 25;
@@ -15,18 +16,19 @@ export function animateExpandStartingInput(components: EditorComponents, inputWi
 	}, INIT_INPUT_ANIMATION_DURATION);
 }
 
-export function resizeInputComponent(components: EditorComponents): void {
+export function resizeInputComponent(components: EditorComponents, newWidthContent: string): void {
+	components.messageWidth.innerText = newWidthContent;
 	const newWidth: number = components.messageWidth.offsetWidth + INPUT_WIDTH_PADDING;
 	components.messageInput.style.width = `${newWidth}px`;
 	components.messageMirror.style.width = `${newWidth}px`;
 }
 
-export function parseSelectionRect(input: HTMLInputElement, textMirror: HTMLElement): Range | null {
+export function parseSelectionRect(selection: IndexRange, textMirror: HTMLElement): Range | null {
 	let selectionRange: Range | null = null;
-	if (textMirror.firstChild && input.selectionStart!==input.selectionEnd) {
+	if (textMirror.firstChild && selection.startIndex!==selection.endIndex) {
 		const mirrorContent: Node = textMirror.firstChild as Node;
-		const startIndex: number = input.selectionStart ?? 0;
-		const endIndex: number = input.selectionEnd ?? 0;
+		const startIndex: number = selection.startIndex ?? 0;
+		const endIndex: number = selection.endIndex ?? 0;
 		const mirrorRange: Range = document.createRange();
 		mirrorRange.setStart(mirrorContent, startIndex);
 		mirrorRange.setEnd(mirrorContent, endIndex);

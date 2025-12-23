@@ -1,12 +1,12 @@
 <script setup lang="ts">
+	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
 	import { EditorComponents } from "~/utils/chat/editor-components";
+	import MessagePreview from "~/components/chat/message-preview.vue";
 	import * as InputResize from "~/utils/chat/input-resize";
 	import type { Colour } from "~/utils/colour-picker/colour";
 	import { IndexRange } from "~/utils/chat/index-range";
 	import { ColouredRange } from "~/utils/chat/coloured-range";
 	import * as Colourise from "~/utils/chat/colourise";
-	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
-	import MessagePreview from "~/components/chat/message-preview.vue";
 	import stringDifferenceLength from "~/utils/string-difference";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
@@ -30,9 +30,9 @@
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
 	const colouredRanges: Ref<ColouredRange[]> = useState("coloured-ranges", () => []);
 
-	const colourOptionSize: string = "50px";
-	const colourOptionTailWidth: string = "15px";
-	const colourOptionTailHeight: string = "20px";
+	const COLOUR_OPTION_SIZE: string = "50px";
+	const COLOUR_OPTION_TAIL_WIDTH: string = "15px";
+	const COLOUR_OPTION_TAIL_HEIGHT: string = "20px";
 	const colourOptionTailOffset: ComputedRef<string> = computed(() => {
 		if (!inputSelectRect.value || !editorComponents.messageInput) return "0";
 		else {
@@ -45,11 +45,11 @@
 		if (!inputSelectRect.value) return "0";
 		else return `clamp(2rem,` +
 			`${inputSelectRect.value.left + (inputSelectRect.value.width/2) - parseInt(colourOptionTailOffset.value)}px,` +
-			`calc(100dvw - ${colourOptionSize}))`;
+			`calc(100dvw - ${COLOUR_OPTION_SIZE}))`;
 	});
 	const selectionPositionTopY: ComputedRef<string> = computed(() => {
 		if (!inputSelectRect.value) return "0";
-		else return `${(inputSelectRect.value.top - parseInt(colourOptionTailHeight) - 10)}px`;
+		else return `${(inputSelectRect.value.top - parseInt(COLOUR_OPTION_TAIL_HEIGHT) - 10)}px`;
 	});
 
 	onMounted(() => {
@@ -65,7 +65,7 @@
 	});
 
 	function resizeMessage(): void {
-		InputResize.resizeInputComponent(editorComponents);
+		InputResize.resizeInputComponent(editorComponents, inputContents.value);
 	}
 
 	function updateMirror() {
@@ -111,6 +111,7 @@
 			</span>
 			<p ref="message-raw-width" class="message-width">{{inputContents || "-"}}</p>
 		</div>
+		<MessagePreview :selection="null" :coloured-ranges="colouredRanges" :message-content="inputContents" />
 		<p id="message-byte-length" ref="message-byte-length"
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used
@@ -120,9 +121,9 @@
 			<div class="tailed-button">
 				<div class="init-grow-wrapper">
 					<button @click="pickerIsOpen=true;">colour-ise</button>
-					<LeadingTail :width="colourOptionTailWidth" :height="colourOptionTailHeight" colour="var(--tf2-shadow-colour)"
+					<LeadingTail :width="COLOUR_OPTION_TAIL_WIDTH" :height="COLOUR_OPTION_TAIL_HEIGHT" colour="var(--tf2-shadow-colour)"
 					             :style="{ position: `absolute`,
-				                           left: `calc(50% - (${colourOptionTailWidth} / 2) + ${colourOptionTailOffset}` }" />
+				                           left: `calc(50% - (${COLOUR_OPTION_TAIL_WIDTH} / 2) + ${colourOptionTailOffset}` }" />
 				</div>
 			</div>
 		</template>
@@ -182,6 +183,7 @@
 
 	#message-input {
 		position: relative;
+		z-index: 99;
 		&>input {
 			&:focus-visible, &:focus-within {
 				background: hsla(var(--hsl-black) / 10%);
@@ -239,13 +241,13 @@
 		transition: left .1s ease;
 
 		& .init-grow-wrapper {
-			transform-origin: 50% calc(100% + v-bind(colourOptionTailHeight));
+			transform-origin: 50% calc(100% + v-bind(COLOUR_OPTION_TAIL_HEIGHT));
 			animation: init-grow .6s ease 1;
 		}
 
 		& button {
-			width: v-bind(colourOptionSize);
-			height: v-bind(colourOptionSize);
+			width: v-bind(COLOUR_OPTION_SIZE);
+			height: v-bind(COLOUR_OPTION_SIZE);
 			transition: transform .3s ease;
 			&:hover {
 				transform-origin: bottom;
