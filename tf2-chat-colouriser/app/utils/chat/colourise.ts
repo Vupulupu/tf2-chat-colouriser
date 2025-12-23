@@ -12,6 +12,9 @@ export function applyColour(newRange: ColouredRange, colouredRanges: Ref<Coloure
 		if (currRange) {
 			if (newRange.subsumes(currRange)) {
 				colouredRanges.value = colouredRanges.value.toSpliced(i--, 1);
+			} else if (currRange.includes(newRange)) {
+				colouredRanges.value.push(new ColouredRange(currRange.colourHex, newRange.endIndex, currRange.endIndex));
+				currRange.endIndex = newRange.startIndex;
 			} else if (currRange.contains(newRange.startIndex)) {
 				currRange.endIndex = newRange.startIndex;
 			} else if (currRange.contains(newRange.endIndex)) {
