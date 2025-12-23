@@ -1,13 +1,13 @@
-import { ColouredSubstring } from "~/utils/chat/coloured-substring";
+import { ColouredRange } from "~/utils/chat/coloured-range";
 
 /*
 if a colourised range starts inside new range, move start to end of new range.
 if a colourised range ends inside new range, move end to start of new range.
 if a colourised range is entirely included inside new range, delete/replace it.
 */
-export function applyColour(newSubstr: ColouredSubstring, colourisedRanges: Ref<ColouredSubstring[]>): void {
+export function applyColour(newSubstr: ColouredRange, colourisedRanges: Ref<ColouredRange[]>): void {
 	for (let i:number=0; i<colourisedRanges.value.length; i++) {
-		const currRange: ColouredSubstring | undefined = colourisedRanges.value[i];
+		const currRange: ColouredRange | undefined = colourisedRanges.value[i];
 		if (currRange) {
 			if (newSubstr.subsumes(currRange)) {
 				colourisedRanges.value = colourisedRanges.value.toSpliced(i--, 1);
@@ -20,5 +20,5 @@ export function applyColour(newSubstr: ColouredSubstring, colourisedRanges: Ref<
 	}
 
 	colourisedRanges.value.push(newSubstr);
-	colourisedRanges.value.sort((a: ColouredSubstring, b: ColouredSubstring) => { return a.compare(b) });
+	colourisedRanges.value.sort((a: ColouredRange, b: ColouredRange) => { return a.compare(b) });
 }

@@ -2,7 +2,7 @@
 	import { EditorComponents } from "~/utils/chat/editor-components";
 	import * as InputResize from "~/utils/chat/input-resize";
 	import type { Colour } from "~/utils/colour-picker/colour";
-	import { ColouredSubstring } from "~/utils/chat/coloured-substring";
+	import { ColouredRange } from "~/utils/chat/coloured-range";
 	import * as Colourise from "~/utils/chat/colourise";
 	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
 	import MessagePreview from "~/components/chat/message-preview.vue";
@@ -21,7 +21,7 @@
 		else return null;
 	});
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
-	const colourisedRanges: Ref<ColouredSubstring[]> = useState("coloured-ranges", () => []);
+	const colouredRanges: Ref<ColouredRange[]> = useState("coloured-ranges", () => []);
 
 	const colourOptionSize: string = "50px";
 	const colourOptionTailWidth: string = "15px";
