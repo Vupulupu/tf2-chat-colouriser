@@ -6,22 +6,22 @@ if a colourised range starts inside new range, move start to end of new range.
 if a colourised range ends inside new range, move end to start of new range.
 if a colourised range is entirely included inside new range, delete/replace it.
 */
-export function applyColour(newSubstr: ColouredRange, colourisedRanges: Ref<ColouredRange[]>): void {
-	for (let i:number=0; i<colourisedRanges.value.length; i++) {
-		const currRange: ColouredRange | undefined = colourisedRanges.value[i];
+export function applyColour(newRange: ColouredRange, colouredRanges: Ref<ColouredRange[]>): void {
+	for (let i:number=0; i<colouredRanges.value.length; i++) {
+		const currRange: ColouredRange | undefined = colouredRanges.value[i];
 		if (currRange) {
-			if (newSubstr.subsumes(currRange)) {
-				colourisedRanges.value = colourisedRanges.value.toSpliced(i--, 1);
-			} else if (currRange.contains(newSubstr.startIndex)) {
-				currRange.endIndex = newSubstr.startIndex;
-			} else if (currRange.contains(newSubstr.endIndex)) {
-				currRange.startIndex = newSubstr.endIndex;
+			if (newRange.subsumes(currRange)) {
+				colouredRanges.value = colouredRanges.value.toSpliced(i--, 1);
+			} else if (currRange.contains(newRange.startIndex)) {
+				currRange.endIndex = newRange.startIndex;
+			} else if (currRange.contains(newRange.endIndex)) {
+				currRange.startIndex = newRange.endIndex;
 			}
 		}
 	}
 
-	colourisedRanges.value.push(newSubstr);
-	colourisedRanges.value.sort((a: ColouredRange, b: ColouredRange) => { return a.compare(b) });
+	colouredRanges.value.push(newRange);
+	colouredRanges.value.sort((a: ColouredRange, b: ColouredRange) => { return a.compare(b) });
 }
 
 /*
