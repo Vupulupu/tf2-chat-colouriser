@@ -2,10 +2,12 @@
 	import { EditorComponents } from "~/utils/chat/editor-components";
 	import * as InputResize from "~/utils/chat/input-resize";
 	import type { Colour } from "~/utils/colour-picker/colour";
+	import { IndexRange } from "~/utils/chat/index-range";
 	import { ColouredRange } from "~/utils/chat/coloured-range";
 	import * as Colourise from "~/utils/chat/colourise";
 	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
 	import MessagePreview from "~/components/chat/message-preview.vue";
+	import stringDifferenceLength from "~/utils/string-difference";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
@@ -15,7 +17,12 @@
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
 	const inputContents: Ref<string> = useState("input-contents", () => "");
-	const inputSelectRange: Ref<Range | null> = useState("input-select-rect", () => null);
+	const NBSP: string = ' '; // raw &nbsp; char to be use-able with any data binding
+	const inputSelect: Ref<IndexRange> = useState("curr-input-selection", () => new IndexRange(0, 0));
+	const inputSelectRange: Ref<Range | null> = computed(() => {
+		if (editorComponents.messageMirror) return InputResize.parseSelectionRect(inputSelect.value, editorComponents.messageMirror)
+		else return null;
+	});
 	const inputSelectRect: ComputedRef<DOMRect | null> = computed(() => {
 		if (inputSelectRange.value) return inputSelectRange.value.getBoundingClientRect();
 		else return null;
@@ -51,7 +58,9 @@
 		sayTextWidth.value = `${editorComponents.sayText.offsetWidth}px`;
 
 		editorComponents.messageInput.addEventListener("selectionchange", () => {
-			inputSelectRange.value = InputResize.parseSelectionRect(editorComponents.messageInput, editorComponents.messageMirror);
+			const inputEl: HTMLInputElement = editorComponents.messageInput;
+			if (inputEl.selectionStart!==null && inputEl.selectionEnd!==null)
+				inputSelect.value = new IndexRange(inputEl.selectionStart, inputEl.selectionEnd);
 		});
 	});
 
@@ -60,7 +69,15 @@
 	}
 
 	function updateMirror() {
-		inputContents.value = editorComponents.messageInput.value;
+		const inputEl: HTMLInputElement = editorComponents.messageInput;
+		Colourise.updateColour(stringDifferenceLength(inputContents.value, inputEl.value), colouredRanges, inputSelect.value);
+
+		inputContents.value = inputEl.value.replace(/\s/g, NBSP);
+		resizeMessage();
+		updateMirrorScroll();
+	}
+
+	function updateMirrorScroll() {
 		editorComponents.messageMirror.scrollLeft = editorComponents.messageInput.scrollLeft;
 	}
 
@@ -73,8 +90,8 @@
 		if (inputSelectRange.value) {
 			const startIndex: number = inputSelectRange.value.startOffset;
 			const endIndex: number = inputSelectRange.value.endOffset;
-			const newSubstring: ColouredSubstring = new ColouredSubstring(colour.hex.getCode().value, startIndex, endIndex);
-			Colourise.applyColour(newSubstring, colourisedRanges);
+			const newColouredRange: ColouredRange = new ColouredRange(colour.hex.getCode().value, startIndex, endIndex);
+			Colourise.applyColour(newColouredRange, colouredRanges);
 		}
 	}
 </script>
@@ -88,11 +105,11 @@
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<span id="message-input">
-				<input ref="message-input" type="text" value="" @scroll="updateMirror"
-				       @input="resizeMessage();updateMirror();" @resize="resizeMessage" />
+				<input ref="message-input" type="text" value="" @scroll="updateMirrorScroll"
+				       @input="updateMirror" @resize="resizeMessage" />
 				<span class="message-mirror" ref="message-input-mirror">{{inputContents}}</span>
 			</span>
-			<p ref="message-raw-width" class="message-width">{{inputContents.replace(/\s/g,"&nbsp;") || "-"}}</p>
+			<p ref="message-raw-width" class="message-width">{{inputContents || "-"}}</p>
 		</div>
 		<p id="message-byte-length" ref="message-byte-length"
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
@@ -102,7 +119,7 @@
 			<div class="overlay" @mousedown="resetInputSelection"></div>
 			<div class="tailed-button">
 				<div class="init-grow-wrapper">
-					<button @click="inputSelectRange=null; pickerIsOpen=true;">colour-ise</button>
+					<button @click="pickerIsOpen=true;">colour-ise</button>
 					<LeadingTail :width="colourOptionTailWidth" :height="colourOptionTailHeight" colour="var(--tf2-shadow-colour)"
 					             :style="{ position: `absolute`,
 				                           left: `calc(50% - (${colourOptionTailWidth} / 2) + ${colourOptionTailOffset}` }" />
