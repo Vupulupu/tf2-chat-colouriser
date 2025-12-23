@@ -49,7 +49,7 @@ export function updateColour(strChange: number, colouredRanges: Ref<ColouredRang
 				currRange.endIndex += strChange;
 			} else if (currRange.contains(selection.startIndex)) {
 				// only selection's start is within range (because previous branch implies end isn't
-				currRange.endIndex = selection.startIndex + Math.max(selection.endIndex-selection.startIndex + strChange, 0);
+				currRange.endIndex = selection.startIndex + Math.max(selection.length() + strChange, 0);
 			} else if (currRange.contains(selection.endIndex)) {
 				// only selection's end is within range (because previous branches imply start isn't
 				currRange.startIndex = selection.endIndex + strChange;
@@ -59,7 +59,7 @@ export function updateColour(strChange: number, colouredRanges: Ref<ColouredRang
 				currRange.endIndex = selection.startIndex + strChange;
 			} else if (selection.startIndex===currRange.endIndex) {
 				// special special branch when only selection's start is directly after range
-				currRange.endIndex += selection.endIndex-selection.startIndex + strChange;
+				currRange.endIndex += selection.length() + strChange;
 			}
 		}
 	}

@@ -12,6 +12,10 @@ export class IndexRange {
 		this.endIndex = endIndex;
 	}
 
+	public length(): number {
+		return this.endIndex - this.startIndex;
+	}
+
 	public subsumes(compareRange: IndexRange): boolean {
 		return (this.startIndex <= compareRange.startIndex && this.endIndex >= compareRange.endIndex);
 	}
