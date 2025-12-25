@@ -7,24 +7,27 @@ if a colourised range ends inside new range, move end to start of new range.
 if a colourised range is entirely included inside new range, delete/replace it.
 */
 export function applyColour(newRange: ColouredRange, colouredRanges: Ref<ColouredRange[]>): void {
+	adjustColoursAroundRange(newRange, colouredRanges);
+	colouredRanges.value.push(newRange);
+	colouredRanges.value.sort((a: ColouredRange, b: ColouredRange) => { return a.compare(b) });
+}
+
+export function adjustColoursAroundRange(range: IndexRange, colouredRanges: Ref<ColouredRange[]>): void {
 	for (let i:number=0; i<colouredRanges.value.length; i++) {
 		const currRange: ColouredRange | undefined = colouredRanges.value[i];
 		if (currRange) {
-			if (newRange.subsumes(currRange)) {
+			if (range.subsumes(currRange)) {
 				colouredRanges.value = colouredRanges.value.toSpliced(i--, 1);
-			} else if (currRange.includes(newRange)) {
-				colouredRanges.value.push(new ColouredRange(currRange.colourHex, newRange.endIndex, currRange.endIndex));
-				currRange.endIndex = newRange.startIndex;
-			} else if (currRange.contains(newRange.startIndex)) {
-				currRange.endIndex = newRange.startIndex;
-			} else if (currRange.contains(newRange.endIndex)) {
-				currRange.startIndex = newRange.endIndex;
+			} else if (currRange.includes(range)) {
+				colouredRanges.value.push(new ColouredRange(currRange.colourHex, range.endIndex, currRange.endIndex));
+				currRange.endIndex = range.startIndex;
+			} else if (currRange.contains(range.startIndex)) {
+				currRange.endIndex = range.startIndex;
+			} else if (currRange.contains(range.endIndex)) {
+				currRange.startIndex = range.endIndex;
 			}
 		}
 	}
-
-	colouredRanges.value.push(newRange);
-	colouredRanges.value.sort((a: ColouredRange, b: ColouredRange) => { return a.compare(b) });
 }
 
 /*
