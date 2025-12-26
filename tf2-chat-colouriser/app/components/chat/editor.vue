@@ -15,6 +15,8 @@
 	                                                                useTemplateRef("message-input-mirror"),
 	                                                                useTemplateRef("message-raw-width"));
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
+	const inputWidth: Ref<string> = useState("input-width", () => "0");
+	const inputScroll: Ref<number> = useState("input-scroll", () => 0);
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
 	const inputContents: Ref<string> = useState("input-contents", () => "");
 	const NBSP: string = ' '; // raw &nbsp; char to be use-able with any data binding
@@ -65,7 +67,9 @@
 	});
 
 	function resizeMessage(): void {
-		InputResize.resizeInputComponent(editorComponents, inputContents.value);
+		editorComponents.messageWidth.innerText = inputContents.value;
+		const newWidth: number = editorComponents.messageWidth.scrollWidth;
+		inputWidth.value = `${newWidth}px`;
 	}
 
 	function updateMirror() {
@@ -78,7 +82,8 @@
 	}
 
 	function updateMirrorScroll() {
-		editorComponents.messageMirror.scrollLeft = editorComponents.messageInput.scrollLeft;
+		editorComponents.messageMirror.scrollLeft = editorComponents.messageInput.scrollLeft; //TODO:: remove once parseSelectionRect is refactored
+		inputScroll.value = editorComponents.messageInput.scrollLeft;
 	}
 
 	function resetInputSelection() {
@@ -106,8 +111,10 @@
 			<span ref="say-text" class="say-text">Say :</span>
 			<span id="message-input">
 				<input ref="message-input" type="text" value="" @scroll="updateMirrorScroll"
-				       @input="updateMirror" @resize="resizeMessage" />
+						@input="updateMirror" @resize="resizeMessage" />
 				<span class="message-mirror" ref="message-input-mirror">{{inputContents}}</span>
+				<MessagePreview class="message-mirror" :selection="inputSelect" :width="inputWidth" :scroll="inputScroll"
+				                :coloured-ranges="colouredRanges" :message-content="inputContents" />
 			</span>
 			<p ref="message-raw-width" class="message-width">{{inputContents || "-"}}</p>
 		</div>
@@ -190,8 +197,7 @@
 			}
 		}
 		&>* {
-			min-width: v-bind(minInputWidth);
-			width: v-bind(minInputWidth);
+			width: v-bind(inputWidth);
 			padding: 5px 10px calc(5px + .1em) 10px;
 			color: var(--tf2-chat-colour);
 			text-align: center;
@@ -227,7 +233,7 @@
 	}
 
 	.message-width {
-		min-width: var(--input-width)px;
+		min-width: v-bind(minInputWidth);
 		opacity: 0;
 	}
 

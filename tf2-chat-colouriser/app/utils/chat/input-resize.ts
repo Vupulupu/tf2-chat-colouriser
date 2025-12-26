@@ -16,13 +16,6 @@ export function animateExpandStartingInput(components: EditorComponents, inputWi
 	}, INIT_INPUT_ANIMATION_DURATION);
 }
 
-export function resizeInputComponent(components: EditorComponents, newWidthContent: string): void {
-	components.messageWidth.innerText = newWidthContent;
-	const newWidth: number = components.messageWidth.offsetWidth + INPUT_WIDTH_PADDING;
-	components.messageInput.style.width = `${newWidth}px`;
-	components.messageMirror.style.width = `${newWidth}px`;
-}
-
 export function parseSelectionRect(selection: IndexRange, textMirror: HTMLElement): Range | null {
 	let selectionRange: Range | null = null;
 	if (textMirror.firstChild && selection.startIndex!==selection.endIndex) {

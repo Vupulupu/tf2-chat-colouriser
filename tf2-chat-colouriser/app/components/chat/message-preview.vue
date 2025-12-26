@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { h } from "vue";
+	import { h, type ShallowRef } from "vue";
 	import type { IndexRange } from "~/utils/chat/index-range";
 	import type { ColouredRange } from "~/utils/chat/coloured-range";
 	import * as Colourise from "~/utils/chat/colourise";
@@ -9,26 +9,26 @@
 			messageContent: { type: String, required: true, default: "" },
 			colouredRanges: { type: Array, required: true, default: [] },
 			selection: { type: [Object, null], required: true, default: null },
+			width: { type: String, required: false, default: "0" },
+			scroll: { type: Number, required: false, default: 0 },
 		},
 		setup(props) {
-			interface Style {
-				color?: string,
-				width?: string,
-			}
 			const colouredRanges: Ref<ColouredRange[]> = useState("preview-coloured-ranges", () => []);
 			const selection: ComputedRef<IndexRange> = computed(() => (props.selection as IndexRange));
-			const rootMessageNode: Ref<VNode> = useState("root-message-node", () => h("span"));
-
+			const scroll: ComputedRef<number> = computed(() => props.scroll);
+			const messagePreview: ShallowRef<HTMLSpanElement|null> = useTemplateRef("root-span");
 			let messageParts: (VNode | string)[] = [];
-			let style: Style = {};
+
+			onUpdated(() => {
+				if (messagePreview.value) messagePreview.value.scrollLeft = scroll.value;
+			})
+
 			watch([props.colouredRanges, selection], () => {
 				colouredRanges.value = (props.colouredRanges.slice() as ColouredRange[]).map((range) => range.clone());
 				messageParts = buildSpanTree();
-				style.width = (parseInt(props.width) > 0) ? props.width : "initial";
 			});
 
-
-			return () => h( "span", {style: style}, messageParts);
+			return () => h( "span", {ref: "root-span"}, messageParts);
 
 
 
