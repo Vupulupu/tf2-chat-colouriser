@@ -19,8 +19,8 @@ export function adjustColoursAroundRange(range: IndexRange, colouredRanges: Ref<
 			if (range.subsumes(currRange)) {
 				colouredRanges.value = colouredRanges.value.toSpliced(i--, 1);
 			} else if (currRange.includes(range)) {
-				currRange.endIndex = range.startIndex;
 				colouredRanges.value.splice(i+1, 0, new ColouredRange(currRange.colourHex, range.endIndex, currRange.endIndex));
+				currRange.endIndex = range.startIndex;
 			} else if (currRange.contains(range.startIndex)) {
 				currRange.endIndex = range.startIndex;
 			} else if (currRange.contains(range.endIndex)) {
