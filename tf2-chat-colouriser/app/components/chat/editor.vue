@@ -1,7 +1,13 @@
 <script setup lang="ts">
-	import { EditorComponents } from "~/utils/chat/editor-components";
-	import * as InputResize from "~/utils/chat/input-resize";
 	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
+	import { EditorComponents } from "~/utils/chat/editor-components";
+	import MessagePreview from "~/components/chat/message-preview.vue";
+	import * as InputResize from "~/utils/chat/input-resize";
+	import type { Colour } from "~/utils/colour-picker/colour";
+	import { IndexRange } from "~/utils/chat/index-range";
+	import { ColouredRange } from "~/utils/chat/coloured-range";
+	import * as Colourise from "~/utils/chat/colourise";
+	import stringDifferenceLength from "~/utils/string-difference";
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
@@ -10,12 +16,23 @@
 	                                                                useTemplateRef("message-raw-width"));
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
-	const inputSelectRect: Ref<DOMRect | null> = useState("input-select-rect", () => null);
+	const inputContents: Ref<string> = useState("input-contents", () => "");
+	const NBSP: string = ' '; // raw &nbsp; char to be use-able with any data binding
+	const inputSelect: Ref<IndexRange> = useState("curr-input-selection", () => new IndexRange(0, 0));
+	const inputSelectRange: Ref<Range | null> = computed(() => {
+		if (editorComponents.messageMirror) return InputResize.parseSelectionRect(inputSelect.value, editorComponents.messageMirror)
+		else return null;
+	});
+	const inputSelectRect: ComputedRef<DOMRect | null> = computed(() => {
+		if (inputSelectRange.value) return inputSelectRange.value.getBoundingClientRect();
+		else return null;
+	});
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
+	const colouredRanges: Ref<ColouredRange[]> = useState("coloured-ranges", () => []);
 
-	const colourOptionSize: string = "50px";
-	const colourOptionTailWidth: string = "15px";
-	const colourOptionTailHeight: string = "20px";
+	const COLOUR_OPTION_SIZE: string = "50px";
+	const COLOUR_OPTION_TAIL_WIDTH: string = "15px";
+	const COLOUR_OPTION_TAIL_HEIGHT: string = "20px";
 	const colourOptionTailOffset: ComputedRef<string> = computed(() => {
 		if (!inputSelectRect.value || !editorComponents.messageInput) return "0";
 		else {
@@ -28,11 +45,11 @@
 		if (!inputSelectRect.value) return "0";
 		else return `clamp(2rem,` +
 			`${inputSelectRect.value.left + (inputSelectRect.value.width/2) - parseInt(colourOptionTailOffset.value)}px,` +
-			`calc(100dvw - ${colourOptionSize}))`;
+			`calc(100dvw - ${COLOUR_OPTION_SIZE}))`;
 	});
 	const selectionPositionTopY: ComputedRef<string> = computed(() => {
 		if (!inputSelectRect.value) return "0";
-		else return `${(inputSelectRect.value.top - parseInt(colourOptionTailHeight) - 10)}px`;
+		else return `${(inputSelectRect.value.top - parseInt(COLOUR_OPTION_TAIL_HEIGHT) - 10)}px`;
 	});
 
 	onMounted(() => {
@@ -41,12 +58,41 @@
 		sayTextWidth.value = `${editorComponents.sayText.offsetWidth}px`;
 
 		editorComponents.messageInput.addEventListener("selectionchange", () => {
-			inputSelectRect.value = InputResize.parseSelectionRect(editorComponents.messageInput, editorComponents.messageMirror);
+			const inputEl: HTMLInputElement = editorComponents.messageInput;
+			if (inputEl.selectionStart!==null && inputEl.selectionEnd!==null)
+				inputSelect.value = new IndexRange(inputEl.selectionStart, inputEl.selectionEnd);
 		});
 	});
 
 	function resizeMessage(): void {
-		InputResize.resizeInputComponent(editorComponents);
+		InputResize.resizeInputComponent(editorComponents, inputContents.value);
+	}
+
+	function updateMirror() {
+		const inputEl: HTMLInputElement = editorComponents.messageInput;
+		Colourise.updateColour(stringDifferenceLength(inputContents.value, inputEl.value), colouredRanges, inputSelect.value);
+
+		inputContents.value = inputEl.value.replace(/\s/g, NBSP);
+		resizeMessage();
+		updateMirrorScroll();
+	}
+
+	function updateMirrorScroll() {
+		editorComponents.messageMirror.scrollLeft = editorComponents.messageInput.scrollLeft;
+	}
+
+	function resetInputSelection() {
+		editorComponents.messageInput.selectionStart = 0;
+		editorComponents.messageInput.selectionEnd = 0;
+	}
+
+	function colouriseSubstring(colour: Colour) {
+		if (inputSelectRange.value) {
+			const startIndex: number = inputSelectRange.value.startOffset;
+			const endIndex: number = inputSelectRange.value.endOffset;
+			const newColouredRange: ColouredRange = new ColouredRange(colour.hex.getCode().value, startIndex, endIndex);
+			Colourise.applyColour(newColouredRange, colouredRanges);
+		}
 	}
 </script>
 
@@ -59,30 +105,30 @@
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<span id="message-input">
-				<input ref="message-input" type="text" value=""
-				       @input="resizeMessage" @resize="resizeMessage" />
-				<span class="message-mirror" ref="message-input-mirror"></span>
+				<input ref="message-input" type="text" value="" @scroll="updateMirrorScroll"
+				       @input="updateMirror" @resize="resizeMessage" />
+				<span class="message-mirror" ref="message-input-mirror">{{inputContents}}</span>
 			</span>
-			<p ref="message-raw-width" class="message-width">-</p>
+			<p ref="message-raw-width" class="message-width">{{inputContents || "-"}}</p>
 		</div>
 		<p id="message-byte-length" ref="message-byte-length"
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used
 		</p>
-		<template v-if="inputSelectRect">
-			<div class="overlay" @mousedown="inputSelectRect=null;"></div>
+		<template v-if="inputSelectRange && !pickerIsOpen">
+			<div class="overlay" @mousedown="resetInputSelection"></div>
 			<div class="tailed-button">
 				<div class="init-grow-wrapper">
-					<button @click="inputSelectRect=null; pickerIsOpen=true;">colour-ise</button>
-					<LeadingTail :width="colourOptionTailWidth" :height="colourOptionTailHeight" colour="var(--tf2-shadow-colour)"
+					<button @click="pickerIsOpen=true;">colour-ise</button>
+					<LeadingTail :width="COLOUR_OPTION_TAIL_WIDTH" :height="COLOUR_OPTION_TAIL_HEIGHT" colour="var(--tf2-shadow-colour)"
 					             :style="{ position: `absolute`,
-				                           left: `calc(50% - (${colourOptionTailWidth} / 2) + ${colourOptionTailOffset}` }" />
+				                           left: `calc(50% - (${COLOUR_OPTION_TAIL_WIDTH} / 2) + ${colourOptionTailOffset}` }" />
 				</div>
 			</div>
 		</template>
 		<ColourPicker v-if="pickerIsOpen"
 		              @colour-cancelled="pickerIsOpen=false;"
-		              @colour-set="() => { pickerIsOpen=false; }" />
+		              @colour-set="(colour:Colour) => {colouriseSubstring(colour);resetInputSelection();pickerIsOpen=false;}" />
 	</div>
 </template>
 
@@ -130,13 +176,13 @@
 	.message-width {
 		position: absolute;
 		left: 0;
-		opacity: 0;
 		user-select: none;
 		pointer-events: none;
 	}
 
 	#message-input {
 		position: relative;
+		z-index: 99;
 		&>input {
 			&:focus-visible, &:focus-within {
 				background: hsla(var(--hsl-black) / 10%);
@@ -182,6 +228,7 @@
 
 	.message-width {
 		min-width: var(--input-width)px;
+		opacity: 0;
 	}
 
 	.tailed-button {
@@ -193,13 +240,13 @@
 		transition: left .1s ease;
 
 		& .init-grow-wrapper {
-			transform-origin: 50% calc(100% + v-bind(colourOptionTailHeight));
+			transform-origin: 50% calc(100% + v-bind(COLOUR_OPTION_TAIL_HEIGHT));
 			animation: init-grow .6s ease 1;
 		}
 
 		& button {
-			width: v-bind(colourOptionSize);
-			height: v-bind(colourOptionSize);
+			width: v-bind(COLOUR_OPTION_SIZE);
+			height: v-bind(COLOUR_OPTION_SIZE);
 			transition: transform .3s ease;
 			&:hover {
 				transform-origin: bottom;

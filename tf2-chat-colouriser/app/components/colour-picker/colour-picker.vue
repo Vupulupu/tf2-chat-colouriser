@@ -2,27 +2,27 @@
 	import * as Colour from "~/utils/colour-picker/colour";
 
 	const props = defineProps({
-		oldColourHex: { type: String, default: "#fcedcd" },
+		oldColour: { type: String, default: "#fcedcd" },
 	});
 
 	const emit = defineEmits(["colourSet", "colourCancelled"]);
 
-	const oldColour: Ref<Colour.Colour> = useState("old-colour", () => Colour.createFromHex(props.oldColourHex));
-	const newColour: Ref<Colour.Colour> = useState("new-colour", () => Colour.createFromHex(props.oldColourHex));
+	const OLD_COLOUR: Colour.Colour = Colour.createFromHex(props.oldColour);
+	const newColour: Ref<Colour.Colour> = useState("new-colour", () => Colour.createFromHex(props.oldColour));
 </script>
 
 <template>
-	<div class="overlay" style="background-color: #0004;" @click="emit('colourCancelled')"></div>
-	<div id="colour-picker">
+	<div class="overlay" style="background-color: #0004; z-index: 9;" @click="emit('colourCancelled')"></div>
+	<div id="colour-picker" style="z-index: 10;">
 		<div class="picker-header">
 			<span>Change Text Colour</span>
 			<button id="close-picker" @click="emit('colourCancelled')">X</button>
 		</div>
 		<div class="main-content">
 			<div class="inputs">
-				<ColourPickerInteractiveInput :old-colour="oldColour" :new-colour="newColour"
+				<ColourPickerInteractiveInput :old-colour="OLD_COLOUR" :new-colour="newColour"
 				                              @colour-change="(changedColour: Colour.Colour) => newColour = changedColour" />
-				<ColourPickerRawInputs class="raw" :old-colour="oldColour" :new-colour="newColour"
+				<ColourPickerRawInputs class="raw" :old-colour="OLD_COLOUR" :new-colour="newColour"
 				                       @colour-change="(changedColour: Colour.Colour) => newColour = changedColour" />
 			</div>
 			<div class="finalise-buttons">
