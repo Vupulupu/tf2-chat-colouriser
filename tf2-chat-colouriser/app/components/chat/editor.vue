@@ -12,8 +12,7 @@
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
 	                                                                useTemplateRef("message-input"),
-	                                                                useTemplateRef("message-input-mirror"),
-	                                                                useTemplateRef("message-raw-width"));
+	                                                                useTemplateRef("message-input-mirror"));
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
 	const inputWidth: Ref<string> = useState("input-width", () => "0");
 	const inputScroll: Ref<number> = useState("input-scroll", () => 0);
@@ -66,18 +65,11 @@
 		});
 	});
 
-	function resizeMessage(): void {
-		editorComponents.messageWidth.innerText = inputContents.value;
-		const newWidth: number = editorComponents.messageWidth.scrollWidth;
-		inputWidth.value = `${newWidth}px`;
-	}
-
 	function updateMirror() {
 		const inputEl: HTMLInputElement = editorComponents.messageInput;
 		Colourise.updateColour(stringDifferenceLength(inputContents.value, inputEl.value), colouredRanges, inputSelect.value);
 
 		inputContents.value = inputEl.value.replace(/\s/g, NBSP);
-		resizeMessage();
 		updateMirrorScroll();
 	}
 
@@ -110,13 +102,12 @@
 		<div class="chat-container">
 			<span ref="say-text" class="say-text">Say :</span>
 			<span id="message-input">
-				<input ref="message-input" type="text" value="" @scroll="updateMirrorScroll"
-						@input="updateMirror" @resize="resizeMessage" />
+				<input ref="message-input" type="text" value="" @scroll="updateMirrorScroll" @input="updateMirror" />
 				<span class="message-mirror" ref="message-input-mirror">{{inputContents}}</span>
-				<MessagePreview class="message-mirror" :selection="inputSelect" :width="inputWidth" :scroll="inputScroll"
-				                :coloured-ranges="colouredRanges" :message-content="inputContents" />
+				<MessagePreview class="message-mirror" :scroll="inputScroll" :selection="inputSelect"
+				                :coloured-ranges="colouredRanges" :message-content="inputContents"
+				                @resize-width="(newWidth: number) => inputWidth=`${newWidth}px`"/>
 			</span>
-			<p ref="message-raw-width" class="message-width">{{inputContents || "-"}}</p>
 		</div>
 		<p id="message-byte-length" ref="message-byte-length"
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
@@ -160,7 +151,6 @@
 
 	#message-input>*,
 	.chat-container,
-	.message-width {
 		box-sizing: border-box;
 		font-family: "verdana", "sans-serif";
 		font-weight: bold;
@@ -172,15 +162,9 @@
 		padding: 5px 10px calc(5px + .1em) 10px;
 		text-shadow: hsla(var(--hsl-black) / 50%) 2px 2px 1px;
 	}
-
-	#message-input>*,
-	.message-width {
-		max-width: calc(95dvw - v-bind(sayTextWidth));
-		overflow: hidden;
 	}
 
-	.message-mirror,
-	.message-width {
+	.message-mirror{
 		position: absolute;
 		left: 0;
 		user-select: none;
@@ -197,10 +181,13 @@
 			}
 		}
 		&>* {
+			min-width: v-bind(minInputWidth);
 			width: v-bind(inputWidth);
+			max-width: calc(95dvw - v-bind(sayTextWidth));
 			padding: 5px 10px calc(5px + .1em) 10px;
 			color: var(--tf2-chat-colour);
 			text-align: center;
+			overflow: hidden;
 			background: none;
 			border: none;
 			border-top-right-radius: 10px;
@@ -230,11 +217,6 @@
 		padding-right: 5px;
 		border-right: var(--container-border-style);
 		user-select: none;
-	}
-
-	.message-width {
-		min-width: v-bind(minInputWidth);
-		opacity: 0;
 	}
 
 	.tailed-button {

@@ -9,10 +9,10 @@
 			messageContent: { type: String, required: true, default: "" },
 			colouredRanges: { type: Array, required: true, default: [] },
 			selection: { type: [Object, null], required: true, default: null },
-			width: { type: String, required: false, default: "0" },
 			scroll: { type: Number, required: false, default: 0 },
 		},
-		setup(props) {
+		emits: ["resizeWidth"],
+		setup(props, {emit}) {
 			const colouredRanges: Ref<ColouredRange[]> = useState("preview-coloured-ranges", () => []);
 			const selection: ComputedRef<IndexRange> = computed(() => (props.selection as IndexRange));
 			const scroll: ComputedRef<number> = computed(() => props.scroll);
@@ -20,7 +20,13 @@
 			let messageParts: (VNode | string)[] = [];
 
 			onUpdated(() => {
-				if (messagePreview.value) messagePreview.value.scrollLeft = scroll.value;
+				if (messagePreview.value) {
+					messagePreview.value.style.width = "fit-content";
+					emit("resizeWidth", messagePreview.value.scrollWidth);
+					messagePreview.value.style.width = "";
+
+					messagePreview.value.scrollLeft = scroll.value;
+				}
 			})
 
 			watch([props.colouredRanges, selection], () => {
