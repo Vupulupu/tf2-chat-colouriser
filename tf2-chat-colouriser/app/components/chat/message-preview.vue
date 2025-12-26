@@ -17,7 +17,7 @@
 			const selection: ComputedRef<IndexRange> = computed(() => (props.selection as IndexRange));
 			const scroll: ComputedRef<number> = computed(() => props.scroll);
 			const messagePreview: ShallowRef<HTMLSpanElement|null> = useTemplateRef("root-span");
-			let messageParts: (VNode | string)[] = [];
+			let messageParts: VNode[] = [];
 
 			onUpdated(() => {
 				if (messagePreview.value) {
@@ -27,7 +27,7 @@
 
 					messagePreview.value.scrollLeft = scroll.value;
 				}
-			})
+			});
 
 			watch([props.colouredRanges, selection], () => {
 				colouredRanges.value = (props.colouredRanges.slice() as ColouredRange[]).map((range) => range.clone());
@@ -38,8 +38,8 @@
 
 
 
-			function buildSpanTree(): (VNode|string)[] {
-				const messageParts: (VNode|string)[] = [];
+			function buildSpanTree(): VNode[] {
+				const messageParts: VNode[] = [];
 				const renderSelection: boolean = !!selection.value.length();
 				let selectionRendered: boolean = false
 				let plainTextStart: number = 0;
@@ -61,7 +61,7 @@
 					plainTextStart = selection.value.endIndex;
 				}
 				if (plainTextStart < props.messageContent.length) {
-					messageParts.push(props.messageContent.slice(plainTextStart));
+					messageParts.push(addPlainTextSection(props.messageContent.slice(plainTextStart)));
 				}
 
 				return messageParts;
@@ -69,16 +69,20 @@
 		}
 	};
 
-	function addSelectionSection(fullMessage: string, plainTextStart: number, range: IndexRange): (VNode|string)[] {
+	function addSelectionSection(fullMessage: string, plainTextStart: number, range: IndexRange): VNode[] {
 		return addNextRangeSection(fullMessage, plainTextStart, range,
 			{backgroundColor: "var(--tf2-chat-selection-colour)", color: "black", textShadow: "none"});
 	}
 
-	function addNextRangeSection(fullMessage: string, plainTextStart: number, range: IndexRange, styles: {}): (VNode|string)[] {
-		const finalSections: (VNode|string)[] = [];
-		if (plainTextStart < range.startIndex) finalSections.push(fullMessage.slice(plainTextStart, range.startIndex));
+	function addNextRangeSection(fullMessage: string, plainTextStart: number, range: IndexRange, styles: {}): VNode[] {
+		const finalSections: VNode[] = [];
+		if (plainTextStart < range.startIndex) finalSections.push(addPlainTextSection(fullMessage.slice(plainTextStart, range.startIndex)));
 		finalSections.push(h("span", {style: styles}, fullMessage.slice(range.startIndex, range.endIndex)));
 		return finalSections;
+	}
+
+	function addPlainTextSection(text: string): VNode {
+		return h("span", text);
 	}
 </script>
 
