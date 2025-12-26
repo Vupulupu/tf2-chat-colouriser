@@ -11,28 +11,46 @@
 			selection: { type: [Object, null], required: true, default: null },
 		},
 		setup(props) {
+			interface Style {
+				color?: string,
+				width?: string,
+			}
 			const colouredRanges: Ref<ColouredRange[]> = useState("preview-coloured-ranges", () => []);
 			const selection: ComputedRef<IndexRange> = computed(() => (props.selection as IndexRange));
 			const rootMessageNode: Ref<VNode> = useState("root-message-node", () => h("span"));
 
 			let messageParts: (VNode | string)[] = [];
+			let style: Style = {};
 			watch([props.colouredRanges, selection], () => {
 				colouredRanges.value = (props.colouredRanges.slice() as ColouredRange[]).map((range) => range.clone());
-				Colourise.adjustColoursAroundRange(props.selection as IndexRange, colouredRanges);
+				messageParts = buildSpanTree();
+				style.width = (parseInt(props.width) > 0) ? props.width : "initial";
+			});
 
-				messageParts = [];
+
+			return () => h( "span", {style: style}, messageParts);
+
+
+
+			function buildSpanTree(): (VNode|string)[] {
+				const messageParts: (VNode|string)[] = [];
+				const renderSelection: boolean = !!selection.value.length();
+				let selectionRendered: boolean = false
 				let plainTextStart: number = 0;
+
+				if (renderSelection) Colourise.adjustColoursAroundRange(props.selection as IndexRange, colouredRanges);
 				colouredRanges.value.forEach((range: ColouredRange) => {
-					if (selection.value.length() && selection.value.startIndex < range.startIndex) {
+					if (renderSelection && !selectionRendered && selection.value.startIndex < range.startIndex) {
 						messageParts.push(...addSelectionSection( props.messageContent, plainTextStart, selection.value));
-						if (plainTextStart < range.startIndex) plainTextStart = selection.value.endIndex;
+						plainTextStart = selection.value.endIndex;
+						selectionRendered = true;
 					}
 
 					messageParts.push(...addNextRangeSection(props.messageContent, plainTextStart, range, {color: range.colourHex}));
 					plainTextStart = range.endIndex;
 				});
 
-				if (selection.value.length() && plainTextStart <= selection.value.startIndex) {
+				if (renderSelection && plainTextStart <= selection.value.startIndex) {
 					messageParts.push(...addSelectionSection( props.messageContent, plainTextStart, selection.value));
 					plainTextStart = selection.value.endIndex;
 				}
@@ -40,10 +58,8 @@
 					messageParts.push(props.messageContent.slice(plainTextStart));
 				}
 
-				rootMessageNode.value = h("span", messageParts);
-			});
-
-			return () => rootMessageNode.value;
+				return messageParts;
+			}
 		}
 	};
 
