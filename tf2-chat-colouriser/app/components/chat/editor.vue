@@ -111,7 +111,6 @@
 			</span>
 			<p ref="message-raw-width" class="message-width">{{inputContents || "-"}}</p>
 		</div>
-		<MessagePreview :selection="null" :coloured-ranges="colouredRanges" :message-content="inputContents" />
 		<p id="message-byte-length" ref="message-byte-length"
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used

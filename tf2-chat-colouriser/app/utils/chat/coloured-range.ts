@@ -16,4 +16,8 @@ export class ColouredRange extends IndexRange {
 	public set colourHex(hexStr: string) {
 		this.COLOUR_HEX.setCode(hexStr);
 	}
+
+	public override clone(): ColouredRange {
+		return new ColouredRange(this.colourHex, this.startIndex, this.endIndex);
+	}
 }

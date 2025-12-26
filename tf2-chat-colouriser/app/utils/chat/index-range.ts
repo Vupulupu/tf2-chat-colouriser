@@ -35,4 +35,8 @@ export class IndexRange {
 			return this.startIndex - compareSubstr.startIndex;
 		}
 	}
+
+	public clone(): IndexRange {
+		return new IndexRange(this.startIndex, this.endIndex);
+	}
 }
