@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { h, type ShallowRef } from "vue";
-	import type { IndexRange } from "~/utils/chat/index-range";
+	import { IndexRange } from "~/utils/chat/index-range";
 	import type { ColouredRange } from "~/utils/chat/coloured-range";
 	import * as Colourise from "~/utils/chat/colourise";
 
@@ -11,7 +11,7 @@
 			selection: { type: [Object, null], required: true, default: null },
 			scroll: { type: Number, required: false, default: 0 },
 		},
-		emits: ["resizeWidth"],
+		emits: ["resizeWidth", "selectRange"],
 		setup(props, {emit}) {
 			const colouredRanges: Ref<ColouredRange[]> = useState("preview-coloured-ranges", () => []);
 			const selection: ComputedRef<IndexRange> = computed(() => (props.selection as IndexRange));
@@ -33,6 +33,28 @@
 				colouredRanges.value = (props.colouredRanges.slice() as ColouredRange[]).map((range) => range.clone());
 				messageParts = buildSpanTree();
 			});
+			watch(selection, () => {
+				let emitRange: Range|null = null;
+				if (selection.value.length() && messagePreview.value) {
+					let globalStartIndex: number = 0;
+					let selectionRange: Range = document.createRange();
+					for (let i: number = 0; i < messageParts.length; i++) {
+						const textNode: ChildNode | null | undefined = messagePreview.value?.childNodes[i]?.firstChild;
+						if (!textNode) continue;
+
+						const globalEndIndex: number = globalStartIndex + (textNode.textContent?.length ?? 0);
+						if (selection.value.equals(new IndexRange(globalStartIndex, globalEndIndex))) {
+							selectionRange.setStart(textNode, selection.value.startIndex - globalStartIndex);
+							selectionRange.setEnd(textNode, selection.value.endIndex - globalStartIndex);
+							emitRange = selectionRange;
+							break;
+						}
+						globalStartIndex = globalEndIndex;
+					}
+				}
+
+				emit("selectRange", emitRange);
+			}, {flush: "post"});
 
 			return () => h( "span", {ref: "root-span"}, messageParts);
 

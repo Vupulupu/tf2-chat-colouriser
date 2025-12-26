@@ -11,19 +11,15 @@
 
 	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-text"),
-	                                                                useTemplateRef("message-input"),
-	                                                                useTemplateRef("message-input-mirror"));
+	                                                                useTemplateRef("message-input"));
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
 	const inputWidth: Ref<string> = useState("input-width", () => "0");
 	const inputScroll: Ref<number> = useState("input-scroll", () => 0);
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
 	const inputContents: Ref<string> = useState("input-contents", () => "");
 	const NBSP: string = ' '; // raw &nbsp; char to be use-able with any data binding
-	const inputSelect: Ref<IndexRange> = useState("curr-input-selection", () => new IndexRange(0, 0));
-	const inputSelectRange: Ref<Range | null> = computed(() => {
-		if (editorComponents.messageMirror) return InputResize.parseSelectionRect(inputSelect.value, editorComponents.messageMirror)
-		else return null;
-	});
+	const inputSelect: Ref<IndexRange> = useState("input-selection", () => new IndexRange(0, 0));
+	const inputSelectRange: Ref<Range | null> = useState("input-selection-range", () => null);
 	const inputSelectRect: ComputedRef<DOMRect | null> = computed(() => {
 		if (inputSelectRange.value) return inputSelectRange.value.getBoundingClientRect();
 		else return null;
@@ -74,7 +70,6 @@
 	}
 
 	function updateMirrorScroll() {
-		editorComponents.messageMirror.scrollLeft = editorComponents.messageInput.scrollLeft; //TODO:: remove once parseSelectionRect is refactored
 		inputScroll.value = editorComponents.messageInput.scrollLeft;
 	}
 
@@ -84,9 +79,9 @@
 	}
 
 	function colouriseSubstring(colour: Colour) {
-		if (inputSelectRange.value) {
-			const startIndex: number = inputSelectRange.value.startOffset;
-			const endIndex: number = inputSelectRange.value.endOffset;
+		if (inputSelect.value) {
+			const startIndex: number = inputSelect.value.startIndex;
+			const endIndex: number = inputSelect.value.endIndex;
 			const newColouredRange: ColouredRange = new ColouredRange(colour.hex.getCode().value, startIndex, endIndex);
 			Colourise.applyColour(newColouredRange, colouredRanges);
 		}
@@ -103,10 +98,10 @@
 			<span ref="say-text" class="say-text">Say :</span>
 			<span id="message-input">
 				<input ref="message-input" type="text" value="" @scroll="updateMirrorScroll" @input="updateMirror" />
-				<span class="message-mirror" ref="message-input-mirror">{{inputContents}}</span>
 				<MessagePreview class="message-mirror" :scroll="inputScroll" :selection="inputSelect"
 				                :coloured-ranges="colouredRanges" :message-content="inputContents"
-				                @resize-width="(newWidth: number) => inputWidth=`${newWidth}px`"/>
+				                @resize-width="(newWidth: number) => inputWidth=`${newWidth}px`"
+				                @select-range="(newRange: Range) => inputSelectRange=newRange" />
 			</span>
 		</div>
 		<p id="message-byte-length" ref="message-byte-length"
