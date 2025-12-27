@@ -1,6 +1,6 @@
 import type { ShallowRef } from "vue";
 
-export class EditorComponents {
+export class EditorElements {
 	private _nullElements:string[] = [];
 	private _messageLabel: ShallowRef<HTMLLabelElement>;
 	private _sayText: ShallowRef<HTMLElement>;
