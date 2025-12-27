@@ -98,7 +98,7 @@
 
 				const globalEndIndex: number = globalStartIndex + (textNode.textContent?.length ?? 0);
 				if (selection.equals(new IndexRange(globalStartIndex, globalEndIndex))) {
-					const selectionRange: Range = document.createRange();
+					selectionRange = document.createRange();
 					selectionRange.setStart(textNode, selection.startIndex - globalStartIndex);
 					selectionRange.setEnd(textNode, selection.endIndex - globalStartIndex);
 				}
