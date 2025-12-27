@@ -34,26 +34,7 @@
 				messageParts = buildSpanTree();
 			});
 			watch(selection, () => {
-				let emitRange: Range|null = null;
-				if (selection.value.length() && messagePreview.value) {
-					let globalStartIndex: number = 0;
-					let selectionRange: Range = document.createRange();
-					for (let i: number = 0; i < messageParts.length; i++) {
-						const textNode: ChildNode | null | undefined = messagePreview.value?.childNodes[i]?.firstChild;
-						if (!textNode) continue;
-
-						const globalEndIndex: number = globalStartIndex + (textNode.textContent?.length ?? 0);
-						if (selection.value.equals(new IndexRange(globalStartIndex, globalEndIndex))) {
-							selectionRange.setStart(textNode, selection.value.startIndex - globalStartIndex);
-							selectionRange.setEnd(textNode, selection.value.endIndex - globalStartIndex);
-							emitRange = selectionRange;
-							break;
-						}
-						globalStartIndex = globalEndIndex;
-					}
-				}
-
-				emit("selectRange", emitRange);
+				emit("selectRange", getSelectionDOMRange(selection.value, messagePreview.value));
 			}, {flush: "post"});
 
 			return () => h( "span", {ref: "root-span"}, messageParts);
@@ -105,6 +86,26 @@
 
 	function addPlainTextSection(text: string): VNode {
 		return h("span", text);
+	}
+
+	function getSelectionDOMRange(selection: IndexRange, messagePreview: HTMLElement|null): Range|null {
+		let selectionRange: Range | null = null;
+		if (selection.length() && messagePreview) {
+			let globalStartIndex: number = 0;
+			for (let i: number = 0; i < messagePreview.childNodes.length; i++) {
+				const textNode: ChildNode | null | undefined = messagePreview.childNodes[i]?.firstChild;
+				if (!textNode) continue;
+
+				const globalEndIndex: number = globalStartIndex + (textNode.textContent?.length ?? 0);
+				if (selection.equals(new IndexRange(globalStartIndex, globalEndIndex))) {
+					const selectionRange: Range = document.createRange();
+					selectionRange.setStart(textNode, selection.startIndex - globalStartIndex);
+					selectionRange.setEnd(textNode, selection.endIndex - globalStartIndex);
+				}
+				globalStartIndex = globalEndIndex;
+			}
+		}
+		return selectionRange;
 	}
 </script>
 
