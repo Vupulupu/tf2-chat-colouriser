@@ -4,16 +4,16 @@
 	const props = defineProps({
 		oldColour: { type: String, default: "#fcedcd" },
 	});
-
 	const emit = defineEmits(["colourSet", "colourCancelled"]);
+	const inputZIndex: number = inject("input-z-index", 99);
 
 	const OLD_COLOUR: Colour.Colour = Colour.createFromHex(props.oldColour);
 	const newColour: Ref<Colour.Colour> = useState("new-colour", () => Colour.createFromHex(props.oldColour));
 </script>
 
 <template>
-	<div class="overlay" style="background-color: #0004; z-index: 9;" @click="emit('colourCancelled')"></div>
-	<div id="colour-picker" style="z-index: 10;">
+	<div class="overlay" :style="{backgroundColor: '#0004', zIndex: inputZIndex+1}" @click="emit('colourCancelled')"></div>
+	<div id="colour-picker" :style="{zIndex: inputZIndex+2}">
 		<div class="picker-header">
 			<span>Change Text Colour</span>
 			<button id="close-picker" @click="emit('colourCancelled')">X</button>

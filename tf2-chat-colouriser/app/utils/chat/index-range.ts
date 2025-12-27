@@ -28,12 +28,16 @@ export class IndexRange {
 		return (this.startIndex < compareIndex && this.endIndex > compareIndex);
 	}
 
-	public compare(compareSubstr: IndexRange): number {
-		if (this.startIndex === compareSubstr.startIndex) {
-			return this.endIndex - compareSubstr.endIndex;
+	public compare(compareRange: IndexRange): number {
+		if (this.startIndex === compareRange.startIndex) {
+			return this.endIndex - compareRange.endIndex;
 		} else {
-			return this.startIndex - compareSubstr.startIndex;
+			return this.startIndex - compareRange.startIndex;
 		}
+	}
+
+	public equals(compareRange: IndexRange): boolean {
+		return (this.startIndex === compareRange.startIndex && this.endIndex === compareRange.endIndex);
 	}
 
 	public clone(): IndexRange {

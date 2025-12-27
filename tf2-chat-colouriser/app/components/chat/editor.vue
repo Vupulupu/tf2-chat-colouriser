@@ -1,28 +1,26 @@
 <script setup lang="ts">
 	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
-	import { EditorComponents } from "~/utils/chat/editor-components";
+	import { EditorElements } from "~/utils/chat/editor-elements";
 	import MessagePreview from "~/components/chat/message-preview.vue";
-	import * as InputResize from "~/utils/chat/input-resize";
 	import type { Colour } from "~/utils/colour-picker/colour";
 	import { IndexRange } from "~/utils/chat/index-range";
 	import { ColouredRange } from "~/utils/chat/coloured-range";
 	import * as Colourise from "~/utils/chat/colourise";
 	import stringDifferenceLength from "~/utils/string-difference";
 
-	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
-	                                                                useTemplateRef("say-text"),
-	                                                                useTemplateRef("message-input"),
-	                                                                useTemplateRef("message-input-mirror"),
-	                                                                useTemplateRef("message-raw-width"));
+	const editorElements: EditorElements = new EditorElements(useTemplateRef("message-label"),
+	                                                                useTemplateRef("say-label"),
+	                                                                useTemplateRef("message-input"));
+
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
+	const inputWidth: Ref<string> = useState("input-width", () => "0");
+	const inputScroll: Ref<number> = useState("input-scroll", () => 0);
+	const inputTransition: Ref<string> = useState("input-transition-style", () => "");
 	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
 	const inputContents: Ref<string> = useState("input-contents", () => "");
 	const NBSP: string = ' '; // raw &nbsp; char to be use-able with any data binding
-	const inputSelect: Ref<IndexRange> = useState("curr-input-selection", () => new IndexRange(0, 0));
-	const inputSelectRange: Ref<Range | null> = computed(() => {
-		if (editorComponents.messageMirror) return InputResize.parseSelectionRect(inputSelect.value, editorComponents.messageMirror)
-		else return null;
-	});
+	const inputSelect: Ref<IndexRange> = useState("input-selection", () => new IndexRange(0, 0));
+	const inputSelectRange: Ref<Range | null> = useState("input-selection-range", () => null);
 	const inputSelectRect: ComputedRef<DOMRect | null> = computed(() => {
 		if (inputSelectRange.value) return inputSelectRange.value.getBoundingClientRect();
 		else return null;
@@ -34,11 +32,11 @@
 	const COLOUR_OPTION_TAIL_WIDTH: string = "15px";
 	const COLOUR_OPTION_TAIL_HEIGHT: string = "20px";
 	const colourOptionTailOffset: ComputedRef<string> = computed(() => {
-		if (!inputSelectRect.value || !editorComponents.messageInput) return "0";
+		if (!inputSelectRect.value || !editorElements.messageInput) return "0";
 		else {
-			const inputCenter: number = editorComponents.messageInput.getBoundingClientRect().left+(editorComponents.messageInput.offsetWidth/2);
+			const inputCenter: number = editorElements.messageInput.getBoundingClientRect().left+(editorElements.messageInput.offsetWidth/2);
 			const offsetFromCentre: number = inputSelectRect.value.left+(inputSelectRect.value.width/2)-inputCenter;
-			return `${offsetFromCentre/(editorComponents.messageInput.offsetWidth/2) * 10}px`
+			return `${offsetFromCentre/(editorElements.messageInput.offsetWidth/2) * 10}px`
 		}
 	});
 	const selectionPositionCentreX: ComputedRef<string> = computed(() => {
@@ -52,46 +50,56 @@
 		else return `${(inputSelectRect.value.top - parseInt(COLOUR_OPTION_TAIL_HEIGHT) - 10)}px`;
 	});
 
-	onMounted(() => {
-		minInputWidth.value = `${(editorComponents.messageLabel.offsetWidth - editorComponents.sayText.offsetWidth)}px`;
-		InputResize.animateExpandStartingInput(editorComponents, minInputWidth);
-		sayTextWidth.value = `${editorComponents.sayText.offsetWidth}px`;
+	const inputZIndex: number = 10;
+	provide("input-z-index", inputZIndex);
 
-		editorComponents.messageInput.addEventListener("selectionchange", () => {
-			const inputEl: HTMLInputElement = editorComponents.messageInput;
-			if (inputEl.selectionStart!==null && inputEl.selectionEnd!==null)
+	onMounted(() => {
+		const INIT_INPUT_ANIMATION_DURATION: number = 750;
+		const INPUT_WIDTH_PADDING: number = 25;
+		const INIT_WIDTH: string = (editorElements.messageLabel.offsetWidth - editorElements.sayText.offsetWidth + INPUT_WIDTH_PADDING) + "px";
+		sayTextWidth.value = `${editorElements.sayText.offsetWidth}px`;
+
+		inputTransition.value = `width ${INIT_INPUT_ANIMATION_DURATION}ms ease,` +
+			`min-width ${INIT_INPUT_ANIMATION_DURATION}ms ease,` +
+			`outline ${INIT_INPUT_ANIMATION_DURATION}ms ease`;
+		minInputWidth.value = INIT_WIDTH;
+		inputWidth.value = INIT_WIDTH;
+		setTimeout(() => {
+			inputTransition.value = "";
+		}, INIT_INPUT_ANIMATION_DURATION);
+
+		editorElements.messageInput.addEventListener("selectionchange", () => {
+			const inputEl: HTMLInputElement = editorElements.messageInput;
+			if (inputEl.selectionStart!==null && inputEl.selectionEnd!==null) {
 				inputSelect.value = new IndexRange(inputEl.selectionStart, inputEl.selectionEnd);
+			}
 		});
 	});
 
-	function resizeMessage(): void {
-		InputResize.resizeInputComponent(editorComponents, inputContents.value);
-	}
-
 	function updateMirror() {
-		const inputEl: HTMLInputElement = editorComponents.messageInput;
+		const inputEl: HTMLInputElement = editorElements.messageInput;
 		Colourise.updateColour(stringDifferenceLength(inputContents.value, inputEl.value), colouredRanges, inputSelect.value);
-
 		inputContents.value = inputEl.value.replace(/\s/g, NBSP);
-		resizeMessage();
 		updateMirrorScroll();
 	}
 
 	function updateMirrorScroll() {
-		editorComponents.messageMirror.scrollLeft = editorComponents.messageInput.scrollLeft;
+		inputScroll.value = editorElements.messageInput.scrollLeft;
 	}
 
 	function resetInputSelection() {
-		editorComponents.messageInput.selectionStart = 0;
-		editorComponents.messageInput.selectionEnd = 0;
+		editorElements.messageInput.selectionStart = 0;
+		editorElements.messageInput.selectionEnd = 0;
 	}
 
 	function colouriseSubstring(colour: Colour) {
-		if (inputSelectRange.value) {
-			const startIndex: number = inputSelectRange.value.startOffset;
-			const endIndex: number = inputSelectRange.value.endOffset;
+		if (inputSelect.value) {
+			const startIndex: number = inputSelect.value.startIndex;
+			const endIndex: number = inputSelect.value.endIndex;
 			const newColouredRange: ColouredRange = new ColouredRange(colour.hex.getCode().value, startIndex, endIndex);
+
 			Colourise.applyColour(newColouredRange, colouredRanges);
+			resetInputSelection();
 		}
 	}
 </script>
@@ -103,21 +111,23 @@
 			Chat Message
 		</label>
 		<div class="chat-container">
-			<span ref="say-text" class="say-text">Say :</span>
-			<span id="message-input">
-				<input ref="message-input" type="text" value="" @scroll="updateMirrorScroll"
-				       @input="updateMirror" @resize="resizeMessage" />
-				<span class="message-mirror" ref="message-input-mirror">{{inputContents}}</span>
+			<span ref="say-label" class="say-label">Say :</span>
+			<span id="input-container">
+				<MessagePreview class="message-mirror" :style="{zIndex: inputZIndex-1}" :message-content="inputContents"
+				                :coloured-ranges="colouredRanges" :selection="inputSelect" :scroll="inputScroll"
+				                @resize-width="(newWidth: number) => inputWidth=`${newWidth}px`"
+				                @select-range="(newRange: Range) => inputSelectRange=newRange" />
+				<input ref="message-input" :style="{zIndex: inputZIndex}" type="text" value=""
+				       @scroll="updateMirrorScroll" @input="updateMirror" autofocus />
 			</span>
-			<p ref="message-raw-width" class="message-width">{{inputContents || "-"}}</p>
 		</div>
 		<p id="message-byte-length" ref="message-byte-length"
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used
 		</p>
 		<template v-if="inputSelectRange && !pickerIsOpen">
-			<div class="overlay" @mousedown="resetInputSelection"></div>
-			<div class="tailed-button">
+			<div class="overlay" :style="{zIndex: inputZIndex-2}" @mousedown="resetInputSelection"></div>
+			<div class="tailed-button" :style="{zIndex: inputZIndex-1}">
 				<div class="init-grow-wrapper">
 					<button @click="pickerIsOpen=true;">colour-ise</button>
 					<LeadingTail :width="COLOUR_OPTION_TAIL_WIDTH" :height="COLOUR_OPTION_TAIL_HEIGHT" colour="var(--tf2-shadow-colour)"
@@ -128,7 +138,7 @@
 		</template>
 		<ColourPicker v-if="pickerIsOpen"
 		              @colour-cancelled="pickerIsOpen=false;"
-		              @colour-set="(colour:Colour) => {colouriseSubstring(colour);resetInputSelection();pickerIsOpen=false;}" />
+		              @colour-set="(colour:Colour) => {colouriseSubstring(colour);pickerIsOpen=false;}" />
 	</div>
 </template>
 
@@ -151,59 +161,72 @@
 		font-weight: bold;
 	}
 
-	#message-input>*,
-	.chat-container,
-	.message-width {
+	#input-container>*,
+	.chat-container {
 		box-sizing: border-box;
 		font-family: "verdana", "sans-serif";
 		font-weight: bold;
 		font-size: var(--verdana-font-size);
 	}
 
-	#message-input>*,
-	.say-text {
+	#input-container>*,
+	.say-label {
 		padding: 5px 10px calc(5px + .1em) 10px;
-		text-shadow: hsla(var(--hsl-black) / 50%) 2px 2px 1px;
-	}
-
-	#message-input>*,
-	.message-width {
-		max-width: calc(95dvw - v-bind(sayTextWidth));
-		overflow: hidden;
 	}
 
 	.message-mirror,
-	.message-width {
+	.say-label {
+		text-shadow: hsla(var(--hsl-black) / 50%) 2px 2px 1px;
+	}
+
+	.message-mirror {
 		position: absolute;
 		left: 0;
 		user-select: none;
 		pointer-events: none;
 	}
 
-	#message-input {
+	#input-container,
+	#input-container>* {
+		overflow: hidden;
+		border: none;
+		border-top-right-radius: 10px;
+		border-bottom-right-radius: 10px;
+	}
+
+	#input-container {
 		position: relative;
-		z-index: 99;
-		&>input {
-			&:focus-visible, &:focus-within {
-				background: hsla(var(--hsl-black) / 10%);
-				outline: 3px solid var(--tf2-chat-selection-colour);
-			}
-		}
-		&>* {
-			min-width: v-bind(minInputWidth);
-			width: v-bind(minInputWidth);
-			padding: 5px 10px calc(5px + .1em) 10px;
-			color: var(--tf2-chat-colour);
-			text-align: center;
-			background: none;
-			border: none;
-			border-top-right-radius: 10px;
-			border-bottom-right-radius: 10px;
+		padding: 5px 0;
+		&:focus-visible, &:focus-within {
+			background: hsla(var(--hsl-black) / 10%);
 		}
 	}
 
+	#input-container>input {
+		position: relative;
+		-webkit-text-fill-color: transparent;
+		&:focus-visible, &:focus-within {
+			outline: 3px solid var(--tf2-chat-selection-colour);
+		}
+		&::selection {
+			color: unset;
+			background: unset;
+		}
+	}
+
+	#input-container>* {
+		min-width: v-bind(minInputWidth);
+		width: v-bind(inputWidth);
+		max-width: calc(95dvw - v-bind(sayTextWidth));
+		padding: 5px 10px calc(5px + .1em) 10px;
+		color: var(--tf2-chat-colour);
+		text-align: center;
+		background: none;
+		transition: v-bind(inputTransition);
+	}
+
 	.chat-container,
-	.say-text {
+	.say-label {
 		--container-border-style: 2px solid hsla(var(--hsl-white) / 50%);
 	}
 
@@ -220,15 +243,10 @@
 		            hsla(var(--hsl-black) / 10%) 5px 5px 10px;
 	}
 
-	.say-text {
+	.say-label {
 		padding-right: 5px;
 		border-right: var(--container-border-style);
 		user-select: none;
-	}
-
-	.message-width {
-		min-width: var(--input-width)px;
-		opacity: 0;
 	}
 
 	.tailed-button {
@@ -256,7 +274,7 @@
 	}
 
 	@media only screen and (max-width: 320px) {
-		#message-input {
+		#input-container {
 			min-width: 0;
 		}
 	}
