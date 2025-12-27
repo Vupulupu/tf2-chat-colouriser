@@ -1,6 +1,6 @@
 <script setup lang="ts">
 	import { tfStyleTextShadow } from "~/utils/chat/compute-styles";
-	import { EditorComponents } from "~/utils/chat/editor-components";
+	import { EditorElements } from "~/utils/chat/editor-elements";
 	import MessagePreview from "~/components/chat/message-preview.vue";
 	import type { Colour } from "~/utils/colour-picker/colour";
 	import { IndexRange } from "~/utils/chat/index-range";
@@ -8,8 +8,8 @@
 	import * as Colourise from "~/utils/chat/colourise";
 	import stringDifferenceLength from "~/utils/string-difference";
 
-	const editorComponents: EditorComponents = new EditorComponents(useTemplateRef("message-label"),
-	                                                                useTemplateRef("say-text"),
+	const editorElements: EditorElements = new EditorElements(useTemplateRef("message-label"),
+	                                                                useTemplateRef("say-label"),
 	                                                                useTemplateRef("message-input"));
 
 	const minInputWidth: Ref<string> = useState("min-input-width", () => "0");
@@ -32,11 +32,11 @@
 	const COLOUR_OPTION_TAIL_WIDTH: string = "15px";
 	const COLOUR_OPTION_TAIL_HEIGHT: string = "20px";
 	const colourOptionTailOffset: ComputedRef<string> = computed(() => {
-		if (!inputSelectRect.value || !editorComponents.messageInput) return "0";
+		if (!inputSelectRect.value || !editorElements.messageInput) return "0";
 		else {
-			const inputCenter: number = editorComponents.messageInput.getBoundingClientRect().left+(editorComponents.messageInput.offsetWidth/2);
+			const inputCenter: number = editorElements.messageInput.getBoundingClientRect().left+(editorElements.messageInput.offsetWidth/2);
 			const offsetFromCentre: number = inputSelectRect.value.left+(inputSelectRect.value.width/2)-inputCenter;
-			return `${offsetFromCentre/(editorComponents.messageInput.offsetWidth/2) * 10}px`
+			return `${offsetFromCentre/(editorElements.messageInput.offsetWidth/2) * 10}px`
 		}
 	});
 	const selectionPositionCentreX: ComputedRef<string> = computed(() => {
@@ -56,8 +56,8 @@
 	onMounted(() => {
 		const INIT_INPUT_ANIMATION_DURATION: number = 750;
 		const INPUT_WIDTH_PADDING: number = 25;
-		const INIT_WIDTH: string = (editorComponents.messageLabel.offsetWidth - editorComponents.sayText.offsetWidth + INPUT_WIDTH_PADDING) + "px";
-		sayTextWidth.value = `${editorComponents.sayText.offsetWidth}px`;
+		const INIT_WIDTH: string = (editorElements.messageLabel.offsetWidth - editorElements.sayText.offsetWidth + INPUT_WIDTH_PADDING) + "px";
+		sayTextWidth.value = `${editorElements.sayText.offsetWidth}px`;
 
 		inputTransition.value = `width ${INIT_INPUT_ANIMATION_DURATION}ms ease,` +
 			`min-width ${INIT_INPUT_ANIMATION_DURATION}ms ease,` +
@@ -68,8 +68,8 @@
 			inputTransition.value = "";
 		}, INIT_INPUT_ANIMATION_DURATION);
 
-		editorComponents.messageInput.addEventListener("selectionchange", () => {
-			const inputEl: HTMLInputElement = editorComponents.messageInput;
+		editorElements.messageInput.addEventListener("selectionchange", () => {
+			const inputEl: HTMLInputElement = editorElements.messageInput;
 			if (inputEl.selectionStart!==null && inputEl.selectionEnd!==null) {
 				inputSelect.value = new IndexRange(inputEl.selectionStart, inputEl.selectionEnd);
 			}
@@ -77,19 +77,19 @@
 	});
 
 	function updateMirror() {
-		const inputEl: HTMLInputElement = editorComponents.messageInput;
+		const inputEl: HTMLInputElement = editorElements.messageInput;
 		Colourise.updateColour(stringDifferenceLength(inputContents.value, inputEl.value), colouredRanges, inputSelect.value);
 		inputContents.value = inputEl.value.replace(/\s/g, NBSP);
 		updateMirrorScroll();
 	}
 
 	function updateMirrorScroll() {
-		inputScroll.value = editorComponents.messageInput.scrollLeft;
+		inputScroll.value = editorElements.messageInput.scrollLeft;
 	}
 
 	function resetInputSelection() {
-		editorComponents.messageInput.selectionStart = 0;
-		editorComponents.messageInput.selectionEnd = 0;
+		editorElements.messageInput.selectionStart = 0;
+		editorElements.messageInput.selectionEnd = 0;
 	}
 
 	function colouriseSubstring(colour: Colour) {
@@ -111,7 +111,7 @@
 			Chat Message
 		</label>
 		<div class="chat-container">
-			<span ref="say-text" class="say-text">Say :</span>
+			<span ref="say-label" class="say-label">Say :</span>
 			<span id="input-container">
 				<MessagePreview class="message-mirror" :style="{zIndex: inputZIndex-1}" :message-content="inputContents"
 				                :coloured-ranges="colouredRanges" :selection="inputSelect" :scroll="inputScroll"
@@ -170,12 +170,12 @@
 	}
 
 	#input-container>*,
-	.say-text {
+	.say-label {
 		padding: 5px 10px calc(5px + .1em) 10px;
 	}
 
 	.message-mirror,
-	.say-text {
+	.say-label {
 		text-shadow: hsla(var(--hsl-black) / 50%) 2px 2px 1px;
 	}
 
@@ -226,7 +226,7 @@
 	}
 
 	.chat-container,
-	.say-text {
+	.say-label {
 		--container-border-style: 2px solid hsla(var(--hsl-white) / 50%);
 	}
 
@@ -243,7 +243,7 @@
 		            hsla(var(--hsl-black) / 10%) 5px 5px 10px;
 	}
 
-	.say-text {
+	.say-label {
 		padding-right: 5px;
 		border-right: var(--container-border-style);
 		user-select: none;
