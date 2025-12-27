@@ -1,6 +1,12 @@
 import { ColouredRange } from "~/utils/chat/coloured-range";
 import { IndexRange } from "~/utils/chat/index-range";
 
+const RESET_COLOUR_CTRL: string = ""; // 0x01 - reset to default colour
+const SET_COLOUR_CTRL: string = "";   // 0x07 - initiates and marks start of opaque hex code
+const SET_ALPHA_CTRL: string = "\b";   // 0x08 - marks start of alpha hex code
+const OPAQUE_STARTING_BUFFER: string = SET_COLOUR_CTRL + "hihi<3" + SET_COLOUR_CTRL;
+const ALPHA_STARTING_BUFFER: string = SET_COLOUR_CTRL + "hihi<3" + SET_ALPHA_CTRL;
+
 /*
 if a colourised range starts inside new range, move start to end of new range.
 if a colourised range ends inside new range, move end to start of new range.
@@ -69,4 +75,31 @@ export function updateColour(strChange: number, colouredRanges: Ref<ColouredRang
 			}
 		}
 	}
+}
+
+/*
+default -> opaque : SET_COLOUR_CTRL
+default -> walpha : SET_ALPHA_CTRL
+any -> default : RESET_COLOUR_CTRL
+*/
+export function exportColouredRanges(message: string, colouredRanges: ColouredRange[]): string {
+	let exportString: string = "";
+	let plainTextStart: number = 0;
+	let colourStarted: boolean = false;
+	colouredRanges.forEach((range: ColouredRange) => {
+		if (plainTextStart < range.startIndex) {
+			if (colourStarted) exportString += RESET_COLOUR_CTRL;
+			exportString += message.slice(plainTextStart, range.startIndex);
+			colourStarted = false;
+		}
+		exportString += OPAQUE_STARTING_BUFFER + range.colourHex.slice(1) + message.slice(range.startIndex, range.endIndex);
+		plainTextStart = range.endIndex;
+		colourStarted = true;
+	});
+	if (plainTextStart < message.length) {
+		if (colourStarted) exportString += RESET_COLOUR_CTRL;
+		exportString += message.slice(plainTextStart);
+	}
+
+	return exportString;
 }
