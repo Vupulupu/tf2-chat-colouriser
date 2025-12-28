@@ -3,6 +3,7 @@
 	import { EditorElements } from "~/utils/chat/editor-elements";
 	import MessagePreview from "~/components/chat/message-preview.vue";
 	import type { Colour } from "~/utils/colour-picker/colour";
+	import { HexColourModel } from "~/utils/colour-picker/hex-colour-model";
 	import { IndexRange } from "~/utils/chat/index-range";
 	import { ColouredRange } from "~/utils/chat/coloured-range";
 	import * as Colourise from "~/utils/chat/colourise";
@@ -27,6 +28,7 @@
 	});
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
 	const colouredRanges: Ref<ColouredRange[]> = useState("coloured-ranges", () => []);
+	const DEFAULT_COLOUR: HexColourModel = new HexColourModel("#fcedcd");
 
 	const COLOUR_OPTION_SIZE: string = "50px";
 	const COLOUR_OPTION_TAIL_WIDTH: string = "15px";
@@ -98,7 +100,7 @@
 			const endIndex: number = inputSelect.value.endIndex;
 			const newColouredRange: ColouredRange = new ColouredRange(colour.hex.getCode().value, startIndex, endIndex);
 
-			Colourise.applyColour(newColouredRange, colouredRanges);
+			Colourise.applyColour(newColouredRange, colouredRanges, DEFAULT_COLOUR);
 			resetInputSelection();
 		}
 	}

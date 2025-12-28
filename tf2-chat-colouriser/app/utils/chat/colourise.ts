@@ -1,5 +1,6 @@
 import { ColouredRange } from "~/utils/chat/coloured-range";
 import { IndexRange } from "~/utils/chat/index-range";
+import { HexColourModel } from "~/utils/colour-picker/hex-colour-model";
 
 const RESET_COLOUR_CTRL: string = ""; // 0x01 - reset to default colour
 const SET_COLOUR_CTRL: string = "";   // 0x07 - initiates and marks start of opaque hex code
@@ -12,26 +13,49 @@ if a colourised range starts inside new range, move start to end of new range.
 if a colourised range ends inside new range, move end to start of new range.
 if a colourised range is entirely included inside new range, delete/replace it.
 */
-export function applyColour(newRange: ColouredRange, colouredRanges: Ref<ColouredRange[]>): void {
+export function applyColour(newRange: ColouredRange, colouredRanges: Ref<ColouredRange[]>, defaultColour?: HexColourModel): void {
 	adjustColoursAroundRange(newRange, colouredRanges);
-	colouredRanges.value.push(newRange);
-	colouredRanges.value.sort((a: ColouredRange, b: ColouredRange) => { return a.compare(b) });
+	if (defaultColour?.getCode().value===newRange.colourHex) {
+		return;
+	} else {
+		colouredRanges.value.push(newRange);
+		colouredRanges.value.sort((a: ColouredRange, b: ColouredRange) => {
+			return a.compare(b)
+		});
+	}
 }
 
-export function adjustColoursAroundRange(range: IndexRange, colouredRanges: Ref<ColouredRange[]>): void {
+export function adjustColoursAroundRange(range: IndexRange|ColouredRange, colouredRanges: Ref<ColouredRange[]>): void {
 	for (let i:number=0; i<colouredRanges.value.length; i++) {
 		const currRange: ColouredRange | undefined = colouredRanges.value[i];
-		if (currRange) {
-			if (range.subsumes(currRange)) {
+		if (!currRange) continue;
+
+		if (range.subsumes(currRange)) {
+			colouredRanges.value = colouredRanges.value.toSpliced(i--, 1);
+		} else if (currRange.includes(range)) {
+			if (range instanceof ColouredRange && range.equalColours(currRange)) {
+				range.startIndex = currRange.startIndex; range.endIndex = currRange.endIndex;
 				colouredRanges.value = colouredRanges.value.toSpliced(i--, 1);
-			} else if (currRange.includes(range)) {
-				colouredRanges.value.splice(i+1, 0, new ColouredRange(currRange.colourHex, range.endIndex, currRange.endIndex));
+			} else {
+				colouredRanges.value.splice(i + 1, 0, new ColouredRange(currRange.colourHex, range.endIndex, currRange.endIndex));
 				currRange.endIndex = range.startIndex;
-			} else if (currRange.contains(range.startIndex)) {
+			}
+		} else if (currRange.contains(range.startIndex)) {
+			if (range instanceof ColouredRange && range.equalColours(currRange)) {
+				range.startIndex = currRange.startIndex;
+				colouredRanges.value = colouredRanges.value.toSpliced(i--, 1);
+			} else {
 				currRange.endIndex = range.startIndex;
-			} else if (currRange.contains(range.endIndex)) {
+			}
+		} else if (currRange.contains(range.endIndex)) {
+			if (range instanceof ColouredRange && range.equalColours(currRange)) {
+				range.endIndex = currRange.endIndex;
+				colouredRanges.value = colouredRanges.value.toSpliced(i--, 1);
+			} else {
 				currRange.startIndex = range.endIndex;
 			}
+		} else if (currRange.startIndex > range.endIndex) {
+			return; // range to adjust from has passed this point; no sense wasting the remaining iterations
 		}
 	}
 }
