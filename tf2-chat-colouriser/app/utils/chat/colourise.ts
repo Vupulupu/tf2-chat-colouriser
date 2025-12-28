@@ -55,7 +55,8 @@ export function updateColour(strChange: number, colouredRanges: Ref<ColouredRang
 				currRange.endIndex += strChange;
 			} else if (selection.subsumes(currRange)) {
 				// selection entirely surrounds range (or is exactly equal)
-				colouredRanges.value = colouredRanges.value.toSpliced(i--, 1)
+				colouredRanges.value = colouredRanges.value.toSpliced(i--, 1);
+				continue;
 			} else if (currRange.includes(selection)) {
 				// selection is entirely within range (both start and end)
 				currRange.endIndex += strChange;
@@ -73,6 +74,8 @@ export function updateColour(strChange: number, colouredRanges: Ref<ColouredRang
 				// special special branch when only selection's start is directly after range
 				currRange.endIndex += selection.length() + strChange;
 			}
+
+			if (!currRange.length()) colouredRanges.value = colouredRanges.value.toSpliced(i, 1);
 		}
 	}
 }
