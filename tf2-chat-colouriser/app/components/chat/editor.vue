@@ -29,6 +29,7 @@
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
 	const colouredRanges: Ref<ColouredRange[]> = useState("coloured-ranges", () => []);
 	const DEFAULT_COLOUR: HexColourModel = new HexColourModel("#fcedcd");
+	const showCopyNotification: Ref<boolean> = useState("show-copy-notification", () => false);
 
 	const COLOUR_OPTION_SIZE: string = "50px";
 	const COLOUR_OPTION_TAIL_WIDTH: string = "15px";
@@ -106,7 +107,9 @@
 	}
 
 	function copyTF2Message() {
+		resetInputSelection();
 		navigator.clipboard.writeText(Colourise.exportColouredRanges(inputContents.value, colouredRanges.value));
+		showCopyNotification.value = true;
 	}
 </script>
 
@@ -135,6 +138,8 @@
 		        @click="copyTF2Message">
 			copy to clipboard
 		</button>
+		<LocalToast v-if="showCopyNotification" ref="copy-notification" :style="{zIndex: inputZIndex}"
+		            message="Message Copied !" @close="showCopyNotification=false;" />
 		<template v-if="inputSelectRange && !pickerIsOpen">
 			<div class="overlay" :style="{zIndex: inputZIndex-2}" @mousedown="resetInputSelection"></div>
 			<div class="tailed-button" :style="{zIndex: inputZIndex-1}">

@@ -53,8 +53,8 @@
 	function closeToast() {
 		animState.value = {...animState.value, opacity: 0, transform: "translateY(100%)"};
 		setTimeout(() => {
-			console.log(animState.value);
 			emit("close");
+			durationPercentProgress.value = "100%";
 		}, parseInt(ANIM_DURATION_MS));
 	}
 </script>
@@ -98,7 +98,6 @@
 		height: .25em;
 		background-color: hsl(var(--hsl-black) / 50%);
 		transition: width v-bind(durationMs) linear,
-			height v-bind(ANIM_DURATION_MS) ease,
 			opacity v-bind(ANIM_DURATION_MS) ease;
 	}
 </style>
