@@ -10,24 +10,3 @@
 	src: local("tf2 professor scaled"),
 	url("/fonts/tf/tf2professorscaled.ttf") format("truetype");
 }
-
-:root {
-	--verdana-font-size: 16pt;
-	--main-font-size: 24pt;
-	font-family: "tf2 professor", "sans-serif";
-	font-size: var(--main-font-size);
-}
-
-@media only screen and (max-width: 320px) {
-	:root {
-		--verdana-font-size: 8pt;
-		--main-font-size: 14pt;
-	}
-}
-
-@media only screen and (min-device-width: 321px) and (max-device-width: 768px) {
-	:root {
-		--verdana-font-size: 10pt;
-		--main-font-size: 18pt;
-	}
-}

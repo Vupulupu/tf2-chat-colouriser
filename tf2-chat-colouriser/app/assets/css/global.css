@@ -2,7 +2,12 @@
 @import "./colour-scheme.css";
 
 :root {
+	--verdana-font-size: 16pt;
+	--main-font-size: 24pt;
+
 	color: var(--tf2-chat-colour);
+	font-family: "tf2 professor", "sans-serif";
+	font-size: var(--main-font-size);
 }
 
 *::selection {
@@ -22,4 +27,25 @@ a {
 
 p, h1, h2, h3, h4, h5, h6 {
 	margin: 0;
+}
+
+@media only screen and (max-device-width: 800px) and (min-device-width: 351px) {
+	:root {
+		--verdana-font-size: 10pt;
+		--main-font-size: 16pt;
+	}
+}
+
+@media only screen and (max-width: 350px) and (min-device-width: 151px) {
+	:root {
+		--verdana-font-size: 8pt;
+		--main-font-size: 12pt;
+	}
+}
+
+@media only screen and (max-device-width: 150px) {
+	:root {
+		--verdana-font-size: 5dvw;
+		--main-font-size: 10dvw;
+	}
 }
