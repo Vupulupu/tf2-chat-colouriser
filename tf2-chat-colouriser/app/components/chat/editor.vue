@@ -26,8 +26,12 @@
 	const inputSelect: Ref<IndexRange> = useState("input-selection", () => new IndexRange(0, 0));
 	const inputSelectRange: Ref<Range | null> = useState("input-selection-range", () => null);
 	const inputSelectRect: ComputedRef<DOMRect | null> = computed(() => {
-		if (inputSelectRange.value) return inputSelectRange.value.getBoundingClientRect();
-		else return null;
+		const rawSelectRect: DOMRect|null = inputSelectRange.value ? inputSelectRange.value.getBoundingClientRect() : null;
+		if (rawSelectRect) {
+			rawSelectRect.x = Math.max(editorElements.messageInput.getBoundingClientRect().x, rawSelectRect.x);
+			rawSelectRect.width = Math.min(editorElements.messageInput.getBoundingClientRect().width, rawSelectRect.width);
+		}
+		return rawSelectRect;
 	});
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
 	const colouredRanges: Ref<ColouredRange[]> = useState("coloured-ranges", () => []);
