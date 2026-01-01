@@ -1,21 +1,21 @@
-import type { ShallowRef } from "vue";
+import type { TemplateRef, ShallowRef } from "vue";
 
 export class EditorElements {
 	private _nullElements:string[] = [];
 	private _messageLabel: ShallowRef<HTMLLabelElement>;
-	private _sayText: ShallowRef<HTMLElement>;
+	private _sayLabel: ShallowRef<HTMLElement>;
 	private _messageInput: ShallowRef<HTMLInputElement>;
 
-	constructor(messageLabel: ShallowRef<HTMLLabelElement | null>,
-	            sayText: ShallowRef<HTMLElement | null>,
-	            messageInput: ShallowRef<HTMLInputElement | null>) {
+	constructor(messageLabel: TemplateRef<HTMLLabelElement>,
+	            sayLabel: TemplateRef<HTMLElement>,
+	            messageInput: TemplateRef<HTMLInputElement>) {
 		if (!messageLabel) { this._nullElements.push("messageLabel"); }
-		if (!sayText) { this._nullElements.push("sayText"); }
+		if (!sayLabel) { this._nullElements.push("sayText"); }
 		if (!messageInput) { this._nullElements.push("messageInput"); }
 		if (this._nullElements.length>0) { this.throwNullError(); }
 
 		this._messageLabel = (messageLabel as ShallowRef<HTMLLabelElement>);
-		this._sayText = (sayText as ShallowRef<HTMLElement>);
+		this._sayLabel = (sayLabel as ShallowRef<HTMLElement>);
 		this._messageInput = (messageInput as ShallowRef<HTMLInputElement>);
 	}
 
@@ -23,8 +23,8 @@ export class EditorElements {
 		return this._messageLabel.value;
 	}
 
-	get sayText(): HTMLElement {
-		return this._sayText.value;
+	get sayLabel(): HTMLElement {
+		return this._sayLabel.value;
 	}
 
 	get messageInput(): HTMLInputElement {

@@ -20,7 +20,7 @@
 	const inputWidth: Ref<string> = useState("input-width", () => "0");
 	const inputScroll: Ref<number> = useState("input-scroll", () => 0);
 	const inputTransition: Ref<string> = useState("input-transition-style", () => "");
-	const sayTextWidth: ComputedRef<string> = computed(() => `${editorElements.sayText.offsetWidth ?? 0}px`);
+	const sayLabelWidth: ComputedRef<string> = computed(() => `${editorElements.sayLabel.offsetWidth ?? 0}px`);
 	const inputContents: Ref<string> = useState("input-contents", () => "");
 	const NBSP: string = ' '; // raw &nbsp; char to be use-able with any data binding
 	const inputSelect: Ref<IndexRange> = useState("input-selection", () => new IndexRange(0, 0));
@@ -89,7 +89,7 @@
 	function easeIntoInitWidth() {
 		const INIT_INPUT_ANIMATION_DURATION: number = 750;
 		const INPUT_WIDTH_PADDING: number = 25;
-		const INIT_WIDTH: string = (editorElements.messageLabel.offsetWidth - editorElements.sayText.offsetWidth + INPUT_WIDTH_PADDING) + "px";
+		const INIT_WIDTH: string = (editorElements.messageLabel.offsetWidth - editorElements.sayLabel.offsetWidth + INPUT_WIDTH_PADDING) + "px";
 
 		inputTransition.value = `width ${INIT_INPUT_ANIMATION_DURATION}ms ease,` +
 			`min-width ${INIT_INPUT_ANIMATION_DURATION}ms ease,` +
@@ -259,7 +259,7 @@
 	#input-container>* {
 		min-width: v-bind(minInputWidth);
 		width: v-bind(inputWidth);
-		max-width: calc(90dvw - v-bind(sayTextWidth));
+		max-width: calc(90dvw - v-bind(sayLabelWidth));
 		color: var(--tf2-chat-colour);
 		text-align: center;
 		background: none;
