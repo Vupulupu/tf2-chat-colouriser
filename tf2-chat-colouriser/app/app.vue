@@ -10,12 +10,12 @@
 
 <style>
 	body {
-		height: 100dvh;
+		min-height: 100dvh;
 		display: flow-root;
 		margin: 0;
 		background-color: var(--tf2-shadow-colour);
 		background-image: linear-gradient(to top, var(--tf2-shadow-colour), transparent 30%),
-		radial-gradient(transparent, hsl(14 42% 13%) 200%),
+		radial-gradient(transparent, hsl(var(--hsl-sepia-shadow)) calc(175% + 3em)),
 		url("/mannworks-bk.png");
 		background-position: top center;
 		background-size: cover;

@@ -7,20 +7,20 @@
 		<slot/>
 	</main>
 	<footer>
-		<p>v.0.1.0</p>
+		<p>v.0.1.1</p>
 		<p>Created by <a href="https://steamcommunity.com/id/Vupulupu/">Vupulupu</a></p>
 	</footer>
 </template>
 
 <style>
 	main {
-		margin-top: 50px;
+		margin-top: 5dvh;
 	}
 
 	footer {
 		box-sizing: border-box;
-		width: 100%;
-		padding: 10px;
+		width: 100dvw;
+		padding: .5em;
 		display: flex;
 		justify-content: space-between;
 		position: fixed;

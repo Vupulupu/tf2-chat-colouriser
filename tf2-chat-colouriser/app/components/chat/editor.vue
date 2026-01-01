@@ -20,14 +20,18 @@
 	const inputWidth: Ref<string> = useState("input-width", () => "0");
 	const inputScroll: Ref<number> = useState("input-scroll", () => 0);
 	const inputTransition: Ref<string> = useState("input-transition-style", () => "");
-	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
+	const sayLabelWidth: ComputedRef<string> = computed(() => `${editorElements.sayLabel.offsetWidth ?? 0}px`);
 	const inputContents: Ref<string> = useState("input-contents", () => "");
 	const NBSP: string = ' '; // raw &nbsp; char to be use-able with any data binding
 	const inputSelect: Ref<IndexRange> = useState("input-selection", () => new IndexRange(0, 0));
 	const inputSelectRange: Ref<Range | null> = useState("input-selection-range", () => null);
 	const inputSelectRect: ComputedRef<DOMRect | null> = computed(() => {
-		if (inputSelectRange.value) return inputSelectRange.value.getBoundingClientRect();
-		else return null;
+		const rawSelectRect: DOMRect|null = inputSelectRange.value ? inputSelectRange.value.getBoundingClientRect() : null;
+		if (rawSelectRect) {
+			rawSelectRect.x = Math.max(editorElements.messageInput.getBoundingClientRect().x, rawSelectRect.x);
+			rawSelectRect.width = Math.min(editorElements.messageInput.getBoundingClientRect().width, rawSelectRect.width);
+		}
+		return rawSelectRect;
 	});
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
 	const colouredRanges: Ref<ColouredRange[]> = useState("coloured-ranges", () => []);
@@ -61,10 +65,31 @@
 	provide("input-z-index", inputZIndex);
 
 	onMounted(() => {
+		// hot reload resets because Vue is dumb and resets the html input regardless of if there's a value attribute or not B)
+		inputContents.value = editorElements.messageInput.value;
+		resetInputSelection();
+		colouredRanges.value = [];
+
+		easeIntoInitWidth();
+
+		editorElements.messageInput.addEventListener("selectionchange", () => {
+			const inputEl: HTMLInputElement = editorElements.messageInput;
+			if (inputEl.selectionStart!==null && inputEl.selectionEnd!==null) {
+				inputSelect.value = new IndexRange(inputEl.selectionStart, inputEl.selectionEnd);
+			}
+		});
+
+		window.addEventListener("resize", () => {
+			if (editorElements.messageInput.offsetWidth === parseInt(minInputWidth.value)) {
+				easeIntoInitWidth();
+			}
+		});
+	});
+
+	function easeIntoInitWidth() {
 		const INIT_INPUT_ANIMATION_DURATION: number = 750;
 		const INPUT_WIDTH_PADDING: number = 25;
-		const INIT_WIDTH: string = (editorElements.messageLabel.offsetWidth - editorElements.sayText.offsetWidth + INPUT_WIDTH_PADDING) + "px";
-		sayTextWidth.value = `${editorElements.sayText.offsetWidth}px`;
+		const INIT_WIDTH: string = (editorElements.messageLabel.offsetWidth - editorElements.sayLabel.offsetWidth + INPUT_WIDTH_PADDING) + "px";
 
 		inputTransition.value = `width ${INIT_INPUT_ANIMATION_DURATION}ms ease,` +
 			`min-width ${INIT_INPUT_ANIMATION_DURATION}ms ease,` +
@@ -74,14 +99,7 @@
 		setTimeout(() => {
 			inputTransition.value = "";
 		}, INIT_INPUT_ANIMATION_DURATION);
-
-		editorElements.messageInput.addEventListener("selectionchange", () => {
-			const inputEl: HTMLInputElement = editorElements.messageInput;
-			if (inputEl.selectionStart!==null && inputEl.selectionEnd!==null) {
-				inputSelect.value = new IndexRange(inputEl.selectionStart, inputEl.selectionEnd);
-			}
-		});
-	});
+	}
 
 	function updateMirror() {
 		const inputEl: HTMLInputElement = editorElements.messageInput;
@@ -94,9 +112,9 @@
 		inputScroll.value = editorElements.messageInput.scrollLeft;
 	}
 
-	function resetInputSelection() {
-		editorElements.messageInput.selectionStart = 0;
-		editorElements.messageInput.selectionEnd = 0;
+	function resetInputSelection(index: number = inputContents.value.length) {
+		editorElements.messageInput.selectionStart = index;
+		editorElements.messageInput.selectionEnd = index;
 	}
 
 	function colouriseSubstring(colour: Colour) {
@@ -106,7 +124,8 @@
 			const newColouredRange: ColouredRange = new ColouredRange(colour.hex.getCode().value, startIndex, endIndex);
 
 			Colourise.applyColour(newColouredRange, colouredRanges, DEFAULT_COLOUR);
-			resetInputSelection();
+			resetInputSelection(inputSelect.value.endIndex);
+			editorElements.messageInput.focus();
 		}
 	}
 
@@ -139,14 +158,14 @@
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used
 		</p>
-		<button v-if="colouredRanges.length" id="clipboard-copy" ref="clipboard-copy"
+		<button id="clipboard-copy" :class="{active: colouredRanges.length}" ref="clipboard-copy" :style="{zIndex: inputZIndex-1}"
 		        @click="copyTF2Message">
 			copy to clipboard
 		</button>
 		<LocalToast v-if="showCopyNotification" ref="copy-notification" :style="{zIndex: inputZIndex}"
 		            message="Message Copied !" @close="showCopyNotification=false;" />
 		<template v-if="inputSelectRange && !pickerIsOpen">
-			<div class="overlay" :style="{zIndex: inputZIndex-2}" @mousedown="resetInputSelection"></div>
+			<div class="overlay" :style="{zIndex: inputZIndex-2}" @mousedown="resetInputSelection(inputSelect.endIndex)"></div>
 			<div class="tailed-button" :style="{zIndex: inputZIndex-1}">
 				<div class="init-grow-wrapper">
 					<button @click="pickerIsOpen=true;">colour-ise</button>
@@ -164,6 +183,7 @@
 
 <style scoped>
 	#editor {
+		padding-bottom: 8em;
 		display: inline-grid;
 		align-self: center;
 		font-family: "tf2 secondary", "serif";
@@ -193,7 +213,7 @@
 
 	#input-container>*,
 	.say-label {
-		padding: 5px 10px calc(5px + .1em) 10px;
+		padding: var(--vertical-padding) var(--horizontal-padding) calc(var(--vertical-padding) * 2) var(--horizontal-padding);
 	}
 
 	.message-mirror,
@@ -204,6 +224,7 @@
 	.message-mirror {
 		position: absolute;
 		left: 0;
+		white-space: nowrap;
 		user-select: none;
 		pointer-events: none;
 	}
@@ -212,24 +233,25 @@
 	#input-container>* {
 		overflow: hidden;
 		border: none;
-		border-top-right-radius: 10px;
-		border-bottom-right-radius: 10px;
+		border-top-right-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
 	}
 
 	#input-container {
 		position: relative;
-		padding: 5px 0;
 		&:focus-visible, &:focus-within {
 			background: hsla(var(--hsl-black) / 10%);
 		}
 	}
 
 	#input-container>input {
+		--outline-thickness: 3px;
 		position: relative;
 		-webkit-text-fill-color: transparent;
 		font-size: inherit;
+
 		&:focus-visible, &:focus-within {
-			outline: 3px solid var(--tf2-chat-selection-colour);
+			outline: var(--outline-thickness) solid var(--tf2-chat-selection-colour);
 		}
 		&::selection {
 			color: unset;
@@ -240,8 +262,7 @@
 	#input-container>* {
 		min-width: v-bind(minInputWidth);
 		width: v-bind(inputWidth);
-		max-width: calc(95dvw - v-bind(sayTextWidth));
-		padding: 5px 10px calc(5px + .1em) 10px;
+		max-width: calc(90dvw - v-bind(sayLabelWidth));
 		color: var(--tf2-chat-colour);
 		text-align: center;
 		background: none;
@@ -250,35 +271,30 @@
 
 	.chat-container,
 	.say-label {
-		--container-border-style: 2px solid hsla(var(--hsl-white) / 50%);
+		--container-border-style: .1em solid hsla(var(--hsl-white) / 50%);
 	}
 
 	.chat-container {
-		margin: 5px 0;
+		--vertical-padding: .15em;
+		--horizontal-padding: .5em;
+		--border-radius: .5em;
+
+		margin: var(--horizontal-padding) 0;
 		justify-self: center;
 		box-sizing: border-box;
 		font-weight: bold;
 		background: hsla(var(--hsl-black) / 40%);
 		border: var(--container-border-style);
-		border-radius: 10px;
+		border-radius: var(--border-radius);
 		box-shadow: hsla(var(--hsl-black) / 50%) 1px 1px 4px,
 		            hsla(var(--hsl-black) / 30%) 3px 3px 7px,
 		            hsla(var(--hsl-black) / 10%) 5px 5px 10px;
 	}
 
 	.say-label {
-		padding-right: 5px;
+		padding-right: calc(var(--horizontal-padding) / 2);
 		border-right: var(--container-border-style);
 		user-select: none;
-	}
-
-	@keyframes slide-in-top {
-		0% { clip-path: inset(100% 0 0 0); transform: translateY(-100%); }
-		100% { clip-path: inset(0); transform: translateY(0); }
-	}
-	@keyframes slide-in-left {
-		0% { clip-path: inset(0 0 100% 0); transform: translateX(-100%); }
-		100% { clip-path: inset(0); transform: translateY(0); }
 	}
 
 	#clipboard-copy {
@@ -287,7 +303,14 @@
 		padding: 2px 8px;
 		place-self: center;
 		font-size: inherit;
-		animation: slide-in-top .5s ease 1;
+		clip-path: inset(100% 0 0 0);
+		transform: translateY(-100%);
+		transition: all .5s ease;
+
+		&.active {
+			clip-path: inset(0);
+			transform: translateY(0);
+		}
 	}
 
 	.tailed-button {
@@ -314,8 +337,13 @@
 		}
 	}
 
-	@media only screen and (max-width: 320px) {
-		#input-container {
+	@media only screen and (max-device-width: 350px)  {
+		#input-container>input {
+			--outline-thickness: 2px;
+		}
+
+		#input-container,
+		#input-container>* {
 			min-width: 0;
 		}
 	}
