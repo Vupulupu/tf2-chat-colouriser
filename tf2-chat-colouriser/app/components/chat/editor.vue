@@ -20,7 +20,7 @@
 	const inputWidth: Ref<string> = useState("input-width", () => "0");
 	const inputScroll: Ref<number> = useState("input-scroll", () => 0);
 	const inputTransition: Ref<string> = useState("input-transition-style", () => "");
-	const sayTextWidth: Ref<string> = useState("say-text-width", () => "0");
+	const sayTextWidth: ComputedRef<string> = computed(() => `${editorElements.sayText.offsetWidth ?? 0}px`);
 	const inputContents: Ref<string> = useState("input-contents", () => "");
 	const NBSP: string = ' '; // raw &nbsp; char to be use-able with any data binding
 	const inputSelect: Ref<IndexRange> = useState("input-selection", () => new IndexRange(0, 0));
@@ -65,10 +65,31 @@
 	provide("input-z-index", inputZIndex);
 
 	onMounted(() => {
+		// hot reload resets because Vue is dumb and resets the html input regardless of if there's a value attribute or not B)
+		inputContents.value = editorElements.messageInput.value;
+		resetInputSelection();
+		colouredRanges.value = [];
+
+		easeIntoInitWidth();
+
+		editorElements.messageInput.addEventListener("selectionchange", () => {
+			const inputEl: HTMLInputElement = editorElements.messageInput;
+			if (inputEl.selectionStart!==null && inputEl.selectionEnd!==null) {
+				inputSelect.value = new IndexRange(inputEl.selectionStart, inputEl.selectionEnd);
+			}
+		});
+
+		window.addEventListener("resize", () => {
+			if (editorElements.messageInput.offsetWidth === parseInt(minInputWidth.value)) {
+				easeIntoInitWidth();
+			}
+		});
+	});
+
+	function easeIntoInitWidth() {
 		const INIT_INPUT_ANIMATION_DURATION: number = 750;
 		const INPUT_WIDTH_PADDING: number = 25;
 		const INIT_WIDTH: string = (editorElements.messageLabel.offsetWidth - editorElements.sayText.offsetWidth + INPUT_WIDTH_PADDING) + "px";
-		sayTextWidth.value = `${editorElements.sayText.offsetWidth}px`;
 
 		inputTransition.value = `width ${INIT_INPUT_ANIMATION_DURATION}ms ease,` +
 			`min-width ${INIT_INPUT_ANIMATION_DURATION}ms ease,` +
@@ -78,14 +99,7 @@
 		setTimeout(() => {
 			inputTransition.value = "";
 		}, INIT_INPUT_ANIMATION_DURATION);
-
-		editorElements.messageInput.addEventListener("selectionchange", () => {
-			const inputEl: HTMLInputElement = editorElements.messageInput;
-			if (inputEl.selectionStart!==null && inputEl.selectionEnd!==null) {
-				inputSelect.value = new IndexRange(inputEl.selectionStart, inputEl.selectionEnd);
-			}
-		});
-	});
+	}
 
 	function updateMirror() {
 		const inputEl: HTMLInputElement = editorElements.messageInput;
