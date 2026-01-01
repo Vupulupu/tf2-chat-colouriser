@@ -112,9 +112,9 @@
 		inputScroll.value = editorElements.messageInput.scrollLeft;
 	}
 
-	function resetInputSelection() {
-		editorElements.messageInput.selectionStart = 0;
-		editorElements.messageInput.selectionEnd = 0;
+	function resetInputSelection(index: number = inputContents.value.length) {
+		editorElements.messageInput.selectionStart = index;
+		editorElements.messageInput.selectionEnd = index;
 	}
 
 	function colouriseSubstring(colour: Colour) {
@@ -124,7 +124,8 @@
 			const newColouredRange: ColouredRange = new ColouredRange(colour.hex.getCode().value, startIndex, endIndex);
 
 			Colourise.applyColour(newColouredRange, colouredRanges, DEFAULT_COLOUR);
-			resetInputSelection();
+			resetInputSelection(inputSelect.value.endIndex);
+			editorElements.messageInput.focus();
 		}
 	}
 
@@ -157,14 +158,14 @@
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used
 		</p>
-		<button v-if="colouredRanges.length" id="clipboard-copy" ref="clipboard-copy"
+		<button id="clipboard-copy" :class="{active: colouredRanges.length}" ref="clipboard-copy" :style="{zIndex: inputZIndex-1}"
 		        @click="copyTF2Message">
 			copy to clipboard
 		</button>
 		<LocalToast v-if="showCopyNotification" ref="copy-notification" :style="{zIndex: inputZIndex}"
 		            message="Message Copied !" @close="showCopyNotification=false;" />
 		<template v-if="inputSelectRange && !pickerIsOpen">
-			<div class="overlay" :style="{zIndex: inputZIndex-2}" @mousedown="resetInputSelection"></div>
+			<div class="overlay" :style="{zIndex: inputZIndex-2}" @mousedown="resetInputSelection(inputSelect.endIndex)"></div>
 			<div class="tailed-button" :style="{zIndex: inputZIndex-1}">
 				<div class="init-grow-wrapper">
 					<button @click="pickerIsOpen=true;">colour-ise</button>
@@ -182,6 +183,7 @@
 
 <style scoped>
 	#editor {
+		padding-bottom: 8em;
 		display: inline-grid;
 		align-self: center;
 		font-family: "tf2 secondary", "serif";
@@ -222,6 +224,7 @@
 	.message-mirror {
 		position: absolute;
 		left: 0;
+		white-space: nowrap;
 		user-select: none;
 		pointer-events: none;
 	}
@@ -294,22 +297,20 @@
 		user-select: none;
 	}
 
-	@keyframes slide-in-top {
-		0% { clip-path: inset(100% 0 0 0); transform: translateY(-100%); }
-		100% { clip-path: inset(0); transform: translateY(0); }
-	}
-	@keyframes slide-in-left {
-		0% { clip-path: inset(0 0 100% 0); transform: translateX(-100%); }
-		100% { clip-path: inset(0); transform: translateY(0); }
-	}
-
 	#clipboard-copy {
 		max-width: fit-content;
 		margin-top: 1em;
 		padding: 2px 8px;
 		place-self: center;
 		font-size: inherit;
-		animation: slide-in-top .5s ease 1;
+		clip-path: inset(100% 0 0 0);
+		transform: translateY(-100%);
+		transition: all .5s ease;
+
+		&.active {
+			clip-path: inset(0);
+			transform: translateY(0);
+		}
 	}
 
 	.tailed-button {
