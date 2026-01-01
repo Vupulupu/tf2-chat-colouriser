@@ -8,6 +8,9 @@
 	import { ColouredRange } from "~/utils/chat/coloured-range";
 	import * as Colourise from "~/utils/chat/colourise";
 	import stringDifferenceLength from "~/utils/string-difference";
+	import type { TemplateRef } from "vue";
+	import LocalToast from "~/components/local-toast.vue";
+	type LocalToast = InstanceType<typeof LocalToast>;
 
 	const editorElements: EditorElements = new EditorElements(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-label"),
@@ -29,6 +32,7 @@
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
 	const colouredRanges: Ref<ColouredRange[]> = useState("coloured-ranges", () => []);
 	const DEFAULT_COLOUR: HexColourModel = new HexColourModel("#fcedcd");
+	const copyNotification: TemplateRef<LocalToast> = useTemplateRef("copy-notification");
 	const showCopyNotification: Ref<boolean> = useState("show-copy-notification", () => false);
 
 	const COLOUR_OPTION_SIZE: string = "50px";
@@ -109,6 +113,7 @@
 	function copyTF2Message() {
 		resetInputSelection();
 		navigator.clipboard.writeText(Colourise.exportColouredRanges(inputContents.value, colouredRanges.value));
+		copyNotification.value?.resetDuration();
 		showCopyNotification.value = true;
 	}
 </script>
