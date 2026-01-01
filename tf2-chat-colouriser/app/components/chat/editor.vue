@@ -193,7 +193,7 @@
 
 	#input-container>*,
 	.say-label {
-		padding: 5px 10px calc(5px + .1em) 10px;
+		padding: var(--vertical-padding) var(--horizontal-padding) calc(var(--vertical-padding) * 2) var(--horizontal-padding);
 	}
 
 	.message-mirror,
@@ -212,24 +212,25 @@
 	#input-container>* {
 		overflow: hidden;
 		border: none;
-		border-top-right-radius: 10px;
-		border-bottom-right-radius: 10px;
+		border-top-right-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
 	}
 
 	#input-container {
 		position: relative;
-		padding: 5px 0;
 		&:focus-visible, &:focus-within {
 			background: hsla(var(--hsl-black) / 10%);
 		}
 	}
 
 	#input-container>input {
+		--outline-thickness: 3px;
 		position: relative;
 		-webkit-text-fill-color: transparent;
 		font-size: inherit;
+
 		&:focus-visible, &:focus-within {
-			outline: 3px solid var(--tf2-chat-selection-colour);
+			outline: var(--outline-thickness) solid var(--tf2-chat-selection-colour);
 		}
 		&::selection {
 			color: unset;
@@ -240,8 +241,7 @@
 	#input-container>* {
 		min-width: v-bind(minInputWidth);
 		width: v-bind(inputWidth);
-		max-width: calc(95dvw - v-bind(sayTextWidth));
-		padding: 5px 10px calc(5px + .1em) 10px;
+		max-width: calc(90dvw - v-bind(sayTextWidth));
 		color: var(--tf2-chat-colour);
 		text-align: center;
 		background: none;
@@ -250,24 +250,28 @@
 
 	.chat-container,
 	.say-label {
-		--container-border-style: 2px solid hsla(var(--hsl-white) / 50%);
+		--container-border-style: .1em solid hsla(var(--hsl-white) / 50%);
 	}
 
 	.chat-container {
-		margin: 5px 0;
+		--vertical-padding: .15em;
+		--horizontal-padding: .5em;
+		--border-radius: .5em;
+
+		margin: var(--horizontal-padding) 0;
 		justify-self: center;
 		box-sizing: border-box;
 		font-weight: bold;
 		background: hsla(var(--hsl-black) / 40%);
 		border: var(--container-border-style);
-		border-radius: 10px;
+		border-radius: var(--border-radius);
 		box-shadow: hsla(var(--hsl-black) / 50%) 1px 1px 4px,
 		            hsla(var(--hsl-black) / 30%) 3px 3px 7px,
 		            hsla(var(--hsl-black) / 10%) 5px 5px 10px;
 	}
 
 	.say-label {
-		padding-right: 5px;
+		padding-right: calc(var(--horizontal-padding) / 2);
 		border-right: var(--container-border-style);
 		user-select: none;
 	}
@@ -314,8 +318,13 @@
 		}
 	}
 
-	@media only screen and (max-width: 320px) {
-		#input-container {
+	@media only screen and (max-device-width: 350px)  {
+		#input-container>input {
+			--outline-thickness: 2px;
+		}
+
+		#input-container,
+		#input-container>* {
 			min-width: 0;
 		}
 	}

@@ -65,9 +65,16 @@
 	}
 
 	#instructions {
-		padding: 10px 20px;
+		margin: 0 2dvw;
+		padding: .4rem .8rem;
 		background: hsla(var(--hsl-black) / .25);
 		border: 1px solid hsla(var(--hsl-black) / .5);
 		border-radius: 10px;
+	}
+
+	@media only screen and (max-device-width: 350px) {
+		.h1group>h1 {
+			--h1-font-size: 1.5rem;
+		}
 	}
 </style>

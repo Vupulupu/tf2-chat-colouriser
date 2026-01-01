@@ -14,13 +14,13 @@
 
 <style>
 	main {
-		margin-top: 50px;
+		margin-top: 5dvh;
 	}
 
 	footer {
 		box-sizing: border-box;
-		width: 100%;
-		padding: 10px;
+		width: 100dvw;
+		padding: .5em;
 		display: flex;
 		justify-content: space-between;
 		position: fixed;
