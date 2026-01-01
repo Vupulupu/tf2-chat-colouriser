@@ -6,71 +6,80 @@
 		duration: { type: Number, default: 3000 },
 	});
 	const emit = defineEmits(["close"]);
+	defineExpose({resetDuration});
 
 	const ANIM_DURATION_MS: string = "500ms";
-	const animState: Ref<{opacity: number, transform: string, transition?: string}> = useState("anim-state", () => {
-		return {
-			opacity: 0,
-			transform: "translateY(100%)",
-			transition: `opacity ${ANIM_DURATION_MS} ease, transform ${ANIM_DURATION_MS} ease`};
-	})
 	const durationBar: ShallowRef<HTMLElement|null> = useTemplateRef("duration-bar");
-	const durationPercentProgress: Ref<string> = useState("duration-percent-progress", () => "100%");
+	const isOpen: Ref<boolean> = useState("is-open", () => false);
+	const isPaused: Ref<boolean> = useState("is-paused", () => false);
+	const isDurationActive: Ref<boolean> = useState("is-duration-active", () => false);
 	const durationMs: string = `${props.duration}ms`;
-	const closeTimeoutId: Ref<number> = useState("close-timeout-id", () => 0);
+	const tryCloseTimeoutId: Ref<number> = useState("close-timeout-id", () => 0);
 
 	onMounted(() => {
-		animState.value = {...animState.value, opacity: 1, transform: "translateY(0)"};
-		durationPercentProgress.value = "0";
-		closeTimeoutId.value = closeTimeout();
+		isOpen.value = true;
+		isDurationActive.value = true;
+
+		durationBar.value?.addEventListener("animationend", () => {
+			if (isDurationActive.value) {
+				tryCloseTimeoutId.value = tryCloseTimeout();
+			} else {
+				isDurationActive.value = true;
+			}
+		});
 	});
 
-	function closeTimeout() {
-		return setTimeout(() => closeToast(), props.duration);
-	}
-
-	function delayDurationBar() {
-		if (durationBar.value) {
-			durationBar.value.style.transition = `all ${ANIM_DURATION_MS} ease`;
-			durationPercentProgress.value = "100%";
-			durationBar.value.style.opacity = "50%";
-		}
-
-		clearTimeout(closeTimeoutId.value);
-	}
-
-	function resumeDurationBar() {
-		if (durationBar.value) {
-			durationBar.value.style.transition = "";
-			durationPercentProgress.value = "0";
-			durationBar.value.style.opacity = "";
-			durationBar.value.style.width = "";
-		}
-
-		closeTimeoutId.value = closeTimeout();
-	}
-
-	function closeToast() {
-		animState.value = {...animState.value, opacity: 0, transform: "translateY(100%)"};
-		setTimeout(() => {
+	function tryCloseTimeout() {
+		isOpen.value = false;
+		return setTimeout(() => {
 			emit("close");
-			durationPercentProgress.value = "100%";
+			isDurationActive.value = false;
 		}, parseInt(ANIM_DURATION_MS));
+	}
+
+	function delayDuration() {
+		clearTimeout(tryCloseTimeoutId.value);
+		isOpen.value = true;
+		isDurationActive.value = false;
+		isPaused.value = true;
+	}
+
+	function resumeDuration() {
+		isPaused.value = false;
+	}
+
+	function resetDuration() {
+		clearTimeout(tryCloseTimeoutId.value);
+		isDurationActive.value = false;
+		if (!isOpen.value) {
+			isOpen.value = true;
+			requestAnimationFrame(() => requestAnimationFrame(() => {
+				isDurationActive.value = true;
+			}));
+		}
 	}
 </script>
 
 <template>
-	<div class="toast-container" @mouseover="delayDurationBar();" @mouseleave="resumeDurationBar();">
-		<div class="toast" ref="toast" :style="animState">
+	<div class="toast-container" @mouseover="delayDuration" @mouseleave="resumeDuration">
+		<div class="toast" :class="{fade: !isOpen}" ref="toast">
 			<p class="message">
 				{{props.message}}
 			</p>
-			<div class="duration-bar" ref="duration-bar" />
+			<div class="duration-bar" :class="{active: isDurationActive && !isPaused}" ref="duration-bar" />
 		</div>
 	</div>
 </template>
 
 <style scoped>
+	@keyframes active-duration {
+		from { width: 100%; }
+		to { width: 0; }
+	}
+
+	@keyframes inactive-duration {
+		to { width: 100%; }
+	}
 
 	.toast-container {
 		position: fixed;
@@ -80,10 +89,18 @@
 	}
 
 	.toast-container>.toast {
+		opacity: 1;
 		background-color: var(--tf2-init-menu-head-colour);
 		border-radius: .2em;
 		overflow: hidden;
 		transform-origin: bottom center;
+		transform: translateY(0);
+		transition: all v-bind(ANIM_DURATION_MS) ease;
+
+		&.fade {
+			opacity: 0;
+			transform: translateY(100%);
+		}
 	}
 
 	.message {
@@ -94,10 +111,14 @@
 	}
 
 	.duration-bar {
-		width: v-bind(durationPercentProgress);
 		height: .25em;
-		background-color: hsl(var(--hsl-black) / 50%);
-		transition: width v-bind(durationMs) linear,
-			opacity v-bind(ANIM_DURATION_MS) ease;
+		background-color: hsl(var(--hsl-black) / 25%);
+		transition: all v-bind(ANIM_DURATION_MS) ease;
+		animation: inactive-duration v-bind(ANIM_DURATION_MS) ease forwards 1;
+
+		&.active {
+			background-color: hsl(var(--hsl-black) / 50%);
+			animation: active-duration v-bind(durationMs) linear forwards 1;
+		}
 	}
 </style>
