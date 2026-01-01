@@ -1,9 +1,4 @@
 <script setup lang="ts">
-	const RESET_COLOUR_CTRL: string = ""; // 0x01 - reset to default colour
-	const SET_COLOUR_CTRL: string = "";   // 0x07 - initiates and marks start of opaque hex code
-	const SET_ALPHA_CTRL: string = "\b";   // 0x08 - marks start of alpha hex code
-	const OPAQUE_STARTING_BUFFER: string = SET_COLOUR_CTRL + "hihi<3" + SET_COLOUR_CTRL;
-	const ALPHA_STARTING_BUFFER: string = SET_COLOUR_CTRL + "hihi<3" + SET_ALPHA_CTRL;
 </script>
 
 <template>

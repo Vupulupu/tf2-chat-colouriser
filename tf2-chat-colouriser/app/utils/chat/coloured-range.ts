@@ -17,6 +17,10 @@ export class ColouredRange extends IndexRange {
 		this.COLOUR_HEX.setCode(hexStr);
 	}
 
+	public equalColours(compareRange: ColouredRange) {
+		return this.colourHex === compareRange.colourHex;
+	}
+
 	public override clone(): ColouredRange {
 		return new ColouredRange(this.colourHex, this.startIndex, this.endIndex);
 	}

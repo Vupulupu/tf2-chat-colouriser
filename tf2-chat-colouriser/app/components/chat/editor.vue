@@ -3,10 +3,14 @@
 	import { EditorElements } from "~/utils/chat/editor-elements";
 	import MessagePreview from "~/components/chat/message-preview.vue";
 	import type { Colour } from "~/utils/colour-picker/colour";
+	import { HexColourModel } from "~/utils/colour-picker/hex-colour-model";
 	import { IndexRange } from "~/utils/chat/index-range";
 	import { ColouredRange } from "~/utils/chat/coloured-range";
 	import * as Colourise from "~/utils/chat/colourise";
 	import stringDifferenceLength from "~/utils/string-difference";
+	import type { TemplateRef } from "vue";
+	import LocalToast from "~/components/local-toast.vue";
+	type LocalToast = InstanceType<typeof LocalToast>;
 
 	const editorElements: EditorElements = new EditorElements(useTemplateRef("message-label"),
 	                                                                useTemplateRef("say-label"),
@@ -27,6 +31,9 @@
 	});
 	const pickerIsOpen: Ref<boolean> = useState("picker-is-open", () => false);
 	const colouredRanges: Ref<ColouredRange[]> = useState("coloured-ranges", () => []);
+	const DEFAULT_COLOUR: HexColourModel = new HexColourModel("#fcedcd");
+	const copyNotification: TemplateRef<LocalToast> = useTemplateRef("copy-notification");
+	const showCopyNotification: Ref<boolean> = useState("show-copy-notification", () => false);
 
 	const COLOUR_OPTION_SIZE: string = "50px";
 	const COLOUR_OPTION_TAIL_WIDTH: string = "15px";
@@ -98,9 +105,16 @@
 			const endIndex: number = inputSelect.value.endIndex;
 			const newColouredRange: ColouredRange = new ColouredRange(colour.hex.getCode().value, startIndex, endIndex);
 
-			Colourise.applyColour(newColouredRange, colouredRanges);
+			Colourise.applyColour(newColouredRange, colouredRanges, DEFAULT_COLOUR);
 			resetInputSelection();
 		}
+	}
+
+	function copyTF2Message() {
+		resetInputSelection();
+		navigator.clipboard.writeText(Colourise.exportColouredRanges(inputContents.value, colouredRanges.value));
+		copyNotification.value?.resetDuration();
+		showCopyNotification.value = true;
 	}
 </script>
 
@@ -125,6 +139,12 @@
 		   :style="{ textShadow: tfStyleTextShadow('var(--tf2-shadow-colour)', -1, 0) }">
 			0/127 bytes used
 		</p>
+		<button v-if="colouredRanges.length" id="clipboard-copy" ref="clipboard-copy"
+		        @click="copyTF2Message">
+			copy to clipboard
+		</button>
+		<LocalToast v-if="showCopyNotification" ref="copy-notification" :style="{zIndex: inputZIndex}"
+		            message="Message Copied !" @close="showCopyNotification=false;" />
 		<template v-if="inputSelectRange && !pickerIsOpen">
 			<div class="overlay" :style="{zIndex: inputZIndex-2}" @mousedown="resetInputSelection"></div>
 			<div class="tailed-button" :style="{zIndex: inputZIndex-1}">
@@ -147,17 +167,20 @@
 		display: inline-grid;
 		align-self: center;
 		font-family: "tf2 secondary", "serif";
+		font-size: var(--verdana-font-size);
 	}
 
 	.message-label {
+		width: fit-content;
 		color: var(--tf2-shadow-colour);
+		font-size: var(--main-font-size);
 		text-align: left;
 		letter-spacing: 1px;
 	}
 
 	#message-byte-length {
+		place-self: end;
 		font-size: calc(var(--main-font-size) * .75);
-		text-align: right;
 		font-weight: bold;
 	}
 
@@ -166,7 +189,6 @@
 		box-sizing: border-box;
 		font-family: "verdana", "sans-serif";
 		font-weight: bold;
-		font-size: var(--verdana-font-size);
 	}
 
 	#input-container>*,
@@ -205,6 +227,7 @@
 	#input-container>input {
 		position: relative;
 		-webkit-text-fill-color: transparent;
+		font-size: inherit;
 		&:focus-visible, &:focus-within {
 			outline: 3px solid var(--tf2-chat-selection-colour);
 		}
@@ -247,6 +270,24 @@
 		padding-right: 5px;
 		border-right: var(--container-border-style);
 		user-select: none;
+	}
+
+	@keyframes slide-in-top {
+		0% { clip-path: inset(100% 0 0 0); transform: translateY(-100%); }
+		100% { clip-path: inset(0); transform: translateY(0); }
+	}
+	@keyframes slide-in-left {
+		0% { clip-path: inset(0 0 100% 0); transform: translateX(-100%); }
+		100% { clip-path: inset(0); transform: translateY(0); }
+	}
+
+	#clipboard-copy {
+		max-width: fit-content;
+		margin-top: 1em;
+		padding: 2px 8px;
+		place-self: center;
+		font-size: inherit;
+		animation: slide-in-top .5s ease 1;
 	}
 
 	.tailed-button {
