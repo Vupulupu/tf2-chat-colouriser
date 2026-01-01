@@ -7,7 +7,7 @@
 		<slot/>
 	</main>
 	<footer>
-		<p>v.2025.0a</p>
+		<p>v.0.1.0</p>
 		<p>Created by <a href="https://steamcommunity.com/id/Vupulupu/">Vupulupu</a></p>
 	</footer>
 </template>
