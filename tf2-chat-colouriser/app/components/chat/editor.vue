@@ -39,26 +39,28 @@
 	const copyNotification: TemplateRef<LocalToast> = useTemplateRef("copy-notification");
 	const showCopyNotification: Ref<boolean> = useState("show-copy-notification", () => false);
 
+	const selectWindowScrollX: Ref<number> = useState("select-window-scroll-x", () => 0);
+	const selectWindowScrollY: Ref<number> = useState("select-window-scroll-y", () => 0);
 	const COLOUR_OPTION_SIZE: string = "50px";
 	const COLOUR_OPTION_TAIL_WIDTH: string = "15px";
 	const COLOUR_OPTION_TAIL_HEIGHT: string = "20px";
 	const colourOptionTailOffset: ComputedRef<string> = computed(() => {
 		if (!inputSelectRect.value || !editorElements.messageInput) return "0";
 		else {
-			const inputCenter: number = editorElements.messageInput.getBoundingClientRect().left+(editorElements.messageInput.offsetWidth/2);
-			const offsetFromCentre: number = inputSelectRect.value.left+(inputSelectRect.value.width/2)-inputCenter;
+			const inputCentre: number = editorElements.messageInput.getBoundingClientRect().left+(editorElements.messageInput.offsetWidth/2);
+			const offsetFromCentre: number = selectWindowScrollX.value+inputSelectRect.value.left+(inputSelectRect.value.width/2)-inputCentre;
 			return `${offsetFromCentre/(editorElements.messageInput.offsetWidth/2) * 10}px`
 		}
 	});
 	const selectionPositionCentreX: ComputedRef<string> = computed(() => {
 		if (!inputSelectRect.value) return "0";
 		else return `clamp(2rem,` +
-			`${inputSelectRect.value.left + (inputSelectRect.value.width/2) - parseInt(colourOptionTailOffset.value)}px,` +
+			`${selectWindowScrollX.value+inputSelectRect.value.left + (inputSelectRect.value.width/2) - parseInt(colourOptionTailOffset.value)}px,` +
 			`calc(100dvw - ${COLOUR_OPTION_SIZE}))`;
 	});
 	const selectionPositionTopY: ComputedRef<string> = computed(() => {
 		if (!inputSelectRect.value) return "0";
-		else return `${(inputSelectRect.value.top - parseInt(COLOUR_OPTION_TAIL_HEIGHT) - 10)}px`;
+		else return `${(selectWindowScrollY.value + inputSelectRect.value.top - parseInt(COLOUR_OPTION_TAIL_HEIGHT) - 10)}px`;
 	});
 
 	const inputZIndex: number = 10;
@@ -84,6 +86,11 @@
 				easeIntoInitWidth();
 			}
 		});
+	});
+
+	watch([selectionPositionCentreX, selectionPositionTopY], () => {
+		selectWindowScrollX.value = window.scrollX;
+		selectWindowScrollY.value = window.scrollY;
 	});
 
 	function easeIntoInitWidth() {
