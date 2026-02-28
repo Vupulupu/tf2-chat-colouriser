@@ -19,6 +19,14 @@
 			const messagePreview: ShallowRef<HTMLSpanElement|null> = useTemplateRef("root-span");
 			let messageParts: VNode[] = [];
 
+			onMounted(() => {
+				window.addEventListener("resize", updateSelectionDOMRange);
+			});
+
+			onUnmounted(() => {
+				window.removeEventListener("resize", updateSelectionDOMRange);
+			})
+
 			onUpdated(() => {
 				if (messagePreview.value) {
 					messagePreview.value.style.width = "fit-content";
@@ -34,12 +42,16 @@
 				messageParts = buildSpanTree();
 			});
 			watch(selection, () => {
-				emit("selectRange", getSelectionDOMRange(selection.value, messagePreview.value));
+				updateSelectionDOMRange();
 			}, {flush: "post"});
 
 			return () => h( "span", {ref: "root-span"}, messageParts);
 
 
+
+			function updateSelectionDOMRange() {
+				emit("selectRange", getSelectionDOMRange(selection.value, messagePreview.value));
+			}
 
 			function buildSpanTree(): VNode[] {
 				const messageParts: VNode[] = [];
