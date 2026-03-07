@@ -11,9 +11,9 @@
 				<a href="https://skywur.github.io/tf2-gradient-generator/" target="_blank">Gradient&nbsp;Chat&nbsp;Generator</a>
 			</p>
 		</hgroup>
-		<div id="instructions">
-			<p>Enter the text you want to colour below</p>
-			<p>Select a portion of your text to colour just that part, leaving the rest unchanged !</p>
+		<div id="alert">
+			<p>In the recent <a href="https://www.teamfortress.com/post.php?id=265126">TF2 update</a>, coloured messages are now broken because no fun is allowed.
+				<br />This trick can still be used in other source games, including TF : Classified !</p>
 		</div>
 		<ChatEditor />
 	</section>
@@ -64,12 +64,15 @@
 		border-radius: 10px;
 	}
 
-	#instructions {
-		margin: 0 2dvw;
-		padding: .4rem .8rem;
-		background: hsla(var(--hsl-black) / .25);
-		border: 1px solid hsla(var(--hsl-black) / .5);
+	#alert {
+		margin: auto;
+		padding: .4rem 1.5rem;
+		background: #f004;
+		border: 2px solid #f008;
 		border-radius: 10px;
+		font-size: .75rem;
+		font-family: "tf2 secondary", "sans-serif";
+		text-shadow: 1px 1px 2px black;
 	}
 
 	@media only screen and (max-device-width: 350px) {
